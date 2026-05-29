@@ -83,7 +83,7 @@ class MusicXmlWriter:
                 if measure_index == 0:
                     self._append_attributes(measure_element, part)
                     if part_index == 0 and part.tempo_text:
-                        self._append_direction(measure_element, Direction(kind="tempo", value=part.tempo_text), None)
+                        self._append_direction(measure_element, Direction(kind="tempo", value=part.tempo_text), None, None)
                 if measure_index in multiple_rest_starts:
                     self._append_multiple_rest(measure_element, multiple_rest_starts[measure_index])
 
@@ -250,7 +250,7 @@ class MusicXmlWriter:
     ) -> str | None:
         for event in measure.events:
             for direction in event.directions:
-                active_wedge = self._append_direction(measure_element, direction, active_wedge)
+                active_wedge = self._append_direction(measure_element, direction, active_wedge, voice_id)
             trill_line_type = self._trill_line_type(event, active_trill_lines)
             self._append_event(measure_element, part, voice_id, measure, event, trill_line_type=trill_line_type)
         return active_wedge
@@ -370,9 +370,15 @@ class MusicXmlWriter:
         measure_element: ET.Element,
         direction: Direction,
         active_wedge: str | None,
+        voice_id: str | None,
     ) -> str | None:
         if direction.kind == "dynamic" and active_wedge is not None:
-            active_wedge = self._append_direction(measure_element, Direction(kind="wedge", value="stop"), active_wedge)
+            active_wedge = self._append_direction(
+                measure_element,
+                Direction(kind="wedge", value="stop"),
+                active_wedge,
+                voice_id,
+            )
 
         if direction.kind == "wedge":
             if direction.value == "stop":
@@ -401,6 +407,9 @@ class MusicXmlWriter:
         else:
             words = ET.SubElement(direction_type, "words")
             words.text = direction.value
+        if voice_id is not None:
+            voice = ET.SubElement(direction_element, "voice")
+            voice.text = voice_id
         return next_active_wedge
 
     def _append_time_modification(self, note_element: ET.Element, modification: tuple[int, int]) -> None:

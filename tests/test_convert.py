@@ -377,6 +377,63 @@ def test_cli_convert_can_merge_partcombine_groups(repo_root: Path, sample_entryp
     assert "<part-name>Flûte I</part-name>" not in xml
 
 
+def test_cli_convert_combined_mode_scopes_wedges_by_voice(
+    repo_root: Path,
+    sample_entrypoint: Path,
+    tmp_path: Path,
+) -> None:
+    output_path = tmp_path / "sample-combined-wedges.musicxml"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "ly2mxml",
+            "convert",
+            str(sample_entrypoint),
+            "--partcombine-mode",
+            "combined",
+            "-o",
+            str(output_path),
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    assert result.stderr.strip() == ""
+
+    root = ET.parse(output_path).getroot()
+    orphan_stops: list[tuple[str, str | None, str]] = []
+    open_wedges: list[tuple[str, str, str | None]] = []
+    saw_secondary_voice = False
+
+    for part in root.findall("part"):
+        active_wedges: dict[str, tuple[str, str | None]] = {}
+        for measure in part.findall("measure"):
+            for direction in measure.findall("direction"):
+                wedge = direction.find("./direction-type/wedge")
+                if wedge is None:
+                    continue
+                voice = direction.findtext("voice") or "1"
+                if voice != "1":
+                    saw_secondary_voice = True
+                wedge_type = wedge.attrib.get("type")
+                if wedge_type in {"crescendo", "diminuendo"}:
+                    active_wedges[voice] = (wedge_type, measure.attrib.get("number"))
+                elif wedge_type == "stop":
+                    if voice not in active_wedges:
+                        orphan_stops.append((part.attrib["id"], measure.attrib.get("number"), voice))
+                    active_wedges.pop(voice, None)
+        for voice, (_, measure_number) in sorted(active_wedges.items()):
+            open_wedges.append((part.attrib["id"], voice, measure_number))
+
+    assert saw_secondary_voice
+    assert orphan_stops == []
+    assert open_wedges == []
+
+
 def test_build_score_attaches_addlyrics(lyrics_entrypoint: Path) -> None:
     score = LilypondConverter().build_score(lyrics_entrypoint)
 

@@ -131,6 +131,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -156,6 +157,7 @@
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -502,11 +504,13 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <direction>
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -958,6 +962,7 @@
             <p />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -1103,6 +1108,7 @@
         <direction-type>
           <words>cresc.</words>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -1246,6 +1252,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -2047,6 +2054,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -2438,6 +2446,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -2660,6 +2669,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -3320,6 +3330,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -3345,6 +3356,7 @@
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -3691,11 +3703,13 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <direction>
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -4147,6 +4161,7 @@
             <p />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -4292,6 +4307,7 @@
         <direction-type>
           <words>cresc.</words>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -4435,6 +4451,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -4996,6 +5013,7 @@
             <sf />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -5226,6 +5244,7 @@
             <sf />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -5383,6 +5402,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -6271,6 +6291,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -6292,6 +6313,7 @@
         <direction-type>
           <wedge type="diminuendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -6387,6 +6409,7 @@
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <grace />
@@ -6442,6 +6465,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -6515,6 +6539,7 @@
         <direction-type>
           <wedge type="diminuendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -6588,6 +6613,7 @@
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -6641,6 +6667,7 @@
             <sfp />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -6700,6 +6727,7 @@
             <sfp />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -6815,6 +6843,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -6836,6 +6865,7 @@
         <direction-type>
           <wedge type="diminuendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -6931,6 +6961,7 @@
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <grace />
@@ -6986,6 +7017,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -7059,6 +7091,7 @@
         <direction-type>
           <wedge type="diminuendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -7132,6 +7165,7 @@
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -7185,6 +7219,7 @@
             <sfp />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -7244,6 +7279,7 @@
             <sfp />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -7345,6 +7381,7 @@
             <p />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -7490,6 +7527,7 @@
         <direction-type>
           <words>cresc.</words>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -7633,6 +7671,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -7949,6 +7988,7 @@
             <p />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -8002,6 +8042,7 @@
         <direction-type>
           <words>cresc.</words>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -8750,6 +8791,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -9141,6 +9183,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -9363,6 +9406,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -9444,6 +9488,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -9971,6 +10016,7 @@
             <ff />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -10379,6 +10425,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -10965,6 +11012,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -11106,6 +11154,7 @@
         <direction-type>
           <wedge type="diminuendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -11179,6 +11228,7 @@
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -11268,6 +11318,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -11289,11 +11340,13 @@
         <direction-type>
           <wedge type="diminuendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <direction>
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -11587,6 +11640,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -11610,6 +11664,7 @@
         <direction-type>
           <wedge type="diminuendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -11631,6 +11686,7 @@
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -11804,6 +11860,7 @@
         <direction-type>
           <wedge type="diminuendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -11908,6 +11965,7 @@
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -11954,6 +12012,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -12027,6 +12086,7 @@
         <direction-type>
           <wedge type="diminuendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -12100,6 +12160,7 @@
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <direction>
         <direction-type>
@@ -12107,6 +12168,7 @@
             <p />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -12252,6 +12314,7 @@
         <direction-type>
           <words>cresc.</words>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -12395,6 +12458,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -12631,6 +12695,7 @@
             <p />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -12701,6 +12766,7 @@
         <direction-type>
           <words>cresc.</words>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -13150,6 +13216,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -13280,6 +13347,7 @@
             <sf />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -13510,6 +13578,7 @@
             <sf />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -13667,6 +13736,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -13748,6 +13818,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -14191,6 +14262,7 @@
             <ff />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -14520,6 +14592,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -15012,6 +15085,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -15051,11 +15125,13 @@
         <direction-type>
           <wedge type="diminuendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <direction>
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -15223,6 +15299,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -15246,6 +15323,7 @@
         <direction-type>
           <wedge type="diminuendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -15267,6 +15345,7 @@
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -15320,6 +15399,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -15343,6 +15423,7 @@
         <direction-type>
           <wedge type="diminuendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -15366,6 +15447,7 @@
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -15441,6 +15523,7 @@
             <sf />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -15472,6 +15555,7 @@
             <sf />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -15505,6 +15589,7 @@
             <sf />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -15536,6 +15621,7 @@
             <sf />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -15569,6 +15655,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -15601,6 +15688,7 @@
         <direction-type>
           <words>cresc.</words>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -15637,6 +15725,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -15906,6 +15995,7 @@
             <p />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -15973,6 +16063,7 @@
         <direction-type>
           <words>cresc.</words>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -16382,6 +16473,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -16512,6 +16604,7 @@
             <ff />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -16578,6 +16671,7 @@
             <sf />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -16697,6 +16791,7 @@
             <sf />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -16799,6 +16894,7 @@
             <sf />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -16956,6 +17052,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -17037,6 +17134,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -17312,6 +17410,7 @@
             <ff />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -18191,6 +18290,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -18230,11 +18330,13 @@
         <direction-type>
           <wedge type="diminuendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <direction>
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -18402,6 +18504,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -18425,6 +18528,7 @@
         <direction-type>
           <wedge type="diminuendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -18446,6 +18550,7 @@
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -18499,6 +18604,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -18522,6 +18628,7 @@
         <direction-type>
           <wedge type="diminuendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -18545,6 +18652,7 @@
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -18620,6 +18728,7 @@
             <sf />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -18651,6 +18760,7 @@
             <sf />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -18684,6 +18794,7 @@
             <sf />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -18715,6 +18826,7 @@
             <sf />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -18748,6 +18860,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -18780,6 +18893,7 @@
         <direction-type>
           <words>cresc.</words>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -18816,6 +18930,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -19085,6 +19200,7 @@
             <p />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -19152,6 +19268,7 @@
         <direction-type>
           <words>cresc.</words>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -19561,6 +19678,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -19691,6 +19809,7 @@
             <ff />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -19757,6 +19876,7 @@
             <sf />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -19876,6 +19996,7 @@
             <sf />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -19978,6 +20099,7 @@
             <sf />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -20135,6 +20257,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -20216,6 +20339,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -20491,6 +20615,7 @@
             <ff />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -21370,6 +21495,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -21391,6 +21517,7 @@
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -21596,6 +21723,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -21617,11 +21745,13 @@
         <direction-type>
           <wedge type="diminuendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <direction>
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -21925,6 +22055,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -21959,6 +22090,7 @@
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <direction>
         <direction-type>
@@ -21966,6 +22098,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -22190,6 +22323,7 @@
             <p />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -22387,6 +22521,7 @@
         <direction-type>
           <words>cresc.</words>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -22465,6 +22600,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -22909,6 +23045,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -23301,6 +23438,7 @@
             <ff />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -23900,6 +24038,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -23921,6 +24060,7 @@
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -24126,6 +24266,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -24147,11 +24288,13 @@
         <direction-type>
           <wedge type="diminuendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <direction>
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -24455,6 +24598,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -24489,6 +24633,7 @@
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <direction>
         <direction-type>
@@ -24496,6 +24641,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -24720,6 +24866,7 @@
             <p />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -24917,6 +25064,7 @@
         <direction-type>
           <words>cresc.</words>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -25005,6 +25153,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -25456,6 +25605,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -25613,6 +25763,7 @@
             <ff />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -26212,6 +26363,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -26233,6 +26385,7 @@
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -26303,6 +26456,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -26324,11 +26478,13 @@
         <direction-type>
           <wedge type="diminuendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <direction>
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -26668,6 +26824,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -26872,6 +27029,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -26924,6 +27082,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -27492,6 +27651,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -27513,6 +27673,7 @@
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -27583,6 +27744,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -27604,11 +27766,13 @@
         <direction-type>
           <wedge type="diminuendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <direction>
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -27948,6 +28112,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -28152,6 +28317,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -28204,6 +28370,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -28772,6 +28939,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -28793,6 +28961,7 @@
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -28863,6 +29032,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -28884,11 +29054,13 @@
         <direction-type>
           <wedge type="diminuendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <direction>
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -29228,6 +29400,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -29408,6 +29581,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -30235,6 +30409,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -30256,6 +30431,7 @@
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -30326,6 +30502,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -30347,11 +30524,13 @@
         <direction-type>
           <wedge type="diminuendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <direction>
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -30691,6 +30870,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -30871,6 +31051,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -31698,6 +31879,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -31719,6 +31901,7 @@
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -31789,6 +31972,7 @@
         <direction-type>
           <wedge type="crescendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -31810,11 +31994,13 @@
         <direction-type>
           <wedge type="diminuendo" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <direction>
         <direction-type>
           <wedge type="stop" />
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -32071,6 +32257,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -32251,6 +32438,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -33264,6 +33452,7 @@
             <p />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -33317,6 +33506,7 @@
         <direction-type>
           <words>cresc.</words>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
@@ -33842,6 +34032,7 @@
             <f />
           </dynamics>
         </direction-type>
+        <voice>1</voice>
       </direction>
       <note>
         <pitch>
