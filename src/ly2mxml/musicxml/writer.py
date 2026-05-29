@@ -72,6 +72,7 @@ class MusicXmlWriter:
             part_element = ET.SubElement(root, "part", id=part.id)
             measure_count = max((len(voice.measures) for voice in part.voices), default=0)
             multiple_rest_starts, multiple_rest_continuations = self._multiple_rest_map(part, measure_count)
+            active_trill_lines: dict[str, set[tuple[tuple[str, int, int], ...]]] = {voice.id: set() for voice in part.voices}
             for measure_index in range(measure_count):
                 measure_element = ET.SubElement(part_element, "measure", number=str(measure_index + 1))
                 if measure_index == 0:
@@ -90,7 +91,7 @@ class MusicXmlWriter:
                         backup = ET.SubElement(measure_element, "backup")
                         duration = ET.SubElement(backup, "duration")
                         duration.text = str(self._duration_to_units(part.measure_length, part.divisions))
-                    self._append_measure_voice(measure_element, part, voice.id, measure)
+                    self._append_measure_voice(measure_element, part, voice.id, measure, active_trill_lines[voice.id])
                 barline_style = self._barline_for_measure(part, measure_index)
                 if barline_style is not None:
                     self._append_barline(measure_element, barline_style)
@@ -223,13 +224,29 @@ class MusicXmlWriter:
         line = ET.SubElement(clef, "line")
         line.text = str(part.clef_line)
 
-    def _append_measure_voice(self, measure_element: ET.Element, part: Part, voice_id: str, measure) -> None:
+    def _append_measure_voice(
+        self,
+        measure_element: ET.Element,
+        part: Part,
+        voice_id: str,
+        measure,
+        active_trill_lines: set[tuple[tuple[str, int, int], ...]],
+    ) -> None:
         for event in measure.events:
             for direction in event.directions:
                 self._append_direction(measure_element, direction)
-            self._append_event(measure_element, part, voice_id, measure, event)
+            trill_line_type = self._trill_line_type(event, active_trill_lines)
+            self._append_event(measure_element, part, voice_id, measure, event, trill_line_type=trill_line_type)
 
-    def _append_event(self, measure_element: ET.Element, part: Part, voice_id: str, measure, event: MusicEvent) -> None:
+    def _append_event(
+        self,
+        measure_element: ET.Element,
+        part: Part,
+        voice_id: str,
+        measure,
+        event: MusicEvent,
+        trill_line_type: str | None = None,
+    ) -> None:
         if event.is_rest:
             note = ET.SubElement(measure_element, "note")
             if event.is_cue:
@@ -306,11 +323,13 @@ class MusicXmlWriter:
             if event.tuplet_stop:
                 notations = self._ensure_notations(note, notations)
                 ET.SubElement(notations, "tuplet", type="stop", number="1")
-            if event.ornaments:
+            if event.ornaments or trill_line_type is not None:
                 notations = self._ensure_notations(note, notations)
                 ornaments = ET.SubElement(notations, "ornaments")
                 for ornament in event.ornaments:
                     ET.SubElement(ornaments, ornament)
+                if trill_line_type is not None:
+                    ET.SubElement(ornaments, "wavy-line", type=trill_line_type)
             if event.articulations:
                 notations = self._ensure_notations(note, notations)
                 articulations = ET.SubElement(notations, "articulations")
@@ -372,6 +391,36 @@ class MusicXmlWriter:
         if notations is None:
             notations = ET.SubElement(note_element, "notations")
         return notations
+
+    def _trill_line_type(
+        self,
+        event: MusicEvent,
+        active_trill_lines: set[tuple[tuple[str, int, int], ...]],
+    ) -> str | None:
+        signature = self._event_signature(event)
+        if signature is None:
+            return None
+
+        has_trill = "trill-mark" in event.ornaments
+        is_active = signature in active_trill_lines
+
+        if has_trill and event.tie_start and not is_active:
+            active_trill_lines.add(signature)
+            return "start"
+
+        if is_active and event.tie_stop and event.tie_start:
+            return "continue"
+
+        if is_active and event.tie_stop:
+            active_trill_lines.remove(signature)
+            return "stop"
+
+        return None
+
+    def _event_signature(self, event: MusicEvent) -> tuple[tuple[str, int, int], ...] | None:
+        if event.is_rest or not event.pitches:
+            return None
+        return tuple((pitch.step, pitch.alter, pitch.octave) for pitch in event.pitches)
 
     def _ensure_attributes(self, measure_element: ET.Element) -> ET.Element:
         attributes = measure_element.find("attributes")

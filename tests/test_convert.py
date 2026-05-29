@@ -232,6 +232,26 @@ def test_cli_convert_writes_relative_tie_stops(repo_root: Path, relative_tie_ent
     assert xml.count('<tie type="stop" />') == 2
 
 
+def test_cli_convert_writes_trill_wavy_line(repo_root: Path, tied_trill_entrypoint: Path, tmp_path: Path) -> None:
+    output_path = tmp_path / "tied_trill.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(tied_trill_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert xml.count('<trill-mark />') == 1
+    assert xml.count('<wavy-line type="start" />') == 1
+    assert xml.count('<wavy-line type="continue" />') == 1
+    assert xml.count('<wavy-line type="stop" />') == 1
+
+
 def test_cli_convert_can_merge_partcombine_groups(repo_root: Path, sample_entrypoint: Path, tmp_path: Path) -> None:
     output_path = tmp_path / "sample-combined-cli.musicxml"
 
@@ -323,6 +343,17 @@ def test_build_score_resolves_relative_tied_notes(relative_tie_entrypoint: Path)
     note_events = [event for measure in score.parts[0].voices[0].measures for event in measure.events if event.is_note]
 
     assert [event.pitches[0].octave for event in note_events] == [3, 3, 3]
+    assert [(event.tie_start, event.tie_stop) for event in note_events] == [(True, False), (True, True), (False, True)]
+
+
+def test_build_score_keeps_single_trill_mark_on_tied_chain(tied_trill_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(tied_trill_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    note_events = [event for measure in score.parts[0].voices[0].measures for event in measure.events if event.is_note]
+
+    assert [event.ornaments for event in note_events] == [["trill-mark"], [], []]
     assert [(event.tie_start, event.tie_stop) for event in note_events] == [(True, False), (True, True), (False, True)]
 
 
