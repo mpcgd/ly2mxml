@@ -5,7 +5,7 @@ from fractions import Fraction
 from math import lcm
 from pathlib import Path
 import re
-from typing import Iterable, Iterator
+from typing import Iterable, Iterator, Mapping
 
 from ly.music import items
 
@@ -252,6 +252,18 @@ class _FlattenedNode:
     resolved_pitches: tuple[object, ...] = ()
 
 
+@dataclass(slots=True)
+class _VoiceBuildState:
+    current_measure: Measure
+    elapsed: Fraction = Fraction(0, 1)
+    timeline_position: Fraction = Fraction(0, 1)
+    pending_directions: list[Direction] = field(default_factory=list)
+    last_event: MusicEvent | None = None
+    attachment_event: MusicEvent | None = None
+    pending_tie_signature: tuple[tuple[str, int, int], ...] | None = None
+    active_ottava: int | None = None
+
+
 @dataclass(frozen=True, slots=True)
 class _LyricToken:
     kind: str
@@ -264,6 +276,33 @@ class _PartCombinePlan:
     names: tuple[str, ...]
     short_names: tuple[str | None, ...]
     group_id: str
+
+
+@dataclass(frozen=True, slots=True)
+class _PartBuildContext:
+    staff_index: int
+    name: str | None
+    short_name: str | None
+    clef_sign: str
+    clef_line: int
+    global_settings: _GlobalSettings
+
+
+@dataclass(frozen=True, slots=True)
+class _StaffPartPlan:
+    part_context: _PartBuildContext
+    voice_refs: tuple[_VoiceReference, ...]
+    partcombine_groups: tuple[_PartCombinePlan, ...]
+    lyric_sources: dict[str, list[tuple[items.Item, _WalkState]]]
+
+
+@dataclass(slots=True)
+class _StaffPlanningState:
+    global_ref: _VoiceReference
+    voice_refs: list[_VoiceReference] = field(default_factory=list)
+    partcombine_groups: list[_PartCombinePlan] = field(default_factory=list)
+    lyric_sources: dict[str, list[tuple[items.Item, _WalkState]]] = field(default_factory=dict)
+    last_voice_ref: _VoiceReference | None = None
 
 
 class LilypondConverter:
@@ -296,7 +335,7 @@ class LilypondConverter:
         for diagnostic in analysis.diagnostics:
             if diagnostic.code == "unresolved-user-command":
                 name = diagnostic.message.rsplit("\\", 1)[-1]
-                if name in KNOWN_BUILTIN_USER_COMMANDS or name in scheme_values:
+                if name in KNOWN_BUILTIN_USER_COMMANDS or name in scheme_values or name in analysis.assignments:
                     continue
             diagnostics.append(diagnostic)
 
@@ -392,25 +431,13 @@ class LilypondConverter:
 
     def _collect_assignments(self, document: items.Document) -> dict[str, items.Item | None]:
         assignments: dict[str, items.Item | None] = {}
-        visited_paths: set[Path] = set()
 
         def visit(doc: items.Document) -> None:
-            raw_file_name = getattr(doc.document, "filename", None)
-            resolved_file_name = Path(raw_file_name).resolve() if raw_file_name else None
-            if resolved_file_name in visited_paths:
-                return
-            if resolved_file_name is not None:
-                visited_paths.add(resolved_file_name)
-
             for node in doc:
                 if isinstance(node, items.Assignment):
                     assignments[str(node.name())] = node.value()
-                elif isinstance(node, items.Include):
-                    included = doc.get_included_document_node(node)
-                    if included is not None:
-                        visit(included)
 
-        visit(document)
+        self._visit_documents(document, visit)
         return assignments
 
     def _extract_metadata(self, document: items.Document, scheme_values: dict[str, str]) -> ScoreMetadata:
@@ -438,16 +465,8 @@ class LilypondConverter:
         assignments: dict[str, items.Item | None],
     ) -> dict[str, items.Item]:
         quotes: dict[str, items.Item] = {}
-        visited_paths: set[Path] = set()
 
         def visit(doc: items.Document) -> None:
-            raw_file_name = getattr(doc.document, "filename", None)
-            resolved_file_name = Path(raw_file_name).resolve() if raw_file_name else None
-            if resolved_file_name in visited_paths:
-                return
-            if resolved_file_name is not None:
-                visited_paths.add(resolved_file_name)
-
             sequence = [node for node in doc if isinstance(node, items.Item)]
             index = 0
             while index < len(sequence):
@@ -461,18 +480,26 @@ class LilypondConverter:
                         quotes[quote_name] = quote_source
                     index += 3
                     continue
-
-                if isinstance(node, items.Include):
-                    included = doc.get_included_document_node(node)
-                    if included is not None:
-                        visit(included)
                 index += 1
 
-        visit(document)
+        self._visit_documents(document, visit)
         return quotes
 
     def _collect_define_public_strings(self, document: items.Document) -> dict[str, str]:
         values: dict[str, str] = {}
+
+        def visit(doc: items.Document) -> None:
+            raw_file_name = getattr(doc.document, "filename", None)
+            resolved_file_name = Path(raw_file_name).resolve() if raw_file_name else None
+            if resolved_file_name is not None:
+                source_text = self.adapter.loader.read_text(resolved_file_name)
+                for name, value in DEFINE_PUBLIC_STRING_PATTERN.findall(source_text):
+                    values[name] = value
+
+        self._visit_documents(document, visit)
+        return values
+
+    def _visit_documents(self, document: items.Document, visitor: callable) -> None:
         visited_paths: set[Path] = set()
 
         def visit(doc: items.Document) -> None:
@@ -482,18 +509,16 @@ class LilypondConverter:
                 return
             if resolved_file_name is not None:
                 visited_paths.add(resolved_file_name)
-                source_text = self.adapter.loader.read_text(resolved_file_name)
-                for name, value in DEFINE_PUBLIC_STRING_PATTERN.findall(source_text):
-                    values[name] = value
+
+            visitor(doc)
 
             for node in doc:
                 if isinstance(node, items.Include):
-                    included = doc.get_included_document_node(node)
+                    included = self.adapter.load_included_document(doc, node)
                     if included is not None:
                         visit(included)
 
         visit(document)
-        return values
 
     def _first_score(self, document: items.Document) -> items.Score | None:
         for node in document:
@@ -519,16 +544,59 @@ class LilypondConverter:
         diagnostics: list[Diagnostic],
         initial_state: _WalkState,
     ) -> list[Part]:
+        part_plan = self._plan_staff_parts(
+            staff_context,
+            staff_index,
+            assignments,
+            diagnostics,
+            initial_state,
+        )
+        with_node = next((child for child in staff_context if isinstance(child, items.With)), None)
+        built_parts: list[Part] = []
+        next_part_index = start_part_index
+
+        if part_plan.partcombine_groups:
+            for group in part_plan.partcombine_groups:
+                group_parts, next_part_index = self._build_partcombine_member_parts(
+                    group,
+                    part_plan.part_context,
+                    next_part_index,
+                    assignments,
+                    quote_sources,
+                    diagnostics,
+                    part_plan.lyric_sources,
+                )
+                built_parts.extend(group_parts)
+
+        if part_plan.voice_refs:
+            built_parts.append(
+                self._build_standalone_part(
+                    list(part_plan.voice_refs),
+                    part_plan.part_context,
+                    next_part_index,
+                    assignments,
+                    quote_sources,
+                    diagnostics,
+                    part_plan.lyric_sources,
+                )
+            )
+
+        return built_parts
+
+    def _plan_staff_parts(
+        self,
+        staff_context: items.Context,
+        staff_index: int,
+        assignments: dict[str, items.Item | None],
+        diagnostics: list[Diagnostic],
+        initial_state: _WalkState,
+    ) -> _StaffPartPlan:
         with_node = next((child for child in staff_context if isinstance(child, items.With)), None)
         music_node = next((child for child in staff_context if isinstance(child, items.Music)), None)
 
         name, short_name = self._extract_part_names(with_node)
         clef_name = "treble"
-        global_ref = _VoiceReference("global", initial_state)
-        voice_refs: list[_VoiceReference] = []
-        partcombine_groups: list[_PartCombinePlan] = []
-        lyric_sources: dict[str, list[tuple[items.Item, _WalkState]]] = {}
-        last_voice_ref: _VoiceReference | None = None
+        planning_state = _StaffPlanningState(global_ref=_VoiceReference("global", initial_state))
         container_end_position = music_node.end_position() if music_node is not None and callable(getattr(music_node, "end_position", None)) else None
 
         if isinstance(music_node, items.MusicList):
@@ -542,205 +610,423 @@ class LilypondConverter:
         while position < len(sequence):
             node, node_state = sequence[position]
             if isinstance(node, items.Context):
-                context_name = node.context()
-                if context_name == "Voice":
-                    voice_child = next((child for child in node if isinstance(child, items.Item)), None)
-                    if voice_child is not None:
-                        voice_ref = self._voice_reference_from_node(
-                            voice_child,
-                            node_state,
-                            assignments,
-                            sequence[position + 1][0] if position + 1 < len(sequence) else None,
-                            container_end_position,
-                            staff_index,
-                            len(voice_refs) + sum(len(group.voice_refs) for group in partcombine_groups) + 1,
-                            node.context_id(),
-                        )
-                        if voice_ref is not None:
-                            voice_refs.append(voice_ref)
-                            last_voice_ref = voice_ref
-                    position += 1
-                    continue
-                if context_name == "Lyrics":
-                    lyric_child = next((child for child in node if isinstance(child, items.Item)), None)
-                    if lyric_child is not None:
-                        lyric_reference = self._resolve_item_reference(
-                            lyric_child,
-                            assignments,
-                            sequence[position + 1][0] if position + 1 < len(sequence) else None,
-                            container_end_position,
-                        )
-                        if isinstance(lyric_reference, items.LyricsTo):
-                            target = lyric_reference.context_id()
-                            if target:
-                                lyric_sources.setdefault(target, []).append((lyric_reference, node_state))
+                handled, voice_ref = self._handle_explicit_staff_context(
+                    node,
+                    node_state,
+                    sequence,
+                    position,
+                    assignments,
+                    staff_index,
+                    container_end_position,
+                    planning_state,
+                )
+                if handled:
+                    if voice_ref is not None:
+                        planning_state.voice_refs.append(voice_ref)
+                        planning_state.last_voice_ref = voice_ref
                     position += 1
                     continue
 
             new_context = self._parse_new_context(sequence, position, container_end_position)
             if new_context is not None:
-                if new_context.context_type == "Voice":
-                    voice_ref = self._resolve_voice_reference(
-                        new_context,
-                        node_state,
-                        assignments,
-                        sequence,
-                        position,
-                        container_end_position,
-                        staff_index,
-                        len(voice_refs) + sum(len(group.voice_refs) for group in partcombine_groups) + 1,
-                    )
-                    if voice_ref is not None:
-                        voice_refs.append(voice_ref)
-                        last_voice_ref = voice_ref
-                elif new_context.context_type == "Lyrics":
-                    next_node = sequence[position + new_context.consumed][0] if position + new_context.consumed < len(sequence) else None
-                    lyric_reference = self._resolve_item_reference(
-                        new_context.content_node,
-                        assignments,
-                        next_node,
-                        container_end_position,
-                    )
-                    if isinstance(lyric_reference, items.LyricsTo):
-                        target = lyric_reference.context_id()
-                        if target:
-                            lyric_sources.setdefault(target, []).append((lyric_reference, node_state))
+                voice_ref = self._handle_new_staff_context(
+                    new_context,
+                    node_state,
+                    sequence,
+                    position,
+                    assignments,
+                    staff_index,
+                    container_end_position,
+                    planning_state,
+                )
+                if voice_ref is not None:
+                    planning_state.voice_refs.append(voice_ref)
+                    planning_state.last_voice_ref = voice_ref
                 position += new_context.consumed
                 continue
 
             if isinstance(node, items.Clef):
                 clef_name = node.specifier() or clef_name
             elif isinstance(node, items.Command) and str(node.token) == "\\partCombine":
-                left = sequence[position + 1] if position + 1 < len(sequence) else None
-                right = sequence[position + 2] if position + 2 < len(sequence) else None
-                planned_voice_refs: list[_VoiceReference] = []
-                if left is not None:
-                    left_ref = self._voice_reference_from_node(
-                        left[0],
-                        left[1],
-                        assignments,
-                        sequence[position + 3][0] if position + 3 < len(sequence) else None,
-                        container_end_position,
-                        staff_index,
-                        len(voice_refs) + len(planned_voice_refs) + 1,
-                    )
-                    if left_ref is not None:
-                        planned_voice_refs.append(left_ref)
-                        last_voice_ref = left_ref
-                if right is not None:
-                    right_ref = self._voice_reference_from_node(
-                        right[0],
-                        right[1],
-                        assignments,
-                        sequence[position + 4][0] if position + 4 < len(sequence) else None,
-                        container_end_position,
-                        staff_index,
-                        len(voice_refs) + len(planned_voice_refs) + 1,
-                    )
-                    if right_ref is not None:
-                        planned_voice_refs.append(right_ref)
-                        last_voice_ref = right_ref
-                if len(planned_voice_refs) == 2:
-                    inferred_names, inferred_short_names = self._infer_partcombine_labels(
-                        name,
-                        short_name,
-                        [voice_ref.name for voice_ref in planned_voice_refs],
-                    )
-                    partcombine_groups.append(
-                        _PartCombinePlan(
-                            voice_refs=tuple(planned_voice_refs),
-                            names=tuple(inferred_names),
-                            short_names=tuple(inferred_short_names),
-                            group_id=f"staff-{staff_index}-combine-{len(partcombine_groups) + 1}",
-                        )
-                    )
-                else:
-                    voice_refs.extend(planned_voice_refs)
+                self._plan_partcombine_group(
+                    sequence,
+                    position,
+                    assignments,
+                    staff_index,
+                    container_end_position,
+                    name,
+                    short_name,
+                    planning_state,
+                )
                 position += 2
             elif isinstance(node, items.UserCommand):
-                command_name = node.name()
-                if command_name in {"global", "globalNoKey"}:
-                    global_ref = _VoiceReference(command_name, node_state)
-                elif command_name not in KNOWN_BUILTIN_USER_COMMANDS:
-                    voice_ref = _VoiceReference(command_name, node_state)
-                    voice_refs.append(voice_ref)
-                    last_voice_ref = voice_ref
-            elif isinstance(node, items.VoiceSeparator):
-                next_node = sequence[position + 1][0] if position + 1 < len(sequence) else None
-                command_name = self._raw_command_name_until(
-                    node,
-                    getattr(next_node, "position", None) if next_node is not None else container_end_position,
+                self._register_planning_named_reference(
+                    node.name(),
+                    node_state,
+                    planning_state,
                 )
-                if command_name in {"global", "globalNoKey"}:
-                    global_ref = _VoiceReference(command_name, node_state)
-                elif command_name and command_name not in KNOWN_BUILTIN_USER_COMMANDS:
-                    voice_ref = _VoiceReference(command_name, node_state)
-                    voice_refs.append(voice_ref)
-                    last_voice_ref = voice_ref
-            elif isinstance(node, items.LyricMode) and str(node.token) == "\\addlyrics" and last_voice_ref is not None:
-                lyric_sources.setdefault(last_voice_ref.lyric_target, []).append((node, last_voice_ref.state))
+            elif isinstance(node, items.VoiceSeparator):
+                self._register_voice_separator_reference(
+                    node,
+                    node_state,
+                    sequence,
+                    position,
+                    container_end_position,
+                    planning_state,
+                )
+            elif isinstance(node, items.LyricMode) and str(node.token) == "\\addlyrics":
+                self._register_addlyrics_source(node, planning_state)
             position += 1
 
-        global_settings = self._parse_global_settings(assignments.get(global_ref.name), diagnostics, global_ref.name, global_ref.state)
+        global_settings = self._parse_global_settings(
+            assignments.get(planning_state.global_ref.name),
+            diagnostics,
+            planning_state.global_ref.name,
+            planning_state.global_ref.state,
+        )
         clef_sign, clef_line = CLEF_MAP.get(clef_name, ("G", 2))
-        built_parts: list[Part] = []
-        next_part_index = start_part_index
-
-        if partcombine_groups:
-            for group in partcombine_groups:
-                for member_index, voice_ref in enumerate(group.voice_refs, start=1):
-                    part = Part(
-                        id=f"P{next_part_index}",
-                        name=group.names[member_index - 1],
-                        short_name=group.short_names[member_index - 1],
-                        clef_sign=clef_sign,
-                        clef_line=clef_line,
-                        time_signature=global_settings.time_signature,
-                        key_fifths=global_settings.key_fifths,
-                        key_mode=global_settings.key_mode,
-                        tempo_text=global_settings.tempo_text,
-                        combine_group=group.group_id,
-                        combine_member=member_index,
-                        combined_name=name or f"Part {staff_index}",
-                        combined_short_name=short_name,
-                    )
-                    self._append_part_voice(
-                        part,
-                        voice_ref,
-                        "1",
-                        assignments,
-                        quote_sources,
-                        diagnostics,
-                        lyric_sources,
-                    )
-                    built_parts.append(part)
-                    next_part_index += 1
-
-        if voice_refs:
-            part = Part(
-                id=f"P{next_part_index}",
-                name=name or f"Part {staff_index}",
+        return _StaffPartPlan(
+            part_context=_PartBuildContext(
+                staff_index=staff_index,
+                name=name,
                 short_name=short_name,
                 clef_sign=clef_sign,
                 clef_line=clef_line,
-                time_signature=global_settings.time_signature,
-                key_fifths=global_settings.key_fifths,
-                key_mode=global_settings.key_mode,
-                tempo_text=global_settings.tempo_text,
-            )
-            for voice_index, voice_ref in enumerate(voice_refs, start=1):
-                self._append_part_voice(
-                    part,
-                    voice_ref,
-                    str(voice_index),
-                    assignments,
-                    quote_sources,
-                    diagnostics,
-                    lyric_sources,
-                )
-            built_parts.append(part)
+                global_settings=global_settings,
+            ),
+            voice_refs=tuple(planning_state.voice_refs),
+            partcombine_groups=tuple(planning_state.partcombine_groups),
+            lyric_sources=planning_state.lyric_sources,
+        )
 
-        return built_parts
+    def _handle_explicit_staff_context(
+        self,
+        node: items.Context,
+        node_state: _WalkState,
+        sequence: list[tuple[items.Item, _WalkState]],
+        position: int,
+        assignments: dict[str, items.Item | None],
+        staff_index: int,
+        container_end_position: int | None,
+        planning_state: _StaffPlanningState,
+    ) -> tuple[bool, _VoiceReference | None]:
+        context_name = node.context()
+        if context_name == "Voice":
+            voice_child = next((child for child in node if isinstance(child, items.Item)), None)
+            if voice_child is None:
+                return True, None
+            return True, self._voice_reference_from_node(
+                voice_child,
+                node_state,
+                assignments,
+                self._sequence_item_at(sequence, position + 1),
+                container_end_position,
+                staff_index,
+                self._next_planned_voice_number(planning_state),
+                node.context_id(),
+            )
+        if context_name == "Lyrics":
+            lyric_child = next((child for child in node if isinstance(child, items.Item)), None)
+            if lyric_child is not None:
+                self._register_lyric_source(
+                    lyric_child,
+                    node_state,
+                    assignments,
+                    self._sequence_item_at(sequence, position + 1),
+                    container_end_position,
+                    planning_state.lyric_sources,
+                )
+            return True, None
+        return False, None
+
+    def _handle_new_staff_context(
+        self,
+        new_context: _NewContextCommand,
+        node_state: _WalkState,
+        sequence: list[tuple[items.Item, _WalkState]],
+        position: int,
+        assignments: dict[str, items.Item | None],
+        staff_index: int,
+        container_end_position: int | None,
+        planning_state: _StaffPlanningState,
+    ) -> _VoiceReference | None:
+        if new_context.context_type == "Voice":
+            return self._resolve_voice_reference(
+                new_context,
+                node_state,
+                assignments,
+                sequence,
+                position,
+                container_end_position,
+                staff_index,
+                self._next_planned_voice_number(planning_state),
+            )
+        if new_context.context_type == "Lyrics":
+            next_node = self._sequence_item_at(sequence, position + new_context.consumed)
+            self._register_lyric_source(
+                new_context.content_node,
+                node_state,
+                assignments,
+                next_node,
+                container_end_position,
+                planning_state.lyric_sources,
+            )
+        return None
+
+    def _plan_partcombine_group(
+        self,
+        sequence: list[tuple[items.Item, _WalkState]],
+        position: int,
+        assignments: dict[str, items.Item | None],
+        staff_index: int,
+        container_end_position: int | None,
+        name: str | None,
+        short_name: str | None,
+        planning_state: _StaffPlanningState,
+    ) -> None:
+        left = sequence[position + 1] if position + 1 < len(sequence) else None
+        right = sequence[position + 2] if position + 2 < len(sequence) else None
+        planned_voice_refs: list[_VoiceReference] = []
+        updated_last_voice_ref = planning_state.last_voice_ref
+        if left is not None:
+            left_ref = self._voice_reference_from_node(
+                left[0],
+                left[1],
+                assignments,
+                self._sequence_item_at(sequence, position + 3),
+                container_end_position,
+                staff_index,
+                self._next_planned_voice_number(
+                    planning_state,
+                    additional_group_voice_count=len(planned_voice_refs),
+                ),
+            )
+            if left_ref is not None:
+                planned_voice_refs.append(left_ref)
+                updated_last_voice_ref = left_ref
+        if right is not None:
+            right_ref = self._voice_reference_from_node(
+                right[0],
+                right[1],
+                assignments,
+                self._sequence_item_at(sequence, position + 4),
+                container_end_position,
+                staff_index,
+                self._next_planned_voice_number(
+                    planning_state,
+                    additional_group_voice_count=len(planned_voice_refs),
+                ),
+            )
+            if right_ref is not None:
+                planned_voice_refs.append(right_ref)
+                updated_last_voice_ref = right_ref
+        if len(planned_voice_refs) == 2:
+            inferred_names, inferred_short_names = self._infer_partcombine_labels(
+                name,
+                short_name,
+                [voice_ref.name for voice_ref in planned_voice_refs],
+            )
+            planning_state.partcombine_groups.append(
+                _PartCombinePlan(
+                    voice_refs=tuple(planned_voice_refs),
+                    names=tuple(inferred_names),
+                    short_names=tuple(inferred_short_names),
+                    group_id=f"staff-{staff_index}-combine-{len(planning_state.partcombine_groups) + 1}",
+                )
+            )
+        else:
+            planning_state.voice_refs.extend(planned_voice_refs)
+        planning_state.last_voice_ref = updated_last_voice_ref
+
+    def _next_planned_voice_number(
+        self,
+        planning_state: _StaffPlanningState,
+        additional_group_voice_count: int = 0,
+    ) -> int:
+        return (
+            len(planning_state.voice_refs)
+            + sum(len(group.voice_refs) for group in planning_state.partcombine_groups)
+            + additional_group_voice_count
+            + 1
+        )
+
+    def _sequence_item_at(
+        self,
+        sequence: list[tuple[items.Item, _WalkState]],
+        index: int,
+    ) -> items.Item | None:
+        if 0 <= index < len(sequence):
+            return sequence[index][0]
+        return None
+
+    def _register_lyric_source(
+        self,
+        lyric_node: items.Item,
+        state: _WalkState,
+        assignments: dict[str, items.Item | None],
+        next_node: items.Item | None,
+        container_end_position: int | None,
+        lyric_sources: dict[str, list[tuple[items.Item, _WalkState]]],
+    ) -> None:
+        lyric_reference = self._resolve_item_reference(
+            lyric_node,
+            assignments,
+            next_node,
+            container_end_position,
+        )
+        if isinstance(lyric_reference, items.LyricsTo):
+            target = lyric_reference.context_id()
+            if target:
+                lyric_sources.setdefault(target, []).append((lyric_reference, state))
+
+    def _build_partcombine_member_parts(
+        self,
+        group: _PartCombinePlan,
+        part_context: _PartBuildContext,
+        start_part_index: int,
+        assignments: dict[str, items.Item | None],
+        quote_sources: dict[str, items.Item],
+        diagnostics: list[Diagnostic],
+        lyric_sources: dict[str, list[tuple[items.Item, _WalkState]]],
+    ) -> tuple[list[Part], int]:
+        built_parts: list[Part] = []
+        next_part_index = start_part_index
+        for member_index, voice_ref in enumerate(group.voice_refs, start=1):
+            part = self._create_part(
+                next_part_index,
+                part_context,
+                name=group.names[member_index - 1],
+                short_name=group.short_names[member_index - 1],
+                combine_group=group.group_id,
+                combine_member=member_index,
+                combined_name=part_context.name or f"Part {part_context.staff_index}",
+                combined_short_name=part_context.short_name,
+            )
+            self._append_part_voice(
+                part,
+                voice_ref,
+                "1",
+                assignments,
+                quote_sources,
+                diagnostics,
+                lyric_sources,
+            )
+            built_parts.append(part)
+            next_part_index += 1
+        return built_parts, next_part_index
+
+    def _build_standalone_part(
+        self,
+        voice_refs: list[_VoiceReference],
+        part_context: _PartBuildContext,
+        part_index: int,
+        assignments: dict[str, items.Item | None],
+        quote_sources: dict[str, items.Item],
+        diagnostics: list[Diagnostic],
+        lyric_sources: dict[str, list[tuple[items.Item, _WalkState]]],
+    ) -> Part:
+        part = self._create_part(
+            part_index,
+            part_context,
+            name=part_context.name or f"Part {part_context.staff_index}",
+            short_name=part_context.short_name,
+        )
+        for voice_index, voice_ref in enumerate(voice_refs, start=1):
+            self._append_part_voice(
+                part,
+                voice_ref,
+                str(voice_index),
+                assignments,
+                quote_sources,
+                diagnostics,
+                lyric_sources,
+            )
+        return part
+
+    def _register_named_reference(
+        self,
+        command_name: str | None,
+        state: _WalkState,
+        voice_refs: list[_VoiceReference],
+        global_ref: _VoiceReference,
+        last_voice_ref: _VoiceReference | None,
+    ) -> tuple[_VoiceReference, _VoiceReference | None]:
+        if command_name in {"global", "globalNoKey"}:
+            return _VoiceReference(command_name, state), last_voice_ref
+        if command_name and command_name not in KNOWN_BUILTIN_USER_COMMANDS:
+            voice_ref = _VoiceReference(command_name, state)
+            voice_refs.append(voice_ref)
+            return global_ref, voice_ref
+        return global_ref, last_voice_ref
+
+    def _register_planning_named_reference(
+        self,
+        command_name: str | None,
+        state: _WalkState,
+        planning_state: _StaffPlanningState,
+    ) -> None:
+        planning_state.global_ref, planning_state.last_voice_ref = self._register_named_reference(
+            command_name,
+            state,
+            planning_state.voice_refs,
+            planning_state.global_ref,
+            planning_state.last_voice_ref,
+        )
+
+    def _register_voice_separator_reference(
+        self,
+        node: items.VoiceSeparator,
+        state: _WalkState,
+        sequence: list[tuple[items.Item, _WalkState]],
+        position: int,
+        container_end_position: int | None,
+        planning_state: _StaffPlanningState,
+    ) -> None:
+        next_node = self._sequence_item_at(sequence, position + 1)
+        command_name = self._raw_command_name_until(
+            node,
+            getattr(next_node, "position", None) if next_node is not None else container_end_position,
+        )
+        self._register_planning_named_reference(command_name, state, planning_state)
+
+    def _register_addlyrics_source(
+        self,
+        node: items.LyricMode,
+        planning_state: _StaffPlanningState,
+    ) -> None:
+        if planning_state.last_voice_ref is None:
+            return
+        planning_state.lyric_sources.setdefault(planning_state.last_voice_ref.lyric_target, []).append(
+            (node, planning_state.last_voice_ref.state)
+        )
+
+    def _create_part(
+        self,
+        part_index: int,
+        part_context: _PartBuildContext,
+        name: str,
+        short_name: str | None,
+        combine_group: str | None = None,
+        combine_member: int | None = None,
+        combined_name: str | None = None,
+        combined_short_name: str | None = None,
+    ) -> Part:
+        settings = part_context.global_settings
+        return Part(
+            id=f"P{part_index}",
+            name=name,
+            short_name=short_name,
+            clef_sign=part_context.clef_sign,
+            clef_line=part_context.clef_line,
+            time_signature=settings.time_signature,
+            key_fifths=settings.key_fifths,
+            key_mode=settings.key_mode,
+            tempo_text=settings.tempo_text,
+            combine_group=combine_group,
+            combine_member=combine_member,
+            combined_name=combined_name,
+            combined_short_name=combined_short_name,
+        )
 
     def _append_part_voice(
         self,
@@ -934,170 +1220,75 @@ class LilypondConverter:
         initial_state: _WalkState | None = None,
     ) -> Voice:
         voice = Voice(id=voice_id, source_name=source_name)
-        current_measure = Measure(number=1)
-        elapsed = Fraction(0, 1)
-        timeline_position = Fraction(0, 1)
-        pending_directions: list[Direction] = []
-        last_event: MusicEvent | None = None
-        attachment_event: MusicEvent | None = None
-        pending_tie_signature: tuple[tuple[str, int, int], ...] | None = None
-        active_ottava: int | None = None
-
-        def apply_barline(style: str) -> None:
-            target_measure = current_measure if current_measure.events or elapsed or not voice.measures else voice.measures[-1]
-            target_measure.right_barline = style
-
-        def finalize_measure() -> None:
-            nonlocal current_measure, elapsed, last_event
-            current_measure.duration = elapsed
-            voice.measures.append(current_measure)
-            current_measure = Measure(number=current_measure.number + 1)
-            elapsed = Fraction(0, 1)
-            last_event = None
-
-        def signature_for(event: MusicEvent) -> tuple[tuple[str, int, int], ...] | None:
-            if event.is_rest or not event.pitches:
-                return None
-            return tuple((pitch.step, pitch.alter, pitch.octave) for pitch in event.pitches)
-
-        def add_event(event: MusicEvent, origin: items.Item | None = None) -> None:
-            nonlocal attachment_event, elapsed, last_event, pending_tie_signature, timeline_position
-            if pending_tie_signature is not None and signature_for(event) == pending_tie_signature:
-                event.tie_stop = True
-                pending_tie_signature = None
-
-            if event.is_grace:
-                current_measure.events.append(event)
-                last_event = event
-                attachment_event = event
-                return
-
-            remaining = event.duration
-            while remaining > 0:
-                available = measure_length - elapsed
-                if available == 0:
-                    finalize_measure()
-                    available = measure_length
-
-                if not event.is_rest and remaining > available:
-                    diagnostics.append(
-                        Diagnostic(
-                            code="measure-overflow",
-                            message=f"Voice {source_name} exceeds the measure length.",
-                            severity="error",
-                            location=location_from_item(origin) if origin is not None else None,
-                        )
-                    )
-                    current_measure.events.append(self._clone_event(event, duration=remaining))
-                    elapsed += remaining
-                    timeline_position += remaining
-                    last_event = current_measure.events[-1]
-                    break
-
-                slice_duration = remaining if remaining <= available else available
-                slice_event = self._clone_event(event, duration=slice_duration)
-                current_measure.events.append(slice_event)
-                elapsed += slice_duration
-                timeline_position += slice_duration
-                remaining -= slice_duration
-                last_event = slice_event
-                attachment_event = slice_event
-                if elapsed == measure_length:
-                    finalize_measure()
+        state = _VoiceBuildState(current_measure=Measure(number=1))
 
         walk_state = replace(initial_state or _WalkState(), allow_cues=allow_cues, measure_length=measure_length)
         for flattened in self._iter_linear_nodes(music_node, walk_state):
             node = flattened.node
             is_grace = flattened.is_grace
             if isinstance(node, _OttavaChange):
-                pending_directions.extend(self._ottava_directions(node.value, active_ottava))
-                active_ottava = node.value or None
+                state.pending_directions.extend(self._ottava_directions(node.value, state.active_ottava))
+                state.active_ottava = node.value or None
             elif isinstance(node, _BarlineChange):
                 style = self._barline_style(node.value)
                 if style is not None:
-                    apply_barline(style)
+                    self._apply_voice_barline(voice, state, style)
             elif isinstance(node, _CueInsertion):
-                attachment_event = None
-                if node.duration <= 0:
-                    continue
-                if node.suppressed:
-                    add_event(MusicEvent(duration=node.duration, is_rest=True), node.source_node)
-                    continue
-                cue_events = self._expand_cue_insertion(
+                self._add_cue_insertion(
+                    voice,
+                    state,
                     node,
-                    timeline_position,
                     measure_length,
+                    source_name,
                     assignments,
                     quote_sources,
                     diagnostics,
                 )
-                rendered_duration = Fraction(0, 1)
-                for cue_event in cue_events:
-                    add_event(cue_event, node.source_node)
-                    if not cue_event.is_grace:
-                        rendered_duration += cue_event.duration
-                if rendered_duration < node.duration:
-                    add_event(MusicEvent(duration=node.duration - rendered_duration, is_rest=True), node.source_node)
             elif isinstance(node, items.Note):
-                attachment_event = None
+                state.attachment_event = None
                 source_pitch = flattened.resolved_pitches[0] if flattened.resolved_pitches else node.pitch
-                event = MusicEvent(
+                event = self._build_voice_event(
                     duration=self._duration_from_node(node.duration, flattened.scale),
                     pitches=[self._to_pitch(source_pitch, flattened.transpose_specs)],
-                    is_grace=is_grace,
-                    grace_slash=flattened.grace_slash,
-                    directions=list(pending_directions),
-                    time_modification=flattened.time_modification,
-                    tuplet_start=flattened.tuplet_start,
-                    tuplet_stop=flattened.tuplet_stop,
+                    flattened=flattened,
+                    pending_directions=state.pending_directions,
                 )
-                pending_directions.clear()
-                add_event(event, node)
+                state.pending_directions.clear()
+                self._add_voice_event(voice, state, event, measure_length, source_name, diagnostics, node)
             elif isinstance(node, items.Chord):
-                attachment_event = None
+                state.attachment_event = None
                 chord_pitches = flattened.resolved_pitches or tuple(child.pitch for child in node if isinstance(child, items.Note))
                 pitches = [self._to_pitch(source_pitch, flattened.transpose_specs) for source_pitch in chord_pitches]
-                event = MusicEvent(
+                event = self._build_voice_event(
                     duration=self._duration_from_node(node.duration, flattened.scale),
                     pitches=pitches,
-                    is_grace=is_grace,
-                    grace_slash=flattened.grace_slash,
-                    directions=list(pending_directions),
-                    time_modification=flattened.time_modification,
-                    tuplet_start=flattened.tuplet_start,
-                    tuplet_stop=flattened.tuplet_stop,
+                    flattened=flattened,
+                    pending_directions=state.pending_directions,
                 )
-                pending_directions.clear()
-                add_event(event, node)
+                state.pending_directions.clear()
+                self._add_voice_event(voice, state, event, measure_length, source_name, diagnostics, node)
             elif isinstance(node, items.Rest):
-                attachment_event = None
-                event = MusicEvent(
+                state.attachment_event = None
+                event = self._build_voice_event(
                     duration=self._duration_from_node(
                         node.duration,
                         flattened.scale,
                         token=str(node.token),
                         measure_length=measure_length,
                     ),
+                    flattened=flattened,
+                    pending_directions=state.pending_directions,
                     is_rest=True,
-                    is_grace=is_grace,
-                    grace_slash=flattened.grace_slash,
-                    directions=list(pending_directions),
-                    time_modification=flattened.time_modification,
-                    tuplet_start=flattened.tuplet_start,
-                    tuplet_stop=flattened.tuplet_stop,
                 )
-                pending_directions.clear()
-                add_event(event, node)
+                state.pending_directions.clear()
+                self._add_voice_event(voice, state, event, measure_length, source_name, diagnostics, node)
             elif isinstance(node, items.Dynamic):
                 direction = self._dynamic_to_direction(str(node.token))
                 if direction is None:
                     continue
-                if last_event is not None:
-                    last_event.directions.append(direction)
-                else:
-                    pending_directions.append(direction)
+                self._add_voice_direction(state, direction)
             elif isinstance(node, items.Articulation):
-                target_event = last_event or attachment_event
+                target_event = self._voice_attachment_target(state)
                 if target_event is None:
                     continue
                 token = str(node.token)
@@ -1108,7 +1299,7 @@ class LilypondConverter:
                 elif ornament:
                     target_event.ornaments.append(ornament)
             elif isinstance(node, items.Slur):
-                target_event = last_event or attachment_event
+                target_event = self._voice_attachment_target(state)
                 if target_event is None:
                     continue
                 if node.event == "start":
@@ -1116,19 +1307,16 @@ class LilypondConverter:
                 else:
                     target_event.slur_stop_count += 1
             elif isinstance(node, items.Tie):
-                target_event = last_event or attachment_event
+                target_event = self._voice_attachment_target(state)
                 if target_event is None:
                     continue
                 target_event.tie_start = True
-                pending_tie_signature = signature_for(target_event)
+                state.pending_tie_signature = self._voice_event_signature(target_event)
             elif isinstance(node, items.Command):
                 token = str(node.token)
                 direction = self._dynamic_to_direction(token)
                 if direction is not None:
-                    if last_event is not None:
-                        last_event.directions.append(direction)
-                    else:
-                        pending_directions.append(direction)
+                    self._add_voice_direction(state, direction)
                     continue
                 if token == "\\compressEmptyMeasures":
                     voice.compress_empty_measures = True
@@ -1154,11 +1342,186 @@ class LilypondConverter:
                     )
                 )
 
-        if current_measure.events or elapsed:
-            current_measure.duration = elapsed
-            voice.measures.append(current_measure)
+        if state.current_measure.events or state.elapsed:
+            state.current_measure.duration = state.elapsed
+            voice.measures.append(state.current_measure)
 
         return voice
+
+    def _apply_voice_barline(self, voice: Voice, state: _VoiceBuildState, style: str) -> None:
+        target_measure = (
+            state.current_measure
+            if state.current_measure.events or state.elapsed or not voice.measures
+            else voice.measures[-1]
+        )
+        target_measure.right_barline = style
+
+    def _add_voice_direction(self, state: _VoiceBuildState, direction: Direction) -> None:
+        if state.last_event is not None:
+            state.last_event.directions.append(direction)
+        else:
+            state.pending_directions.append(direction)
+
+    def _finalize_voice_measure(self, voice: Voice, state: _VoiceBuildState) -> None:
+        state.current_measure.duration = state.elapsed
+        voice.measures.append(state.current_measure)
+        state.current_measure = Measure(number=state.current_measure.number + 1)
+        state.elapsed = Fraction(0, 1)
+        state.last_event = None
+
+    def _voice_attachment_target(self, state: _VoiceBuildState) -> MusicEvent | None:
+        return state.last_event or state.attachment_event
+
+    def _voice_event_signature(self, event: MusicEvent) -> tuple[tuple[str, int, int], ...] | None:
+        if event.is_rest or not event.pitches:
+            return None
+        return tuple((pitch.step, pitch.alter, pitch.octave) for pitch in event.pitches)
+
+    def _append_voice_rendered_event(
+        self,
+        state: _VoiceBuildState,
+        rendered_event: MusicEvent,
+        rendered_duration: Fraction,
+        *,
+        attach_to_event: bool,
+    ) -> None:
+        state.current_measure.events.append(rendered_event)
+        state.elapsed += rendered_duration
+        state.timeline_position += rendered_duration
+        state.last_event = rendered_event
+        if attach_to_event:
+            state.attachment_event = rendered_event
+
+    def _add_voice_event(
+        self,
+        voice: Voice,
+        state: _VoiceBuildState,
+        event: MusicEvent,
+        measure_length: Fraction,
+        source_name: str,
+        diagnostics: list[Diagnostic],
+        origin: items.Item | None = None,
+    ) -> None:
+        if state.pending_tie_signature is not None and self._voice_event_signature(event) == state.pending_tie_signature:
+            event.tie_stop = True
+            state.pending_tie_signature = None
+
+        if event.is_grace:
+            state.current_measure.events.append(event)
+            state.last_event = event
+            state.attachment_event = event
+            return
+
+        remaining = event.duration
+        while remaining > 0:
+            available = measure_length - state.elapsed
+            if available == 0:
+                self._finalize_voice_measure(voice, state)
+                available = measure_length
+
+            if not event.is_rest and remaining > available:
+                diagnostics.append(
+                    Diagnostic(
+                        code="measure-overflow",
+                        message=f"Voice {source_name} exceeds the measure length.",
+                        severity="error",
+                        location=location_from_item(origin) if origin is not None else None,
+                    )
+                )
+                self._append_voice_rendered_event(
+                    state,
+                    self._clone_event(event, duration=remaining),
+                    remaining,
+                    attach_to_event=False,
+                )
+                break
+
+            slice_duration = remaining if remaining <= available else available
+            slice_event = self._clone_event(event, duration=slice_duration)
+            self._append_voice_rendered_event(state, slice_event, slice_duration, attach_to_event=True)
+            remaining -= slice_duration
+            if state.elapsed == measure_length:
+                self._finalize_voice_measure(voice, state)
+
+    def _add_cue_insertion(
+        self,
+        voice: Voice,
+        state: _VoiceBuildState,
+        cue: _CueInsertion,
+        measure_length: Fraction,
+        source_name: str,
+        assignments: Mapping[str, items.Item],
+        quote_sources: Mapping[str, items.Item],
+        diagnostics: list[Diagnostic],
+    ) -> None:
+        state.attachment_event = None
+        if cue.duration <= 0:
+            return
+        if cue.suppressed:
+            self._add_voice_event(
+                voice,
+                state,
+                MusicEvent(duration=cue.duration, is_rest=True),
+                measure_length,
+                source_name,
+                diagnostics,
+                cue.source_node,
+            )
+            return
+        cue_events = self._expand_cue_insertion(
+            cue,
+            state.timeline_position,
+            measure_length,
+            assignments,
+            quote_sources,
+            diagnostics,
+        )
+        rendered_duration = Fraction(0, 1)
+        for cue_event in cue_events:
+            self._add_voice_event(
+                voice,
+                state,
+                cue_event,
+                measure_length,
+                source_name,
+                diagnostics,
+                cue.source_node,
+            )
+            if not cue_event.is_grace:
+                rendered_duration += cue_event.duration
+        if rendered_duration < cue.duration:
+            self._add_voice_event(
+                voice,
+                state,
+                MusicEvent(duration=cue.duration - rendered_duration, is_rest=True),
+                measure_length,
+                source_name,
+                diagnostics,
+                cue.source_node,
+            )
+
+    def _build_voice_event(
+        self,
+        duration: Fraction,
+        flattened: _FlattenedNode,
+        pending_directions: list[Direction],
+        pitches: list[Pitch] | None = None,
+        is_rest: bool = False,
+    ) -> MusicEvent:
+        event_kwargs: dict[str, object] = {
+            "duration": duration,
+            "is_grace": flattened.is_grace,
+            "grace_slash": flattened.grace_slash,
+            "directions": list(pending_directions),
+            "time_modification": flattened.time_modification,
+            "tuplet_start": flattened.tuplet_start,
+            "tuplet_stop": flattened.tuplet_stop,
+        }
+        if pitches is not None:
+            event_kwargs["pitches"] = pitches
+        if is_rest:
+            event_kwargs["is_rest"] = True
+        return MusicEvent(**event_kwargs)
 
     def _iter_linear_nodes(self, node: items.Item, state: _WalkState | None = None) -> Iterable[_FlattenedNode]:
         state = state or _WalkState()

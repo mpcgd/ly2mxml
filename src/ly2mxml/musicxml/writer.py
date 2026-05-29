@@ -19,8 +19,8 @@ class MusicXmlWriter:
     ) -> Path:
         export_options = self._resolve_export_options(export_options, partcombine_mode)
         path = Path(output_path)
-        tree = ET.ElementTree(self.build_tree(score, export_options=export_options))
-        path.write_text(self.to_string(score, export_options=export_options), encoding="utf-8")
+        root = self.build_tree(score, export_options=export_options)
+        path.write_text(self._serialize_root(root), encoding="utf-8")
         return path
 
     def to_string(
@@ -31,6 +31,9 @@ class MusicXmlWriter:
     ) -> str:
         export_options = self._resolve_export_options(export_options, partcombine_mode)
         root = self.build_tree(score, export_options=export_options)
+        return self._serialize_root(root)
+
+    def _serialize_root(self, root: ET.Element) -> str:
         self._indent(root)
         return '<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(root, encoding="unicode")
 

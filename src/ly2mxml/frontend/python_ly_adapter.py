@@ -63,9 +63,31 @@ class PythonLyAdapter:
         return analysis
 
     def _load_document(self, source_path: Path) -> items.Document:
-        source_document = ly.document.Document.load(str(source_path))
+        source_text = self.loader.read_text(source_path)
+        source_document = ly.document.Document(source_text, mode="lilypond")
         source_document.filename = str(source_path)
         return ly.music.document(source_document)
+
+    def load_included_document(self, document: items.Document, include_node: items.Include) -> items.Document | None:
+        include_path = self._resolve_include_path(document, include_node)
+        if include_path is None:
+            return None
+        try:
+            return self._load_document(include_path)
+        except (FileNotFoundError, IsADirectoryError):
+            return None
+
+    def _resolve_include_path(self, document: items.Document, include_node: items.Include) -> Path | None:
+        include_name = include_node.filename()
+        if not include_name:
+            return None
+
+        source_file_name = getattr(document.document, "filename", None)
+        include_path = Path(include_name)
+        if source_file_name and not include_path.is_absolute():
+            include_path = Path(source_file_name).resolve().parent / include_path
+
+        return self.loader.resolve_entrypoint(include_path)
 
     def _visit_document(
         self,
@@ -85,7 +107,7 @@ class PythonLyAdapter:
         for node in self._walk_nodes(document):
             self._record_node(node, analysis)
             if isinstance(node, items.Include):
-                included_document = document.get_included_document_node(node)
+                included_document = self.load_included_document(document, node)
                 if included_document is None:
                     analysis.diagnostics.append(
                         Diagnostic(
