@@ -1,3 +1,5 @@
+"""Expose the intermediate score-model types used throughout the project."""
+
 from ly2mxml.model.score import (
     Direction,
     Measure,

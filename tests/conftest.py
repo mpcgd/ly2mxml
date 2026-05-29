@@ -1,3 +1,10 @@
+"""Shared pytest fixtures for the converter's focused LilyPond samples.
+
+Most fixtures map one `.ly` file to one syntax slice so new support claims can
+be backed by compact, isolated regression inputs instead of only by the larger
+acceptance sample.
+"""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -9,21 +16,29 @@ from ly2mxml.converter import LilypondConverter
 
 @pytest.fixture
 def repo_root() -> Path:
+    """Return the repository root used by file-based fixtures and CLI tests."""
+
     return Path(__file__).resolve().parents[1]
 
 
 @pytest.fixture
 def sample_entrypoint(repo_root: Path) -> Path:
+    """Return the acceptance sample project used for broader end-to-end checks."""
+
     return repo_root / "Test Sample" / "score.ly"
 
 
 @pytest.fixture
 def music21_module():
+    """Import music21 lazily for importer-level validation tests."""
+
     return pytest.importorskip("music21")
 
 
 @pytest.fixture
 def sample_music21_scores(sample_entrypoint: Path, tmp_path: Path, music21_module):
+    """Convert the sample project in both export modes for music21 validation."""
+
     separate_output = tmp_path / "sample-music21-separate.musicxml"
     combined_output = tmp_path / "sample-music21-combined.musicxml"
 
@@ -36,6 +51,10 @@ def sample_music21_scores(sample_entrypoint: Path, tmp_path: Path, music21_modul
         music21_module.converter.parse(str(combined_output)),
     )
 
+
+
+# The remaining fixtures each point at one focused LilyPond sample so feature
+# support claims can be tied back to a concrete regression input.
 
 @pytest.fixture
 def advanced_syntax_entrypoint(repo_root: Path) -> Path:

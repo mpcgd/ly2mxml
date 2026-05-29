@@ -1,3 +1,11 @@
+"""Define the command-line interface for inspection and conversion.
+
+The CLI is intentionally thin: it parses arguments, delegates inspection and
+conversion work to the adapter or converter, and reports diagnostics in a
+user-facing form. The semantic conversion logic itself lives elsewhere so the
+command surface stays stable even as the converter evolves.
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -11,6 +19,8 @@ from ly2mxml.options import ExportOptions
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Create the top-level CLI parser and both supported subcommands."""
+
     parser = argparse.ArgumentParser(
         prog="ly2mxml",
         description="Inspect and convert LilyPond source projects.",
@@ -55,6 +65,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def format_summary(data: dict[str, object]) -> str:
+    """Render inspection output as a compact human-readable report."""
+
     diagnostics = data["diagnostics"]
     included_files = data["included_files"]
     features = data["features"]
@@ -91,10 +103,13 @@ def format_summary(data: dict[str, object]) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """Execute the requested CLI command and return a process exit code."""
+
     parser = build_parser()
     args = parser.parse_args(argv)
 
     if args.command == "inspect":
+        # Inspection is parser-facing and does not attempt full MusicXML export.
         adapter = PythonLyAdapter()
         analysis = adapter.inspect(args.source)
         data = analysis.to_dict()
@@ -107,6 +122,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "convert":
+        # Conversion keeps CLI policy at the edge and lets ExportOptions define
+        # cue and part-combine behavior for the rest of the pipeline.
         export_options = ExportOptions(
             partcombine_mode=args.partcombine_mode,
             cue_mode="include" if args.include_cues else "ignore",

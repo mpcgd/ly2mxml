@@ -1,3 +1,10 @@
+"""Convert parsed LilyPond projects into the internal score model.
+
+This module holds the semantic heart of the project. It translates the
+python-ly parser tree into a simpler score representation that captures the
+bounded LilyPond surface supported by the repository.
+"""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
@@ -147,6 +154,8 @@ MUSICAL_NODE_TYPES = (items.Note, items.Rest, items.Chord)
 
 @dataclass(slots=True)
 class ConversionPreflight:
+    """Summarize inspection results and conversion blockers before export."""
+
     analysis: SourceAnalysis
     diagnostics: list[Diagnostic] = field(default_factory=list)
     supported_features: set[str] = field(default_factory=set)
@@ -154,11 +163,15 @@ class ConversionPreflight:
 
     @property
     def has_errors(self) -> bool:
+        """Return ``True`` when preflight found at least one error."""
+
         return any(diagnostic.severity == "error" for diagnostic in self.diagnostics)
 
 
 @dataclass(slots=True)
 class ConversionResult:
+    """Bundle the preflight, converted score, and optional output path."""
+
     preflight: ConversionPreflight
     score: Score | None = None
     output_path: Path | None = None
@@ -174,6 +187,8 @@ class _GlobalSettings:
 
 @dataclass(frozen=True, slots=True)
 class _WalkState:
+    """Track contextual conversion state while flattening LilyPond nodes."""
+
     is_grace: bool = False
     grace_slash: bool = False
     scale: Fraction = Fraction(1, 1)
@@ -241,6 +256,8 @@ class _NewContextCommand:
 
 @dataclass(slots=True)
 class _FlattenedNode:
+    """Carry one flattened node together with the state needed to render it."""
+
     node: items.Item | _CueInsertion | _OttavaChange | _BarlineChange
     is_grace: bool
     grace_slash: bool
@@ -254,6 +271,8 @@ class _FlattenedNode:
 
 @dataclass(slots=True)
 class _VoiceBuildState:
+    """Track measure assembly state while building one exported voice."""
+
     current_measure: Measure
     elapsed: Fraction = Fraction(0, 1)
     timeline_position: Fraction = Fraction(0, 1)
@@ -306,6 +325,15 @@ class _StaffPlanningState:
 
 
 class LilypondConverter:
+    """Orchestrate LilyPond inspection, semantic conversion, and XML writing.
+
+    The converter performs three distinct jobs:
+
+    - inspect a project and classify feature usage before export
+    - flatten supported LilyPond constructs into the intermediate score model
+    - delegate final serialization to the MusicXML writer
+    """
+
     def __init__(
         self,
         adapter: PythonLyAdapter | None = None,
@@ -326,6 +354,8 @@ class LilypondConverter:
         self._quote_voice_cache: dict[tuple[str, Fraction], Voice] = {}
 
     def preflight(self, entrypoint: str | Path) -> ConversionPreflight:
+        """Inspect a LilyPond project and classify known unsupported features."""
+
         analysis = self.adapter.inspect(entrypoint)
         scheme_values = self._collect_define_public_strings(self.adapter.load_document_tree(entrypoint))
         diagnostics: list[Diagnostic] = []
@@ -376,7 +406,12 @@ class LilypondConverter:
         )
 
     def build_score(self, entrypoint: str | Path) -> Score:
+        """Convert one LilyPond entrypoint into the internal score model."""
+
         document = self.adapter.load_document_tree(entrypoint)
+        # These discovery passes establish the cross-reference tables the rest
+        # of the converter relies on: user variables, cue quote sources, and
+        # top-level metadata all need to be known before staff traversal starts.
         assignments = self._collect_assignments(document)
         quote_sources = self._collect_quotes(document, assignments)
         scheme_values = self._collect_define_public_strings(document)
@@ -397,6 +432,9 @@ class LilypondConverter:
 
         parts: list[Part] = []
         next_part_index = 1
+        # Staff contexts are the closest LilyPond structure to exported parts,
+        # so score assembly starts there and only then resolves voice planning
+        # and optional partCombine grouping inside each staff.
         for staff_index, (staff_context, walk_state) in enumerate(self._iter_staff_contexts(score_node), start=1):
             built_parts = self._build_parts(
                 staff_context,
@@ -416,6 +454,8 @@ class LilypondConverter:
         return Score(metadata=metadata, parts=parts, diagnostics=diagnostics)
 
     def convert_file(self, entrypoint: str | Path, output_path: str | Path) -> ConversionResult:
+        """Run preflight, build the score, and write MusicXML when safe."""
+
         preflight = self.preflight(entrypoint)
         if preflight.has_errors:
             return ConversionResult(preflight=preflight)
@@ -527,6 +567,8 @@ class LilypondConverter:
         return None
 
     def _iter_staff_contexts(self, node: items.Item, state: _WalkState | None = None) -> Iterator[tuple[items.Context, _WalkState]]:
+        """Yield each ``Staff`` context together with the state used to reach it."""
+
         state = state or _WalkState()
         if isinstance(node, items.Context) and node.context() == "Staff":
             yield node, state
@@ -544,6 +586,8 @@ class LilypondConverter:
         diagnostics: list[Diagnostic],
         initial_state: _WalkState,
     ) -> list[Part]:
+        """Build the exported parts that originate from one LilyPond staff."""
+
         part_plan = self._plan_staff_parts(
             staff_context,
             staff_index,
@@ -591,6 +635,8 @@ class LilypondConverter:
         diagnostics: list[Diagnostic],
         initial_state: _WalkState,
     ) -> _StaffPartPlan:
+        """Plan how one staff should expand into exported parts and voices."""
+
         with_node = next((child for child in staff_context if isinstance(child, items.With)), None)
         music_node = next((child for child in staff_context if isinstance(child, items.Music)), None)
 
@@ -607,6 +653,9 @@ class LilypondConverter:
             sequence = []
 
         position = 0
+        # Planning is intentionally separate from voice building. This keeps the
+        # exported part topology stable before any note-level flattening starts,
+        # which is especially important for ``\partCombine`` and lyric routing.
         while position < len(sequence):
             node, node_state = sequence[position]
             if isinstance(node, items.Context):
@@ -1215,10 +1264,15 @@ class LilypondConverter:
         allow_cues: bool = True,
         initial_state: _WalkState | None = None,
     ) -> Voice:
+        """Flatten one LilyPond music source into a linear exported voice."""
+
         voice = Voice(id=voice_id, source_name=source_name)
         state = _VoiceBuildState(current_measure=Measure(number=1))
 
         walk_state = replace(initial_state or _WalkState(), allow_cues=allow_cues, measure_length=measure_length)
+        # ``_iter_linear_nodes`` resolves the nested LilyPond wrappers that can
+        # affect duration, pitch interpretation, cue suppression, tag filtering,
+        # and transient direction state before events are assembled into measures.
         for flattened in self._iter_linear_nodes(music_node, walk_state):
             node = flattened.node
             is_grace = flattened.is_grace
@@ -1504,6 +1558,8 @@ class LilypondConverter:
         pitches: list[Pitch] | None = None,
         is_rest: bool = False,
     ) -> MusicEvent:
+        """Construct one intermediate-model event from a flattened parser node."""
+
         event_kwargs: dict[str, object] = {
             "duration": duration,
             "is_grace": flattened.is_grace,
@@ -1520,6 +1576,14 @@ class LilypondConverter:
         return MusicEvent(**event_kwargs)
 
     def _iter_linear_nodes(self, node: items.Item, state: _WalkState | None = None) -> Iterable[_FlattenedNode]:
+        """Flatten supported LilyPond wrappers into a linear event stream.
+
+        This is the main traversal routine that resolves wrappers such as grace,
+        transpose, tuplets, tag filters, repeats, cue insertion, and relative
+        pitch context into event-ready nodes plus the state required to render
+        them correctly later.
+        """
+
         state = state or _WalkState()
 
         if isinstance(node, items.UserCommand):
@@ -1604,6 +1668,8 @@ class LilypondConverter:
         yield self._flattened_node(node, state)
 
     def _iter_sequential_music_list(self, node: items.MusicList, state: _WalkState) -> Iterable[_FlattenedNode]:
+        """Flatten one sequential music list while preserving evolving walk state."""
+
         sequence = self._item_children(node)
         index = 0
         current_state = state
@@ -1648,6 +1714,8 @@ class LilypondConverter:
             index += 1
 
     def _flatten_repeat(self, node: items.Repeat, state: _WalkState) -> Iterable[_FlattenedNode]:
+        """Expand the repeat forms currently supported by the converter."""
+
         specifier = node.specifier()
         repeat_count = node.repeat_count()
         alt = node[-1] if len(node) and isinstance(node[-1], items.Alternative) else None
@@ -2075,6 +2143,13 @@ class LilypondConverter:
         return None
 
     def _duration_of_music(self, node: items.Item, state: _WalkState | None = None) -> Fraction:
+        """Estimate rendered duration for supported LilyPond music nodes.
+
+        Cue insertion needs duration information before the cue voice is sliced,
+        so this routine mirrors the flattening rules closely enough to preserve
+        duration through supported wrappers and filters.
+        """
+
         state = state or _WalkState()
 
         if isinstance(node, items.UserCommand):
@@ -2159,6 +2234,8 @@ class LilypondConverter:
         quote_sources: dict[str, items.Item],
         diagnostics: list[Diagnostic],
     ) -> list[MusicEvent]:
+        """Resolve one cue request into the slice of quote events it should emit."""
+
         quote_voice = self._quote_voice(cue.quote_name, measure_length, assignments, quote_sources, diagnostics)
         if quote_voice is None:
             diagnostics.append(
@@ -2263,6 +2340,8 @@ class LilypondConverter:
         initial_state: _WalkState | None = None,
         verse_number: int | None = None,
     ) -> None:
+        """Attach lyric tokens to note events in score order for one voice."""
+
         note_events = [event for measure in voice.measures for event in measure.events if event.is_note and not event.is_grace]
         if not note_events:
             return
@@ -2272,6 +2351,9 @@ class LilypondConverter:
         previous_hyphen = False
         last_lyric_event: MusicEvent | None = None
 
+        # LilyPond lyric streams are interpreted as a sequence of tokens aligned
+        # against note events. The converter keeps this deliberately simple and
+        # bounded so public support claims match only the tested workflows.
         for index, token in enumerate(lyric_tokens):
             if note_index >= len(note_events):
                 break

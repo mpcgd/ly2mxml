@@ -1,3 +1,9 @@
+"""Serialize the intermediate score model as MusicXML.
+
+The writer only consumes the resolved score model. It should not need to know
+about the full LilyPond parser tree or re-interpret LilyPond-specific syntax.
+"""
+
 from __future__ import annotations
 
 from fractions import Fraction
@@ -10,6 +16,8 @@ from ly2mxml.options import ExportOptions
 
 
 class MusicXmlWriter:
+    """Render the internal score model as a MusicXML ``score-partwise`` tree."""
+
     def write(
         self,
         score: Score,
@@ -17,6 +25,8 @@ class MusicXmlWriter:
         export_options: ExportOptions | None = None,
         partcombine_mode: PartCombineMode | None = None,
     ) -> Path:
+        """Write one converted score to disk and return the resolved path."""
+
         export_options = self._resolve_export_options(export_options, partcombine_mode)
         path = Path(output_path)
         root = self.build_tree(score, export_options=export_options)
@@ -29,6 +39,8 @@ class MusicXmlWriter:
         export_options: ExportOptions | None = None,
         partcombine_mode: PartCombineMode | None = None,
     ) -> str:
+        """Render one converted score directly to a MusicXML string."""
+
         export_options = self._resolve_export_options(export_options, partcombine_mode)
         root = self.build_tree(score, export_options=export_options)
         return self._serialize_root(root)
@@ -43,6 +55,13 @@ class MusicXmlWriter:
         export_options: ExportOptions | None = None,
         partcombine_mode: PartCombineMode | None = None,
     ) -> ET.Element:
+        """Build the MusicXML tree for a converted score.
+
+        The converter normalizes LilyPond semantics into the intermediate model;
+        this method handles the XML-level concerns such as part lists, per-part
+        divisions, measure backups, multiple rests, and note-direction output.
+        """
+
         export_options = self._resolve_export_options(export_options, partcombine_mode)
         root = ET.Element("score-partwise", version="4.0")
         rendered_parts = self._render_parts(score.parts, export_options.partcombine_mode)
@@ -78,6 +97,9 @@ class MusicXmlWriter:
         for part_index, part in enumerate(rendered_parts):
             part_element = ET.SubElement(root, "part", id=part.id)
             measure_count = score_measure_count
+            # Multiple-rest compression is only applied when every exported
+            # voice can safely participate, which avoids silently discarding
+            # per-voice content such as directions or partial-measure rests.
             multiple_rest_starts, multiple_rest_continuations = self._multiple_rest_map(part, score_measure_durations)
             active_trill_lines: dict[str, set[tuple[tuple[str, int, int], ...]]] = {voice.id: set() for voice in part.voices}
             active_wedges: dict[str, str | None] = {voice.id: None for voice in part.voices}
@@ -111,6 +133,9 @@ class MusicXmlWriter:
                 for voice_index, voice in enumerate(part.voices):
                     measure = self._measure_for_voice(part, voice, measure_index, score_measure_durations[measure_index])
                     if voice_index > 0:
+                        # MusicXML voices in one measure are time-aligned with a
+                        # backup element rather than interleaving unrelated note
+                        # streams directly.
                         backup = ET.SubElement(measure_element, "backup")
                         duration = ET.SubElement(backup, "duration")
                         duration.text = str(self._duration_to_units(score_measure_durations[measure_index], part.divisions))
@@ -142,6 +167,8 @@ class MusicXmlWriter:
         return export_options
 
     def _multiple_rest_map(self, part: Part, measure_durations: list[Fraction]) -> tuple[dict[int, int], set[int]]:
+        """Locate runs of full-measure rests eligible for MusicXML compression."""
+
         if not part.voices or not all(voice.compress_empty_measures for voice in part.voices):
             return {}, set()
 
@@ -190,6 +217,8 @@ class MusicXmlWriter:
         multiple_rest.text = str(measure_count)
 
     def _render_parts(self, parts: list[Part], partcombine_mode: PartCombineMode) -> list[Part]:
+        """Return the part list exactly as it should appear in MusicXML output."""
+
         if partcombine_mode == "separate":
             return parts
 
@@ -212,6 +241,8 @@ class MusicXmlWriter:
         return rendered_parts
 
     def _merge_partcombine_group(self, parts: list[Part]) -> Part:
+        """Merge one planned partCombine group back into a multi-voice part."""
+
         first = parts[0]
         voices: list[Voice] = []
         divisions = 1
@@ -273,6 +304,8 @@ class MusicXmlWriter:
         active_trill_lines: set[tuple[tuple[str, int, int], ...]],
         active_wedge: str | None,
     ) -> str | None:
+        """Append one voice's measure content and return the updated wedge state."""
+
         for event in measure.events:
             for direction in event.directions:
                 active_wedge = self._append_direction(measure_element, direction, active_wedge, voice_id)
@@ -289,6 +322,8 @@ class MusicXmlWriter:
         event: MusicEvent,
         trill_line_type: str | None = None,
     ) -> None:
+        """Serialize one note or rest event, including its notations and lyrics."""
+
         if event.is_rest:
             note = ET.SubElement(measure_element, "note")
             if event.is_cue:
@@ -397,6 +432,8 @@ class MusicXmlWriter:
         active_wedge: str | None,
         voice_id: str | None,
     ) -> str | None:
+        """Serialize one direction and keep wedge state consistent across notes."""
+
         if direction.kind == "dynamic" and active_wedge is not None:
             active_wedge = self._append_direction(
                 measure_element,
@@ -467,6 +504,8 @@ class MusicXmlWriter:
         event: MusicEvent,
         active_trill_lines: set[tuple[tuple[str, int, int], ...]],
     ) -> str | None:
+        """Track trill-line continuity across tied notes with the same pitch set."""
+
         signature = self._event_signature(event)
         if signature is None:
             return None

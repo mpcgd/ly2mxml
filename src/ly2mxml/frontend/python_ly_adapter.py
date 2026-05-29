@@ -1,3 +1,10 @@
+"""Bridge python-ly parsing to the rest of the project.
+
+This module keeps parser-facing concerns isolated from conversion concerns. It
+loads documents, follows includes, walks parser nodes, and records the feature
+usage that preflight and the CLI expose to users.
+"""
+
 from __future__ import annotations
 
 from collections import Counter
@@ -15,6 +22,8 @@ from ly2mxml.loader import ProjectLoader
 
 @dataclass(slots=True)
 class SourceAnalysis:
+    """Summarize parser-facing facts discovered while inspecting a project."""
+
     entrypoint: Path
     document_count: int = 0
     scheme_node_count: int = 0
@@ -27,6 +36,8 @@ class SourceAnalysis:
     diagnostics: list[Diagnostic] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
+        """Serialize the analysis in a stable shape for CLI and tests."""
+
         return {
             "entrypoint": str(self.entrypoint),
             "document_count": self.document_count,
@@ -44,16 +55,25 @@ class SourceAnalysis:
 
 
 class PythonLyAdapter:
-    """Thin wrapper around python-ly for project inspection and preflight analysis."""
+    """Wrap python-ly loading and inspection behind project-specific helpers.
+
+    The adapter intentionally does not implement musical conversion. Its job is
+    to provide a consistent document tree and inspection summary that the
+    converter can trust.
+    """
 
     def __init__(self, loader: ProjectLoader | None = None) -> None:
         self.loader = loader or ProjectLoader()
 
     def load_document_tree(self, entrypoint: str | Path) -> items.Document:
+        """Load the parsed document tree for the conversion pipeline."""
+
         resolved_entrypoint = self.loader.resolve_entrypoint(entrypoint)
         return self._load_document(resolved_entrypoint)
 
     def inspect(self, entrypoint: str | Path) -> SourceAnalysis:
+        """Inspect a LilyPond project, following includes transitively."""
+
         resolved_entrypoint = self.loader.resolve_entrypoint(entrypoint)
         document = self._load_document(resolved_entrypoint)
 
@@ -63,12 +83,16 @@ class PythonLyAdapter:
         return analysis
 
     def _load_document(self, source_path: Path) -> items.Document:
+        """Parse one LilyPond file into the python-ly music tree."""
+
         source_text = self.loader.read_text(source_path)
         source_document = ly.document.Document(source_text, mode="lilypond")
         source_document.filename = str(source_path)
         return ly.music.document(source_document)
 
     def load_included_document(self, document: items.Document, include_node: items.Include) -> items.Document | None:
+        """Resolve and parse a file referenced by one ``\\include`` node."""
+
         include_path = self._resolve_include_path(document, include_node)
         if include_path is None:
             return None
@@ -78,6 +102,8 @@ class PythonLyAdapter:
             return None
 
     def _resolve_include_path(self, document: items.Document, include_node: items.Include) -> Path | None:
+        """Resolve an include relative to the including document when needed."""
+
         include_name = include_node.filename()
         if not include_name:
             return None
@@ -95,6 +121,8 @@ class PythonLyAdapter:
         analysis: SourceAnalysis,
         visited_paths: set[Path],
     ) -> None:
+        """Walk one document once and recurse through any resolvable includes."""
+
         file_name = getattr(document.document, "filename", None)
         resolved_file_name = Path(file_name).resolve() if file_name else None
         if resolved_file_name in visited_paths:
@@ -104,6 +132,9 @@ class PythonLyAdapter:
 
         analysis.document_count += 1
 
+        # Inspection follows includes here so the rest of the project can treat
+        # the reported assignments, features, and diagnostics as whole-project
+        # facts rather than facts from only the entrypoint file.
         for node in self._walk_nodes(document):
             self._record_node(node, analysis)
             if isinstance(node, items.Include):
@@ -125,6 +156,8 @@ class PythonLyAdapter:
                 self._visit_document(included_document, analysis, visited_paths)
 
     def _record_node(self, node: object, analysis: SourceAnalysis) -> None:
+        """Update the running analysis with information from one parser node."""
+
         if isinstance(node, items.Assignment):
             analysis.assignments.add(str(node.name()))
 
@@ -175,6 +208,8 @@ class PythonLyAdapter:
             analysis.features.add("lyrics")
 
     def _record_feature(self, token: str, analysis: SourceAnalysis, is_user_command: bool = False) -> None:
+        """Map low-level command tokens to the repository's support vocabulary."""
+
         normalized = token.lstrip("\\")
         interesting = {
             "bar": "barlines",
@@ -194,6 +229,8 @@ class PythonLyAdapter:
             analysis.features.add("user-variables")
 
     def _walk_nodes(self, node: object) -> Iterable[object]:
+        """Yield one node and all of its parser children recursively."""
+
         yield node
         if isinstance(node, items.Item):
             for child in node:

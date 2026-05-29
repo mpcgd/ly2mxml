@@ -1,0 +1,144 @@
+# LilyPond Syntax Support
+
+This page documents the current LilyPond surface implemented by `ly2mxml`. The project intentionally supports a bounded, test-backed subset of LilyPond syntax rather than claiming full LilyPond compatibility.
+
+Use the sections below as the support contract:
+
+- **Implemented** means the syntax is handled in the converter and backed by current tests and fixtures.
+- **Implemented but bounded** means the syntax works only in the documented forms and should not be described more broadly.
+- **Not yet implemented / unsupported** means the syntax is currently outside the supported conversion surface.
+
+## Implemented
+
+### Core music representation
+
+- notes
+- rests
+- chords
+- relative pitch with `\relative`
+- transposed music with `\transpose`
+- key signatures with `\key`
+- time signatures with `\time`
+- initial staff clef extraction
+
+### Structural expansion and duration handling
+
+- `\repeat unfold`
+- `\repeat volta`
+- `\tuplet`
+- `\times`
+- `\scaleDurations`
+
+### Expression and notation
+
+- slurs
+- ties
+- grace notes, including bounded appoggiatura/acciaccatura slash handling
+- supported dynamic commands, including the mapped forms covered by the current converter
+- wedge commands `\<`, `\>`, and `\!`
+- supported articulation spellings currently mapped in the converter
+- `\trill`
+- explicit barlines with `\bar`
+- `\ottava`
+
+### Parts, voices, and assembly
+
+- `\partCombine` planning and export
+- export of partCombine groups as either separate parts or one combined MusicXML part
+- `\include`
+- user-variable assignment resolution
+
+### Quotes and cues
+
+- `\addQuote`
+- `\cueDuring`
+- `\quoteDuring`
+- `\killCues`
+- cue export ignored by default
+- cue export when enabled explicitly
+- cue-duration traversal through currently tested wrappers such as `\transpose`, `\scaleDurations`, `\relative`, and `\tag`
+
+### Lyrics
+
+- `\addlyrics`
+- bounded `\lyricsto` support in the currently tested named-voice forms
+- multiple lyric verses in the currently tested forms
+
+### Tag filtering and measure-rest handling
+
+- bounded `\tag` handling
+- bounded `\removeWithTag` handling
+- `\compressEmptyMeasures`
+- uppercase measure-rest duration semantics such as `R1*10`
+- MusicXML multiple-rest export for supported consecutive full-measure rests
+
+## Implemented But Bounded
+
+### Clefs
+
+- Only the initial staff clef is treated as a supported feature.
+- Do not assume mid-voice clef-change support.
+
+### Repeats
+
+- Repeat support is limited to `\repeat unfold` and `\repeat volta`.
+- Other repeat forms should not be described as supported.
+
+### Cues
+
+- Cue support is quote-based and depends on `\addQuote` plus `\cueDuring` or `\quoteDuring`.
+- The converter preserves duration for the currently tested wrapper forms, but public docs should not imply arbitrary cue extraction or styling support.
+
+### Lyrics
+
+- Lyrics support is intentionally limited to `\addlyrics` and the currently tested `\lyricsto` workflows.
+- Do not describe the project as supporting LilyPond lyrics generically.
+
+### Tags
+
+- Tag filtering is limited to the currently tested `\tag` and `\removeWithTag` forms.
+- Avoid claiming broad nested tag semantics beyond those forms.
+
+### PartCombine
+
+- PartCombine support is limited to the converter's current two-mode export model.
+- The documentation should not claim full LilyPond engraving-equivalent partCombine behavior.
+
+### Dynamics, articulations, and Scheme
+
+- Document only the current mapped dynamic and articulation forms.
+- Scheme support is bounded to parsing and lookup behavior used by the converter, not arbitrary Scheme evaluation.
+
+### Barlines and tempo
+
+- Barline support should be described as explicit `\bar` support.
+- Tempo handling should be described carefully from the current output behavior rather than as a generic playback feature promise.
+
+## Not Yet Implemented / Unsupported
+
+- simultaneous music that requires true polyphonic flattening inside one linear voice stream
+- repeat forms beyond `\repeat unfold` and `\repeat volta`
+- mid-voice clef changes
+- general Scheme-driven music evaluation or arbitrary Scheme execution semantics
+- unknown LilyPond commands outside the currently handled command set
+- broader lyric constructs beyond `\addlyrics` and the current `\lyricsto` support
+- broader cue constructs beyond quote-based cue extraction from `\addQuote` sources
+- broader tag semantics beyond the currently tested `\tag` and `\removeWithTag` forms
+
+## Areas Where Docs Should Stay Conservative
+
+- complex nested tag interactions
+- more intricate cue-duration mismatch cases than the current fixtures cover
+- combined `\partCombine` export mixed with more complex cue or direction interaction than the current tests cover
+- grace-note edge cases mixed with denser slur, tie, or articulation combinations than the current fixtures exercise
+- LilyPond syntax that may parse under `python-ly` but is not explicitly handled and tested in `ly2mxml`
+
+## How To Extend This Matrix
+
+When adding support for a new LilyPond construct:
+
+1. add or extend converter logic
+2. add focused fixtures and tests
+3. update this matrix
+
+If a construct is not test-backed, it should remain in the bounded or unsupported sections.
