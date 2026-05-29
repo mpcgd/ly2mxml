@@ -18,7 +18,7 @@ from ly.music import items
 
 from ly2mxml.diagnostics import Diagnostic, location_from_item
 from ly2mxml.frontend.python_ly_adapter import PythonLyAdapter, SourceAnalysis
-from ly2mxml.model.score import Direction, Lyric, Measure, MusicEvent, Part, PartCombineMode, Pitch, Score, ScoreMetadata, Voice
+from ly2mxml.model.score import ClefChange, Direction, Lyric, Measure, MusicEvent, Part, PartCombineMode, Pitch, Score, ScoreMetadata, Voice
 from ly2mxml.musicxml.writer import MusicXmlWriter
 from ly2mxml.options import ExportOptions
 
@@ -95,10 +95,27 @@ ORNAMENT_MAP = {
     "\\trill": "trill-mark",
 }
 
+DEFAULT_CLEF = ("G", 2, None)
+
 CLEF_MAP = {
-    "treble": ("G", 2),
-    "alto": ("C", 3),
-    "bass": ("F", 4),
+    "treble": DEFAULT_CLEF,
+    "violin": DEFAULT_CLEF,
+    "treble_8": ("G", 2, -1),
+    "treble^8": ("G", 2, 1),
+    "treble_15": ("G", 2, -2),
+    "treble^15": ("G", 2, 2),
+    "soprano": ("C", 1, None),
+    "mezzosoprano": ("C", 2, None),
+    "mezzo-soprano": ("C", 2, None),
+    "alto": ("C", 3, None),
+    "tenor": ("C", 4, None),
+    "baritone": ("C", 5, None),
+    "bass": ("F", 4, None),
+    "bass_8": ("F", 4, -1),
+    "bass^8": ("F", 4, 1),
+    "bass_15": ("F", 4, -2),
+    "bass^15": ("F", 4, 2),
+    "percussion": ("percussion", 2, None),
 }
 
 STEP_MAP = {
@@ -276,6 +293,7 @@ class _VoiceBuildState:
     current_measure: Measure
     elapsed: Fraction = Fraction(0, 1)
     timeline_position: Fraction = Fraction(0, 1)
+    current_clef: tuple[str, int, int | None] = DEFAULT_CLEF
     pending_directions: list[Direction] = field(default_factory=list)
     last_event: MusicEvent | None = None
     attachment_event: MusicEvent | None = None
@@ -304,6 +322,7 @@ class _PartBuildContext:
     short_name: str | None
     clef_sign: str
     clef_line: int
+    clef_octave_change: int | None
     global_settings: _GlobalSettings
 
 
@@ -641,7 +660,8 @@ class LilypondConverter:
         music_node = next((child for child in staff_context if isinstance(child, items.Music)), None)
 
         name, short_name = self._extract_part_names(with_node)
-        clef_name = "treble"
+        clef_spec = DEFAULT_CLEF
+        opening_clef_locked = False
         planning_state = _StaffPlanningState(global_ref=_VoiceReference("global", initial_state))
         container_end_position = music_node.end_position() if music_node is not None and callable(getattr(music_node, "end_position", None)) else None
 
@@ -695,7 +715,16 @@ class LilypondConverter:
                 continue
 
             if isinstance(node, items.Clef):
-                clef_name = node.specifier() or clef_name
+                if opening_clef_locked:
+                    position += 1
+                    continue
+                resolved_clef = self._resolve_clef(node.specifier())
+                if resolved_clef is None:
+                    self._report_unsupported_clef(diagnostics, node, context=f"staff {staff_index}")
+                    position += 1
+                    continue
+                clef_spec = resolved_clef
+                opening_clef_locked = True
             elif isinstance(node, items.Command) and str(node.token) == "\\partCombine":
                 self._plan_partcombine_group(
                     sequence,
@@ -733,7 +762,7 @@ class LilypondConverter:
             planning_state.global_ref.name,
             planning_state.global_ref.state,
         )
-        clef_sign, clef_line = CLEF_MAP.get(clef_name, ("G", 2))
+        clef_sign, clef_line, clef_octave_change = clef_spec
         return _StaffPartPlan(
             part_context=_PartBuildContext(
                 staff_index=staff_index,
@@ -741,6 +770,7 @@ class LilypondConverter:
                 short_name=short_name,
                 clef_sign=clef_sign,
                 clef_line=clef_line,
+                clef_octave_change=clef_octave_change,
                 global_settings=global_settings,
             ),
             voice_refs=tuple(planning_state.voice_refs),
@@ -1070,6 +1100,7 @@ class LilypondConverter:
             time_signature=settings.time_signature,
             key_fifths=settings.key_fifths,
             key_mode=settings.key_mode,
+            clef_octave_change=part_context.clef_octave_change,
             tempo_text=settings.tempo_text,
             combine_group=combine_group,
             combine_member=combine_member,
@@ -1107,12 +1138,28 @@ class LilypondConverter:
             quote_sources=quote_sources,
             diagnostics=diagnostics,
             initial_state=voice_ref.state,
+            initial_clef=(part.clef_sign, part.clef_line, part.clef_octave_change),
         )
+        if not part.voices:
+            self._promote_opening_voice_clef(part, voice)
         target_lyrics = lyric_sources.get(voice_ref.lyric_target, [])
         for verse_index, (lyric_source, lyric_state) in enumerate(target_lyrics, start=1):
             verse_number = verse_index if len(target_lyrics) > 1 else None
             self._apply_lyrics(voice, lyric_source, assignments, lyric_state, verse_number)
         part.voices.append(voice)
+
+    def _promote_opening_voice_clef(self, part: Part, voice: Voice) -> None:
+        if not voice.measures or not voice.measures[0].clef_changes:
+            return
+
+        opening_clef = voice.measures[0].clef_changes[0]
+        if opening_clef.offset != 0:
+            return
+
+        part.clef_sign = opening_clef.sign
+        part.clef_line = opening_clef.line
+        part.clef_octave_change = opening_clef.octave_change
+        voice.measures[0].clef_changes.pop(0)
 
     def _infer_partcombine_labels(
         self,
@@ -1263,11 +1310,12 @@ class LilypondConverter:
         diagnostics: list[Diagnostic],
         allow_cues: bool = True,
         initial_state: _WalkState | None = None,
+        initial_clef: tuple[str, int, int | None] | None = None,
     ) -> Voice:
         """Flatten one LilyPond music source into a linear exported voice."""
 
         voice = Voice(id=voice_id, source_name=source_name)
-        state = _VoiceBuildState(current_measure=Measure(number=1))
+        state = _VoiceBuildState(current_measure=Measure(number=1), current_clef=initial_clef or DEFAULT_CLEF)
 
         walk_state = replace(initial_state or _WalkState(), allow_cues=allow_cues, measure_length=measure_length)
         # ``_iter_linear_nodes`` resolves the nested LilyPond wrappers that can
@@ -1294,6 +1342,8 @@ class LilypondConverter:
                     quote_sources,
                     diagnostics,
                 )
+            elif isinstance(node, items.Clef):
+                self._add_voice_clef_change(voice, state, node, measure_length, source_name, diagnostics)
             elif isinstance(node, items.Note):
                 state.attachment_event = None
                 source_pitch = flattened.resolved_pitches[0] if flattened.resolved_pitches else node.pitch
@@ -1411,6 +1461,38 @@ class LilypondConverter:
             state.last_event.directions.append(direction)
         else:
             state.pending_directions.append(direction)
+
+    def _add_voice_clef_change(
+        self,
+        voice: Voice,
+        state: _VoiceBuildState,
+        node: items.Clef,
+        measure_length: Fraction,
+        source_name: str,
+        diagnostics: list[Diagnostic],
+    ) -> None:
+        if state.elapsed == measure_length:
+            self._finalize_voice_measure(voice, state)
+
+        clef_spec = self._resolve_clef(node.specifier())
+        if clef_spec is None:
+            self._report_unsupported_clef(diagnostics, node, context=f"voice {source_name}")
+            return
+
+        if clef_spec == state.current_clef:
+            return
+
+        clef_change = ClefChange(
+            offset=state.elapsed,
+            sign=clef_spec[0],
+            line=clef_spec[1],
+            octave_change=clef_spec[2],
+        )
+        if state.current_measure.clef_changes and state.current_measure.clef_changes[-1].offset == clef_change.offset:
+            state.current_measure.clef_changes[-1] = clef_change
+        else:
+            state.current_measure.clef_changes.append(clef_change)
+        state.current_clef = clef_spec
 
     def _finalize_voice_measure(self, voice: Voice, state: _VoiceBuildState) -> None:
         state.current_measure.duration = state.elapsed
@@ -2493,6 +2575,31 @@ class LilypondConverter:
             "||": "light-light",
             "|.": "light-heavy",
         }.get(value)
+
+    def _resolve_clef(self, clef_name: str | None) -> tuple[str, int, int | None] | None:
+        if not clef_name:
+            return None
+        normalized = clef_name.strip().strip('"').lower().replace(" ", "")
+        normalized = {
+            "mezzo-soprano": "mezzosoprano",
+        }.get(normalized, normalized)
+        return CLEF_MAP.get(normalized)
+
+    def _report_unsupported_clef(
+        self,
+        diagnostics: list[Diagnostic],
+        node: items.Clef,
+        *,
+        context: str,
+    ) -> None:
+        diagnostics.append(
+            Diagnostic(
+                code="unsupported-clef",
+                message=f"Unsupported clef in {context}: {node.specifier()}",
+                severity="warning",
+                location=location_from_item(node),
+            )
+        )
 
     def _ottava_directions(self, ottava_value: int, active_ottava: int | None) -> list[Direction]:
         directions: list[Direction] = []

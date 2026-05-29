@@ -37,6 +37,16 @@ class Direction:
 
 
 @dataclass(frozen=True, slots=True)
+class ClefChange:
+    """Represent one clef change at a measure-relative musical offset."""
+
+    offset: Fraction
+    sign: str
+    line: int
+    octave_change: int | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class Lyric:
     """Represent one lyric syllable attached to a note event."""
 
@@ -82,6 +92,7 @@ class Measure:
     number: int
     events: list[MusicEvent] = field(default_factory=list)
     duration: Fraction = Fraction(0, 1)
+    clef_changes: list[ClefChange] = field(default_factory=list)
     right_barline: str | None = None
 
 
@@ -107,6 +118,7 @@ class Part:
     time_signature: tuple[int, int]
     key_fifths: int
     key_mode: str
+    clef_octave_change: int | None = None
     tempo_text: str | None = None
     voices: list[Voice] = field(default_factory=list)
     divisions: int = 1

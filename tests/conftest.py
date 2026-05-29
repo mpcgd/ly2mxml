@@ -117,6 +117,11 @@ def ottava_entrypoint(repo_root: Path) -> Path:
 
 
 @pytest.fixture
+def clef_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "clefs.ly"
+
+
+@pytest.fixture
 def cue_entrypoint(repo_root: Path) -> Path:
     return repo_root / "tests" / "fixtures" / "cues.ly"
 

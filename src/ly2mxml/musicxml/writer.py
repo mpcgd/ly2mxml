@@ -11,7 +11,7 @@ from math import lcm
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
-from ly2mxml.model.score import Direction, Lyric, MusicEvent, Part, PartCombineMode, Pitch, Score, Voice
+from ly2mxml.model.score import ClefChange, Direction, Lyric, MusicEvent, Part, PartCombineMode, Pitch, Score, Voice
 from ly2mxml.options import ExportOptions
 
 
@@ -122,6 +122,7 @@ class MusicXmlWriter:
                         part,
                         part.voices[0].id,
                         measure,
+                        self._clef_changes_for_measure(part, measure_index, score_measure_durations[measure_index]),
                         active_trill_lines[part.voices[0].id],
                         active_wedges[part.voices[0].id],
                     )
@@ -144,6 +145,7 @@ class MusicXmlWriter:
                         part,
                         voice.id,
                         measure,
+                        self._clef_changes_for_measure(part, measure_index, score_measure_durations[measure_index]) if voice_index == 0 else (),
                         active_trill_lines[voice.id],
                         active_wedges[voice.id],
                     )
@@ -199,6 +201,8 @@ class MusicXmlWriter:
             return False
         for voice in part.voices:
             measure = self._measure_for_voice(part, voice, measure_index, expected_duration)
+            if measure.clef_changes:
+                return False
             if len(measure.events) != 1:
                 return False
             event = measure.events[0]
@@ -267,6 +271,7 @@ class MusicXmlWriter:
             time_signature=first.time_signature,
             key_fifths=first.key_fifths,
             key_mode=first.key_mode,
+            clef_octave_change=first.clef_octave_change,
             tempo_text=first.tempo_text,
             voices=voices,
             divisions=divisions,
@@ -289,11 +294,7 @@ class MusicXmlWriter:
         beats.text = str(part.time_signature[0])
         beat_type.text = str(part.time_signature[1])
 
-        clef = ET.SubElement(attributes, "clef")
-        sign = ET.SubElement(clef, "sign")
-        sign.text = part.clef_sign
-        line = ET.SubElement(clef, "line")
-        line.text = str(part.clef_line)
+        self._append_clef(attributes, part.clef_sign, part.clef_line, part.clef_octave_change)
 
     def _append_measure_voice(
         self,
@@ -301,17 +302,43 @@ class MusicXmlWriter:
         part: Part,
         voice_id: str,
         measure,
+        clef_changes: tuple[ClefChange, ...],
         active_trill_lines: set[tuple[tuple[str, int, int], ...]],
         active_wedge: str | None,
     ) -> str | None:
         """Append one voice's measure content and return the updated wedge state."""
 
+        clef_index = 0
+        elapsed = Fraction(0, 1)
         for event in measure.events:
+            while clef_index < len(clef_changes) and clef_changes[clef_index].offset == elapsed:
+                self._append_clef_change(measure_element, clef_changes[clef_index])
+                clef_index += 1
             for direction in event.directions:
                 active_wedge = self._append_direction(measure_element, direction, active_wedge, voice_id)
             trill_line_type = self._trill_line_type(event, active_trill_lines)
             self._append_event(measure_element, part, voice_id, measure, event, trill_line_type=trill_line_type)
+            if not event.is_grace:
+                elapsed += event.duration
+
+        while clef_index < len(clef_changes) and clef_changes[clef_index].offset == elapsed:
+            self._append_clef_change(measure_element, clef_changes[clef_index])
+            clef_index += 1
         return active_wedge
+
+    def _append_clef_change(self, measure_element: ET.Element, clef_change: ClefChange) -> None:
+        attributes = ET.SubElement(measure_element, "attributes")
+        self._append_clef(attributes, clef_change.sign, clef_change.line, clef_change.octave_change)
+
+    def _append_clef(self, attributes: ET.Element, sign: str, line: int, octave_change: int | None) -> None:
+        clef = ET.SubElement(attributes, "clef")
+        sign_element = ET.SubElement(clef, "sign")
+        sign_element.text = sign
+        line_element = ET.SubElement(clef, "line")
+        line_element.text = str(line)
+        if octave_change is not None:
+            octave_element = ET.SubElement(clef, "clef-octave-change")
+            octave_element.text = str(octave_change)
 
     def _append_event(
         self,
@@ -598,6 +625,13 @@ class MusicXmlWriter:
             events=[MusicEvent(duration=expected_duration, is_rest=True)],
             duration=expected_duration,
         )
+
+    def _clef_changes_for_measure(self, part: Part, measure_index: int, expected_duration: Fraction) -> tuple[ClefChange, ...]:
+        for voice in part.voices:
+            measure = self._measure_for_voice(part, voice, measure_index, expected_duration)
+            if measure.clef_changes:
+                return tuple(measure.clef_changes)
+        return ()
 
     def _duration_to_units(self, duration: Fraction, divisions: int) -> int:
         return int(duration * 4 * divisions)

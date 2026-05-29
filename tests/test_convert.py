@@ -8,6 +8,7 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 
 from ly2mxml.converter import LilypondConverter
+from ly2mxml.model.score import ClefChange
 from ly2mxml.options import ExportOptions
 
 
@@ -255,6 +256,27 @@ def test_preflight_accepts_transpose(transpose_entrypoint: Path) -> None:
 
     assert not preflight.has_errors
     assert "transpose" in preflight.supported_features
+
+
+def test_build_score_preserves_mid_staff_clef_changes(clef_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(clef_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    part = score.parts[0]
+    voice = part.voices[0]
+
+    assert (part.clef_sign, part.clef_line) == ("G", 2)
+    assert voice.measures[0].clef_changes == [
+        ClefChange(offset=Fraction(1, 2), sign="F", line=4),
+    ]
+    assert voice.measures[1].clef_changes == [
+        ClefChange(offset=Fraction(0, 1), sign="C", line=4),
+        ClefChange(offset=Fraction(1, 2), sign="percussion", line=2),
+    ]
+    assert voice.measures[2].clef_changes == [
+        ClefChange(offset=Fraction(0, 1), sign="G", line=2, octave_change=-1),
+    ]
 
 
 def test_build_score_flattens_repeats_and_captures_tuplets(advanced_syntax_entrypoint: Path) -> None:
@@ -1080,6 +1102,48 @@ def test_cli_convert_writes_transposed_key_and_notes(repo_root: Path, transpose_
     assert "<step>D</step>" in xml
     assert "<step>F</step>" in xml
     assert "<alter>1</alter>" in xml
+
+
+def test_cli_convert_writes_mid_staff_clef_changes(repo_root: Path, clef_entrypoint: Path, tmp_path: Path) -> None:
+    output_path = tmp_path / "clefs.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(clef_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    root = ET.parse(output_path).getroot()
+
+    assert result.stderr.strip() == ""
+
+    part = root.find("part")
+    assert part is not None
+
+    first_measure = part.findall("measure")[0]
+    first_measure_clefs = first_measure.findall("./attributes/clef")
+    assert len(first_measure_clefs) == 2
+    assert first_measure_clefs[0].findtext("sign") == "G"
+    assert first_measure_clefs[0].findtext("line") == "2"
+    assert first_measure_clefs[1].findtext("sign") == "F"
+    assert first_measure_clefs[1].findtext("line") == "4"
+
+    second_measure = part.findall("measure")[1]
+    second_measure_clefs = second_measure.findall("./attributes/clef")
+    assert len(second_measure_clefs) == 2
+    assert second_measure_clefs[0].findtext("sign") == "C"
+    assert second_measure_clefs[0].findtext("line") == "4"
+    assert second_measure_clefs[1].findtext("sign") == "percussion"
+    assert second_measure_clefs[1].findtext("line") == "2"
+
+    third_measure = part.findall("measure")[2]
+    third_measure_clefs = third_measure.findall("./attributes/clef")
+    assert len(third_measure_clefs) == 1
+    assert third_measure_clefs[0].findtext("sign") == "G"
+    assert third_measure_clefs[0].findtext("line") == "2"
+    assert third_measure_clefs[0].findtext("clef-octave-change") == "-1"
 
 
 def test_cli_convert_writes_ottava_octave_shift(repo_root: Path, ottava_entrypoint: Path, tmp_path: Path) -> None:

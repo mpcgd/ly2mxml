@@ -19,7 +19,7 @@ Use the sections below as the support contract:
 - transposed music with `\transpose`
 - key signatures with `\key`
 - time signatures with `\time`
-- initial staff clef extraction
+- opening staff clef extraction and supported mid-staff clef changes
 
 ### Structural expansion and duration handling
 
@@ -76,8 +76,9 @@ Use the sections below as the support contract:
 
 ### Clefs
 
-- Only the initial staff clef is treated as a supported feature.
-- Do not assume mid-voice clef-change support.
+- Initial staff clefs and mid-staff clef changes are supported for the converter's current common MusicXML-mappable clef set.
+- The currently mapped set includes treble, bass, alto, tenor, soprano, mezzosoprano, baritone, percussion, and the supported `*_8`, `*_15`, `^8`, and `^15` octave variants covered by the converter.
+- Do not assume arbitrary LilyPond clef aliases or conflicting clef-change schedules across multiple rendered voices in one staff.
 
 ### Repeats
 

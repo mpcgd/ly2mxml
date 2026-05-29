@@ -48,9 +48,9 @@ This is where most feature support lives. If a LilyPond syntax form is marked su
 The model is intentionally simple:
 
 - `Score` contains metadata, parts, and conversion diagnostics.
-- `Part` holds staff-level musical defaults such as clef, key, time signature, tempo text, and exported voices.
+- `Part` holds opening staff defaults such as clef, key, time signature, tempo text, and exported voices.
 - `Voice` contains measures and export flags such as compressed empty-measure intent.
-- `Measure` holds events and any explicit right barline.
+- `Measure` holds events, timed clef changes, and any explicit right barline.
 - `MusicEvent` describes note/rest content, cue/grace state, articulations, ornaments, lyrics, ties, slurs, tuplets, and attached directions.
 
 The model is already LilyPond-aware enough to preserve semantics, but it is simpler than the parser tree and easier for the MusicXML writer to consume.

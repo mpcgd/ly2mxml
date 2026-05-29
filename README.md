@@ -98,6 +98,7 @@ This sample is the best place to understand the current end-to-end workflow beca
 The converter currently covers a bounded but practical set of LilyPond syntax, including:
 
 - notes, rests, chords, key signatures, and time signatures
+- supported staff clefs, including common mid-staff clef changes
 - relative pitch and transposed music
 - grace-note handling
 - supported dynamics, hairpins, articulations, and trills
@@ -117,7 +118,7 @@ This project does not currently aim to cover all of LilyPond. Important current 
 
 - unsupported simultaneous voice-level music that requires true polyphonic flattening in one linear voice stream
 - repeat forms outside the currently supported unfold and volta handling
-- mid-voice clef changes
+- conflicting clef-change schedules across multiple rendered voices in one staff
 - general Scheme-driven music evaluation
 - broader cue, lyric, and tag semantics outside the currently tested workflows
 
