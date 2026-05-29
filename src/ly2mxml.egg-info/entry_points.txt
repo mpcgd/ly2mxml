@@ -1,0 +1,2 @@
+[console_scripts]
+ly2mxml = ly2mxml.cli:main

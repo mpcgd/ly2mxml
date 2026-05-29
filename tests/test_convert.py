@@ -1,0 +1,609 @@
+from __future__ import annotations
+
+from fractions import Fraction
+import subprocess
+import sys
+from pathlib import Path
+
+from ly2mxml.converter import LilypondConverter
+from ly2mxml.options import ExportOptions
+
+
+def test_preflight_accepts_sample_project(sample_entrypoint: Path) -> None:
+    preflight = LilypondConverter().preflight(sample_entrypoint)
+
+    assert not preflight.has_errors
+    assert "part-combine" in preflight.supported_features
+
+
+def test_converter_defaults_to_ignoring_cues(sample_entrypoint: Path) -> None:
+    converter = LilypondConverter()
+
+    assert converter.export_options.cue_mode == "ignore"
+
+    preflight = converter.preflight(sample_entrypoint)
+
+    assert "cue-filtering" in preflight.supported_features
+    assert "cue-quotes" in preflight.supported_features
+
+
+def test_build_score_extracts_parts_and_voices(sample_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(sample_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+    assert score.metadata.title == "Hymne à l'agriculture"
+    assert score.metadata.composer == "Jean-Xavier Lefèvre"
+    assert len(score.parts) >= 20
+    assert score.parts[0].name == "Flûte I"
+    assert score.parts[1].name == "Flûte II"
+    assert score.parts[0].combined_name == "Flûtes"
+    assert score.parts[0].combine_group == score.parts[1].combine_group
+    assert len(score.parts[0].voices) == 1
+    assert score.parts[0].time_signature == (6, 8)
+
+    first_event = next(event for event in score.parts[0].voices[0].measures[0].events if event.is_note)
+    assert first_event.pitches[0].step == "A"
+    assert first_event.pitches[0].octave >= 5
+
+
+def test_cli_convert_writes_musicxml(repo_root: Path, sample_entrypoint: Path, tmp_path: Path) -> None:
+    output_path = tmp_path / "sample.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(sample_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stdout.strip().startswith("Wrote MusicXML")
+    assert result.stderr.strip() == ""
+    assert "<score-partwise" in xml
+    assert "<movement-title>Hymne à l'agriculture</movement-title>" in xml
+    assert "<part-name>Flûte I</part-name>" in xml
+    assert "<part-name>Flûte II</part-name>" in xml
+    assert "<multiple-rest>" in xml
+    assert "<step>A</step>" in xml
+    assert "<wedge type=\"crescendo\"" in xml
+
+
+def test_convert_file_can_merge_partcombine_groups(sample_entrypoint: Path, tmp_path: Path) -> None:
+    output_path = tmp_path / "sample-combined.musicxml"
+
+    result = LilypondConverter(partcombine_mode="combined").convert_file(sample_entrypoint, output_path)
+
+    assert result.output_path == output_path
+    assert result.score is not None
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert "<part-name>Flûtes</part-name>" in xml
+    assert "<part-name>Flûte I</part-name>" not in xml
+    assert xml.count("<part id=") < len(result.score.parts)
+
+
+def test_convert_file_accepts_export_options(sample_entrypoint: Path, tmp_path: Path) -> None:
+    output_path = tmp_path / "sample-combined-options.musicxml"
+
+    result = LilypondConverter(export_options=ExportOptions(partcombine_mode="combined")).convert_file(
+        sample_entrypoint,
+        output_path,
+    )
+
+    assert result.output_path == output_path
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert "<part-name>Flûtes</part-name>" in xml
+    assert "<part-name>Flûte I</part-name>" not in xml
+
+
+def test_preflight_accepts_supported_repeats_and_scalers(advanced_syntax_entrypoint: Path) -> None:
+    preflight = LilypondConverter().preflight(advanced_syntax_entrypoint)
+
+    assert not preflight.has_errors
+    assert "scaled-durations" in preflight.supported_features
+    assert "repeat:unfold" in preflight.supported_features
+    assert "repeat:volta" in preflight.supported_features
+
+
+def test_preflight_accepts_barlines(barlines_entrypoint: Path) -> None:
+    preflight = LilypondConverter().preflight(barlines_entrypoint)
+
+    assert not preflight.has_errors
+    assert "barlines" in preflight.supported_features
+
+
+def test_preflight_accepts_transpose(transpose_entrypoint: Path) -> None:
+    preflight = LilypondConverter().preflight(transpose_entrypoint)
+
+    assert not preflight.has_errors
+    assert "transpose" in preflight.supported_features
+
+
+def test_build_score_flattens_repeats_and_captures_tuplets(advanced_syntax_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(advanced_syntax_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+    part = score.parts[0]
+    voice = part.voices[0]
+
+    note_events = [event for measure in voice.measures for event in measure.events if event.is_note]
+    step_sequence = [event.pitches[0].step for event in note_events]
+
+    assert step_sequence[-8:] == ["B", "C", "D", "E", "B", "C", "F", "G"]
+    assert any(event.time_modification == (3, 2) and event.tuplet_start for event in note_events)
+    assert any(event.time_modification == (3, 2) and event.tuplet_stop for event in note_events)
+    assert any(direction.kind == "wedge" and direction.value == "crescendo" for event in note_events for direction in event.directions)
+    assert any(direction.kind == "wedge" and direction.value == "stop" for event in note_events for direction in event.directions)
+
+
+def test_cli_convert_writes_tuplets_and_repeats(repo_root: Path, advanced_syntax_entrypoint: Path, tmp_path: Path) -> None:
+    output_path = tmp_path / "advanced.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(advanced_syntax_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert xml.count("<time-modification>") >= 6
+    assert "<tuplet type=\"start\" number=\"1\"" in xml
+    assert "<tuplet type=\"stop\" number=\"1\"" in xml
+    assert "<wedge type=\"crescendo\"" in xml
+    assert "<wedge type=\"stop\"" in xml
+
+
+def test_cli_convert_writes_explicit_barlines(repo_root: Path, barlines_entrypoint: Path, tmp_path: Path) -> None:
+    output_path = tmp_path / "barlines.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(barlines_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert '<barline location="right">' in xml
+    assert '<bar-style>light-light</bar-style>' in xml
+    assert '<bar-style>light-heavy</bar-style>' in xml
+
+
+def test_cli_convert_writes_command_form_sfp(repo_root: Path, sfp_entrypoint: Path, tmp_path: Path) -> None:
+    output_path = tmp_path / "sfp.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(sfp_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert "<sfp />" in xml
+
+
+def test_cli_convert_writes_arrow_accent(repo_root: Path, accent_entrypoint: Path, tmp_path: Path) -> None:
+    output_path = tmp_path / "accent.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(accent_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert "<accent />" in xml
+
+def test_cli_convert_writes_relative_tie_stops(repo_root: Path, relative_tie_entrypoint: Path, tmp_path: Path) -> None:
+    output_path = tmp_path / "relative_ties.musicxml"
+
+    completed = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(relative_tie_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert completed.returncode == 0, completed.stderr
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert xml.count('<tie type="start" />') == 2
+    assert xml.count('<tie type="stop" />') == 2
+
+
+def test_cli_convert_can_merge_partcombine_groups(repo_root: Path, sample_entrypoint: Path, tmp_path: Path) -> None:
+    output_path = tmp_path / "sample-combined-cli.musicxml"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "ly2mxml",
+            "convert",
+            str(sample_entrypoint),
+            "--partcombine-mode",
+            "combined",
+            "-o",
+            str(output_path),
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert "<part-name>Flûtes</part-name>" in xml
+    assert "<part-name>Flûte I</part-name>" not in xml
+
+
+def test_build_score_attaches_addlyrics(lyrics_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(lyrics_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    note_events = [event for measure in score.parts[0].voices[0].measures for event in measure.events if event.is_note]
+
+    assert [event.lyrics[0].text for event in note_events if event.lyrics] == ["Hel", "lo", "world", "song"]
+    assert note_events[0].lyrics[0].syllabic == "begin"
+    assert note_events[1].lyrics[0].syllabic == "end"
+
+
+def test_build_score_distinguishes_grace_subtypes(grace_subtypes_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(grace_subtypes_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    note_events = [event for measure in score.parts[0].voices[0].measures for event in measure.events if event.is_note]
+
+    assert note_events[0].is_grace is True
+    assert note_events[0].grace_slash is True
+    assert note_events[2].is_grace is True
+    assert note_events[2].grace_slash is False
+
+
+def test_build_score_captures_explicit_barlines(barlines_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(barlines_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    measures = score.parts[0].voices[0].measures
+
+    assert measures[0].right_barline == "light-light"
+    assert measures[1].right_barline == "light-heavy"
+
+
+def test_build_score_emits_command_form_sfp_dynamic(sfp_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(sfp_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    note_events = [event for measure in score.parts[0].voices[0].measures for event in measure.events if event.is_note]
+
+    assert [direction.value for direction in note_events[0].directions if direction.kind == "dynamic"] == ["sfp"]
+
+
+def test_build_score_emits_arrow_accent_articulation(accent_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(accent_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    note_events = [event for measure in score.parts[0].voices[0].measures for event in measure.events if event.is_note]
+
+    assert note_events[0].articulations == ["accent"]
+
+def test_build_score_resolves_relative_tied_notes(relative_tie_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(relative_tie_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    note_events = [event for measure in score.parts[0].voices[0].measures for event in measure.events if event.is_note]
+
+    assert [event.pitches[0].octave for event in note_events] == [3, 3, 3]
+    assert [(event.tie_start, event.tie_stop) for event in note_events] == [(True, False), (True, True), (False, True)]
+
+
+def test_build_score_attaches_lyricsto_multiple_verses(lyricsto_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(lyricsto_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    note_events = [event for measure in score.parts[0].voices[0].measures for event in measure.events if event.is_note]
+
+    assert [[lyric.text for lyric in event.lyrics] for event in note_events] == [
+        ["Hel", "Bye"],
+        ["lo", "night"],
+        ["world", "moon"],
+        ["song", "light"],
+    ]
+    assert [lyric.number for lyric in note_events[0].lyrics] == [1, 2]
+    assert note_events[0].lyrics[0].syllabic == "begin"
+    assert note_events[1].lyrics[0].syllabic == "end"
+
+
+def test_build_score_applies_transpose_to_notes_and_key(transpose_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(transpose_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    part = score.parts[0]
+    note_events = [event for measure in part.voices[0].measures for event in measure.events if event.is_note]
+
+    assert part.key_fifths == 2
+    assert [(event.pitches[0].step, event.pitches[0].alter) for event in note_events] == [
+        ("D", 0),
+        ("E", 0),
+        ("F", 1),
+        ("G", 0),
+    ]
+
+
+def test_build_score_emits_ottava_start_and_stop_directions(ottava_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(ottava_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    note_events = [event for measure in score.parts[0].voices[0].measures for event in measure.events if event.is_note]
+
+    assert [direction.value for direction in note_events[0].directions if direction.kind == "octave-shift"] == ["above:down:8"]
+    assert not any(direction.kind == "octave-shift" for direction in note_events[1].directions)
+    assert [direction.value for direction in note_events[2].directions if direction.kind == "octave-shift"] == ["above:stop:8"]
+    assert not any(direction.kind == "octave-shift" for direction in note_events[3].directions)
+
+
+def test_build_score_preserves_cue_duration_when_cues_are_ignored(cue_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(cue_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    voice = score.parts[0].voices[0]
+    first_measure = voice.measures[0]
+    second_measure = voice.measures[1]
+
+    assert first_measure.duration == Fraction(1, 1)
+    assert second_measure.duration == Fraction(1, 1)
+    assert len(first_measure.events) == 1
+    assert first_measure.events[0].is_rest is True
+    assert first_measure.events[0].is_cue is False
+    assert second_measure.events[0].is_rest is True
+
+
+def test_build_score_includes_cue_notes_when_requested(cue_entrypoint: Path) -> None:
+    score = LilypondConverter(export_options=ExportOptions(cue_mode="include")).build_score(cue_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    voice = score.parts[0].voices[0]
+    cue_events = [event for event in voice.measures[0].events if event.is_note and event.is_cue]
+
+    assert [event.pitches[0].step for event in cue_events] == ["C", "D", "E", "F"]
+    assert cue_events[0].articulations == ["staccato"]
+    assert voice.measures[1].events[0].is_rest is True
+    assert not any(event.is_cue for event in voice.measures[1].events)
+
+
+def test_build_score_applies_remove_with_tag_filter(tag_filter_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(tag_filter_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    voice = score.parts[0].voices[0]
+    note_events = [event for measure in voice.measures for event in measure.events if event.is_note]
+
+    assert [event.pitches[0].step for event in note_events] == ["D", "E"]
+
+
+def test_build_score_marks_compressed_empty_measures(multi_measure_rest_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(multi_measure_rest_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+    assert score.parts[0].voices[0].compress_empty_measures is True
+
+
+def test_cli_convert_writes_multiple_rest_measure_style(
+    repo_root: Path,
+    multi_measure_rest_entrypoint: Path,
+    tmp_path: Path,
+) -> None:
+    output_path = tmp_path / "multi-rest.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(multi_measure_rest_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert "<multiple-rest>4</multiple-rest>" in xml
+
+
+def test_cli_convert_writes_cue_notes_when_enabled(repo_root: Path, cue_entrypoint: Path, tmp_path: Path) -> None:
+    output_path = tmp_path / "cues.musicxml"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "ly2mxml",
+            "convert",
+            str(cue_entrypoint),
+            "--include-cues",
+            "-o",
+            str(output_path),
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert "<cue" in xml
+    assert xml.count("<cue") >= 4
+    assert "<staccato" in xml
+
+
+def test_cli_convert_respects_remove_with_tag_filter(repo_root: Path, tag_filter_entrypoint: Path, tmp_path: Path) -> None:
+    output_path = tmp_path / "tag-filter.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(tag_filter_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert "<step>D</step>" in xml
+    assert "<step>E</step>" in xml
+    assert "<step>C</step>" not in xml
+
+
+def test_cli_convert_does_not_write_multiple_rest_without_command(
+    repo_root: Path,
+    uncompressed_rest_entrypoint: Path,
+    tmp_path: Path,
+) -> None:
+    output_path = tmp_path / "uncompressed-rest.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(uncompressed_rest_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert "<multiple-rest>" not in xml
+
+
+def test_cli_convert_writes_lyrics(repo_root: Path, lyrics_entrypoint: Path, tmp_path: Path) -> None:
+    output_path = tmp_path / "lyrics.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(lyrics_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert "<lyric>" in xml
+    assert "<syllabic>begin</syllabic>" in xml
+    assert "<text>Hel</text>" in xml
+    assert "<text>world</text>" in xml
+
+
+def test_cli_convert_writes_slashed_acciaccatura(repo_root: Path, grace_subtypes_entrypoint: Path, tmp_path: Path) -> None:
+    output_path = tmp_path / "grace-subtypes.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(grace_subtypes_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert '<grace slash="yes"' in xml
+    assert xml.count("<grace") == 2
+
+
+def test_cli_convert_writes_lyricsto_multiple_verses(repo_root: Path, lyricsto_entrypoint: Path, tmp_path: Path) -> None:
+    output_path = tmp_path / "lyricsto.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(lyricsto_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert '<lyric number="1">' in xml
+    assert '<lyric number="2">' in xml
+    assert "<text>Hel</text>" in xml
+    assert "<text>Bye</text>" in xml
+
+
+def test_cli_convert_writes_transposed_key_and_notes(repo_root: Path, transpose_entrypoint: Path, tmp_path: Path) -> None:
+    output_path = tmp_path / "transpose.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(transpose_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert "<fifths>2</fifths>" in xml
+    assert "<step>D</step>" in xml
+    assert "<step>F</step>" in xml
+    assert "<alter>1</alter>" in xml
+
+
+def test_cli_convert_writes_ottava_octave_shift(repo_root: Path, ottava_entrypoint: Path, tmp_path: Path) -> None:
+    output_path = tmp_path / "ottava.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(ottava_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert '<direction placement="above">' in xml
+    assert '<octave-shift type="down" size="8"' in xml
+    assert '<octave-shift type="stop" size="8"' in xml

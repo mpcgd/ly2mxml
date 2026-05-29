@@ -1,0 +1,4 @@
+python-ly>=0.9
+
+[dev]
+pytest>=8.2
