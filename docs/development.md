@@ -79,6 +79,24 @@ Run the focused suite with the known-good interpreter:
 C:\Users\mdespres\AppData\Local\Programs\Python\Python312\python.exe -m pytest tests/test_loader.py tests/test_adapter.py tests/test_cli.py tests/test_convert.py tests/test_writer.py
 ```
 
+For a repo-local runner that mirrors this workflow and writes untruncated logs
+for every step, use:
+
+```bash
+C:\Users\mdespres\AppData\Local\Programs\Python\Python312\python.exe tools/validate.py
+```
+
+The runner writes per-step logs, a fresh sample export, and `summary.json`
+under `.validation/latest/`. It uses the current interpreter, prepends `src/`
+to `PYTHONPATH`, and stops on the first failed step by default.
+
+If you want a single full-suite pytest artifact instead of the staged workflow,
+run:
+
+```bash
+C:\Users\mdespres\AppData\Local\Programs\Python\Python312\python.exe tools/validate.py --step full-tests
+```
+
 For a smaller feature-specific slice, use `-k` to target just the relevant tests.
 
 Examples:
