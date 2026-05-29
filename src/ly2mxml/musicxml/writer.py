@@ -68,16 +68,18 @@ class MusicXmlWriter:
                 part_abbreviation = ET.SubElement(score_part, "part-abbreviation")
                 part_abbreviation.text = part.short_name
 
-        for part in rendered_parts:
+        score_measure_count = max((len(voice.measures) for part in rendered_parts for voice in part.voices), default=0)
+
+        for part_index, part in enumerate(rendered_parts):
             part_element = ET.SubElement(root, "part", id=part.id)
-            measure_count = max((len(voice.measures) for voice in part.voices), default=0)
+            measure_count = score_measure_count
             multiple_rest_starts, multiple_rest_continuations = self._multiple_rest_map(part, measure_count)
             active_trill_lines: dict[str, set[tuple[tuple[str, int, int], ...]]] = {voice.id: set() for voice in part.voices}
             for measure_index in range(measure_count):
                 measure_element = ET.SubElement(part_element, "measure", number=str(measure_index + 1))
                 if measure_index == 0:
                     self._append_attributes(measure_element, part)
-                    if part.tempo_text:
+                    if part_index == 0 and part.tempo_text:
                         self._append_direction(measure_element, Direction(kind="tempo", value=part.tempo_text))
                 if measure_index in multiple_rest_starts:
                     self._append_multiple_rest(measure_element, multiple_rest_starts[measure_index])

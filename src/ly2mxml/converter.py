@@ -182,6 +182,7 @@ class _WalkState:
     removed_tags: frozenset[str] = frozenset()
     transpose_specs: tuple["_TransposeSpec", ...] = ()
     relative_reference: object | None = None
+    measure_length: Fraction | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -1004,7 +1005,7 @@ class LilypondConverter:
                 if elapsed == measure_length:
                     finalize_measure()
 
-        walk_state = replace(initial_state or _WalkState(), allow_cues=allow_cues)
+        walk_state = replace(initial_state or _WalkState(), allow_cues=allow_cues, measure_length=measure_length)
         for flattened in self._iter_linear_nodes(music_node, walk_state):
             node = flattened.node
             is_grace = flattened.is_grace
@@ -1071,7 +1072,12 @@ class LilypondConverter:
             elif isinstance(node, items.Rest):
                 attachment_event = None
                 event = MusicEvent(
-                    duration=self._duration_from_node(node.duration, flattened.scale),
+                    duration=self._duration_from_node(
+                        node.duration,
+                        flattened.scale,
+                        token=str(node.token),
+                        measure_length=measure_length,
+                    ),
                     is_rest=True,
                     is_grace=is_grace,
                     grace_slash=flattened.grace_slash,
@@ -1764,7 +1770,12 @@ class LilypondConverter:
             total = Fraction(0, 1)
             for flattened in self._flatten_repeat(node, state):
                 if isinstance(flattened.node, (items.Note, items.Rest, items.Chord, items.Skip)):
-                    total += self._duration_from_node(flattened.node.duration, flattened.scale)
+                    total += self._duration_from_node(
+                        flattened.node.duration,
+                        flattened.scale,
+                        token=str(flattened.node.token),
+                        measure_length=state.measure_length,
+                    )
             return total
 
         if isinstance(node, items.Tag):
@@ -1783,7 +1794,12 @@ class LilypondConverter:
             return total
 
         if isinstance(node, (items.Note, items.Rest, items.Chord, items.Skip)):
-            return self._duration_from_node(node.duration, state.scale)
+            return self._duration_from_node(
+                node.duration,
+                state.scale,
+                token=str(node.token),
+                measure_length=state.measure_length,
+            )
 
         return Fraction(0, 1)
 
@@ -2086,8 +2102,16 @@ class LilypondConverter:
             return text or None
         return None
 
-    def _duration_from_node(self, raw_duration, scale: Fraction = Fraction(1, 1)) -> Fraction:
+    def _duration_from_node(
+        self,
+        raw_duration,
+        scale: Fraction = Fraction(1, 1),
+        token: str | None = None,
+        measure_length: Fraction | None = None,
+    ) -> Fraction:
         base, scaling = raw_duration
+        if token == "R" and measure_length is not None:
+            return measure_length * scaling * scale
         return base * scaling * scale
 
     def _dynamic_to_direction(self, token: str) -> Direction | None:

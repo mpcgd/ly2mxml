@@ -4,6 +4,7 @@ from fractions import Fraction
 import subprocess
 import sys
 from pathlib import Path
+import xml.etree.ElementTree as ET
 
 from ly2mxml.converter import LilypondConverter
 from ly2mxml.options import ExportOptions
@@ -68,6 +69,55 @@ def test_cli_convert_writes_musicxml(repo_root: Path, sample_entrypoint: Path, t
     assert "<multiple-rest>" in xml
     assert "<step>A</step>" in xml
     assert "<wedge type=\"crescendo\"" in xml
+
+
+def test_cli_convert_pads_empty_sample_parts(repo_root: Path, sample_entrypoint: Path, tmp_path: Path) -> None:
+    output_path = tmp_path / "sample-empty-parts.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(sample_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    assert result.stderr.strip() == ""
+
+    root = ET.parse(output_path).getroot()
+    part_names = {score_part.attrib["id"]: score_part.findtext("part-name") for score_part in root.find("part-list")}
+
+    for expected_name in {"Hautbois I", "Hautbois II"}:
+        part = next(part for part in root.findall("part") if part_names.get(part.attrib["id"]) == expected_name)
+        measures = part.findall("measure")
+
+        assert len(measures) == 76
+        assert measures[0].findtext("./attributes/measure-style/multiple-rest") == "76"
+
+
+def test_cli_convert_writes_opening_tempo_once(repo_root: Path, sample_entrypoint: Path, tmp_path: Path) -> None:
+    output_path = tmp_path / "sample-tempo.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(sample_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    assert result.stderr.strip() == ""
+
+    root = ET.parse(output_path).getroot()
+    tempo_locations: list[tuple[str | None, str | None]] = []
+    part_names = {score_part.attrib["id"]: score_part.findtext("part-name") for score_part in root.find("part-list")}
+    for part in root.findall("part"):
+        for measure in part.findall("measure"):
+            for words in measure.findall("./direction/direction-type/words"):
+                if words.text == "Maestoso":
+                    tempo_locations.append((part_names.get(part.attrib["id"]), measure.attrib.get("number")))
+
+    assert tempo_locations == [("Flûte I", "1")]
 
 
 def test_convert_file_can_merge_partcombine_groups(sample_entrypoint: Path, tmp_path: Path) -> None:
@@ -454,6 +504,19 @@ def test_build_score_marks_compressed_empty_measures(multi_measure_rest_entrypoi
     assert score.parts[0].voices[0].compress_empty_measures is True
 
 
+def test_build_score_treats_uppercase_rest_repeat_as_measure_count_in_six_eight(
+    six_eight_multi_measure_rest_entrypoint: Path,
+) -> None:
+    score = LilypondConverter().build_score(six_eight_multi_measure_rest_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    voice = score.parts[0].voices[0]
+
+    assert len(voice.measures) == 11
+    assert all(len(measure.events) == 1 and measure.events[0].is_rest for measure in voice.measures[:10])
+
+
 def test_cli_convert_writes_multiple_rest_measure_style(
     repo_root: Path,
     multi_measure_rest_entrypoint: Path,
@@ -473,6 +536,27 @@ def test_cli_convert_writes_multiple_rest_measure_style(
 
     assert result.stderr.strip() == ""
     assert "<multiple-rest>4</multiple-rest>" in xml
+
+
+def test_cli_convert_writes_six_eight_multiple_rest_measure_style(
+    repo_root: Path,
+    six_eight_multi_measure_rest_entrypoint: Path,
+    tmp_path: Path,
+) -> None:
+    output_path = tmp_path / "six-eight-multi-rest.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(six_eight_multi_measure_rest_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert "<multiple-rest>10</multiple-rest>" in xml
 
 
 def test_cli_convert_writes_cue_notes_when_enabled(repo_root: Path, cue_entrypoint: Path, tmp_path: Path) -> None:

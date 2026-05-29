@@ -46,6 +46,11 @@ def tied_trill_entrypoint(repo_root: Path) -> Path:
 
 
 @pytest.fixture
+def six_eight_multi_measure_rest_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "six_eight_multi_measure_rest.ly"
+
+
+@pytest.fixture
 def lyrics_entrypoint(repo_root: Path) -> Path:
     return repo_root / "tests" / "fixtures" / "lyrics.ly"
 
