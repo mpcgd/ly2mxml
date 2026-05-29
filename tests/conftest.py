@@ -103,6 +103,26 @@ def cue_entrypoint(repo_root: Path) -> Path:
 
 
 @pytest.fixture
+def transpose_cue_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "transpose_cues.ly"
+
+
+@pytest.fixture
+def scaled_cue_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "scaled_cues.ly"
+
+
+@pytest.fixture
+def relative_cue_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "relative_cues.ly"
+
+
+@pytest.fixture
+def tagged_cue_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "tagged_cues.ly"
+
+
+@pytest.fixture
 def tag_filter_entrypoint(repo_root: Path) -> Path:
     return repo_root / "tests" / "fixtures" / "tag_filter.ly"
 

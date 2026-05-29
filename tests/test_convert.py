@@ -773,6 +773,82 @@ def test_build_score_preserves_cue_duration_when_cues_are_ignored(cue_entrypoint
     assert second_measure.events[0].is_rest is True
 
 
+def test_build_score_preserves_transposed_cue_duration_when_cues_are_ignored(transpose_cue_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(transpose_cue_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    voice = score.parts[0].voices[0]
+    first_measure = voice.measures[0]
+    second_measure = voice.measures[1]
+
+    assert first_measure.duration == Fraction(1, 1)
+    assert len(first_measure.events) == 1
+    assert first_measure.events[0].is_rest is True
+    assert first_measure.events[0].is_cue is False
+    assert second_measure.duration == Fraction(1, 1)
+    assert len(second_measure.events) == 1
+    assert second_measure.events[0].is_note is True
+    assert second_measure.events[0].is_cue is False
+
+
+def test_build_score_preserves_scaled_cue_duration_when_cues_are_ignored(scaled_cue_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(scaled_cue_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    voice = score.parts[0].voices[0]
+    first_measure = voice.measures[0]
+    second_measure = voice.measures[1]
+
+    assert first_measure.duration == Fraction(1, 1)
+    assert len(first_measure.events) == 1
+    assert first_measure.events[0].is_rest is True
+    assert first_measure.events[0].is_cue is False
+    assert second_measure.duration == Fraction(1, 1)
+    assert len(second_measure.events) == 1
+    assert second_measure.events[0].is_note is True
+    assert second_measure.events[0].is_cue is False
+
+
+def test_build_score_preserves_relative_cue_duration_when_cues_are_ignored(relative_cue_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(relative_cue_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    voice = score.parts[0].voices[0]
+    first_measure = voice.measures[0]
+    second_measure = voice.measures[1]
+
+    assert first_measure.duration == Fraction(1, 1)
+    assert len(first_measure.events) == 1
+    assert first_measure.events[0].is_rest is True
+    assert first_measure.events[0].is_cue is False
+    assert second_measure.duration == Fraction(1, 1)
+    assert len(second_measure.events) == 1
+    assert second_measure.events[0].is_note is True
+    assert second_measure.events[0].is_cue is False
+
+
+def test_build_score_preserves_tagged_cue_duration_when_cues_are_ignored(tagged_cue_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(tagged_cue_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    voice = score.parts[0].voices[0]
+    first_measure = voice.measures[0]
+    second_measure = voice.measures[1]
+
+    assert first_measure.duration == Fraction(1, 1)
+    assert len(first_measure.events) == 1
+    assert first_measure.events[0].is_rest is True
+    assert first_measure.events[0].is_cue is False
+    assert second_measure.duration == Fraction(1, 1)
+    assert len(second_measure.events) == 1
+    assert second_measure.events[0].is_note is True
+    assert second_measure.events[0].is_cue is False
+
+
 def test_build_score_includes_cue_notes_when_requested(cue_entrypoint: Path) -> None:
     score = LilypondConverter(export_options=ExportOptions(cue_mode="include")).build_score(cue_entrypoint)
 

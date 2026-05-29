@@ -1159,17 +1159,13 @@ class LilypondConverter:
 
     def _parse_raw_global_settings(self, node: items.Item, settings: _GlobalSettings, state: _WalkState) -> None:
         if isinstance(node, items.Transpose):
-            children = [child for child in node if isinstance(child, items.Item)]
-            if len(children) >= 3 and isinstance(children[0], items.Note) and isinstance(children[1], items.Note):
-                transpose_state = replace(
-                    state,
-                    transpose_specs=state.transpose_specs + (self._transpose_spec(children[0].pitch, children[1].pitch),),
-                )
-                self._parse_raw_global_settings(children[2], settings, transpose_state)
+            transposed_child = self._transposed_child_state(node, state)
+            if transposed_child is not None:
+                self._parse_raw_global_settings(transposed_child[0], settings, transposed_child[1])
             return
 
         if isinstance(node, items.MusicList):
-            sequence = [child for child in node if isinstance(child, items.Item)]
+            sequence = self._item_children(node)
             index = 0
             while index < len(sequence):
                 child = sequence[index]
@@ -1531,13 +1527,7 @@ class LilypondConverter:
             if isinstance(value, items.Item):
                 yield from self._iter_linear_nodes(value, state)
             else:
-                yield _FlattenedNode(
-                    node=node,
-                    is_grace=state.is_grace,
-                    grace_slash=state.grace_slash,
-                    scale=state.scale,
-                    transpose_specs=state.transpose_specs,
-                )
+                yield self._flattened_node(node, state)
             return
 
         if isinstance(node, items.AfterGrace):
@@ -1558,97 +1548,25 @@ class LilypondConverter:
             return
 
         if isinstance(node, items.Transpose):
-            children = [child for child in node if isinstance(child, items.Item)]
-            if len(children) >= 3 and isinstance(children[0], items.Note) and isinstance(children[1], items.Note):
-                transpose_state = replace(
-                    state,
-                    transpose_specs=state.transpose_specs + (self._transpose_spec(children[0].pitch, children[1].pitch),),
-                )
-                for flattened, _ in self._iter_linear_nodes_with_state(children[2], transpose_state):
+            transposed_child = self._transposed_child_state(node, state)
+            if transposed_child is not None:
+                for flattened, _ in self._iter_linear_nodes_with_state(transposed_child[0], transposed_child[1]):
                     yield flattened
                 return
 
         if isinstance(node, items.MusicList):
             if node.simultaneous:
-                yield _FlattenedNode(
-                    node=node,
-                    is_grace=state.is_grace,
-                    grace_slash=state.grace_slash,
-                    scale=state.scale,
-                    transpose_specs=state.transpose_specs,
-                )
+                yield self._flattened_node(node, state)
                 return
-            sequence = [child for child in node if isinstance(child, items.Item)]
-            index = 0
-            current_state = state
-            while index < len(sequence):
-                tag_result = self._consume_tag_filter(sequence, index, current_state)
-                if tag_result is not None:
-                    current_state = tag_result.remaining_state
-                    for emitted_child, emitted_state in tag_result.emitted:
-                        emitted_current_state = emitted_state
-                        for flattened, emitted_current_state in self._iter_linear_nodes_with_state(emitted_child, emitted_current_state):
-                            yield flattened
-                        current_state = emitted_current_state
-                    index += tag_result.consumed
-                    continue
-
-                child = sequence[index]
-                if isinstance(child, items.Command) and str(child.token) == "\\killCues":
-                    current_state = replace(current_state, cues_killed=True)
-                    index += 1
-                    continue
-
-                ottava_change = self._parse_ottava_change(sequence, index)
-                if ottava_change is not None:
-                    yield _FlattenedNode(
-                        node=ottava_change[0],
-                        is_grace=current_state.is_grace,
-                        grace_slash=current_state.grace_slash,
-                        scale=current_state.scale,
-                        transpose_specs=current_state.transpose_specs,
-                    )
-                    index += ottava_change[1]
-                    continue
-
-                barline_change = self._parse_barline_change(sequence, index)
-                if barline_change is not None:
-                    yield _FlattenedNode(
-                        node=barline_change[0],
-                        is_grace=current_state.is_grace,
-                        grace_slash=current_state.grace_slash,
-                        scale=current_state.scale,
-                        transpose_specs=current_state.transpose_specs,
-                    )
-                    index += barline_change[1]
-                    continue
-
-                cue_request = self._parse_cue_insertion(sequence, index, current_state)
-                if cue_request is not None:
-                    yield _FlattenedNode(
-                        node=cue_request[0],
-                        is_grace=current_state.is_grace,
-                        grace_slash=current_state.grace_slash,
-                        scale=current_state.scale,
-                        transpose_specs=current_state.transpose_specs,
-                    )
-                    index += cue_request[1]
-                    continue
-
-                for flattened, current_state in self._iter_linear_nodes_with_state(child, current_state):
-                    yield flattened
-                index += 1
+            yield from self._iter_sequential_music_list(node, state)
             return
 
         if isinstance(node, items.Scaler):
+            scaled_children, child_state = self._scaled_child_items_state(node, state)
             flattened_children: list[_FlattenedNode] = []
-            child_state = replace(state, scale=state.scale * node.scaling)
-            for child in node:
-                if isinstance(child, (items.Number, items.Duration)):
-                    continue
-                if isinstance(child, items.Item):
-                    for flattened, child_state in self._iter_linear_nodes_with_state(child, child_state):
-                        flattened_children.append(flattened)
+            for child in scaled_children:
+                for flattened, child_state in self._iter_linear_nodes_with_state(child, child_state):
+                    flattened_children.append(flattened)
 
             if str(getattr(node, "token", "")) in {"\\tuplet", "\\times"}:
                 modification = self._time_modification_for_scaler(node)
@@ -1668,40 +1586,66 @@ class LilypondConverter:
             yield from self._flatten_repeat(node, state)
             return
 
-        if isinstance(node, items.Tag):
-            tag_result = self._consume_tag_filter([node], 0, state)
-            if tag_result is not None:
-                for emitted_child, emitted_state in tag_result.emitted:
-                    for flattened, _ in self._iter_linear_nodes_with_state(emitted_child, emitted_state):
-                        yield flattened
-                return
-
-        if isinstance(node, items.Relative):
-            children = [child for child in node if isinstance(child, items.Item)]
-            if children and isinstance(children[0], items.Note):
-                current_state = replace(state, relative_reference=self._copy_pitch(children[0].pitch))
-                for child in children[1:]:
-                    for flattened, current_state in self._iter_linear_nodes_with_state(child, current_state):
-                        yield flattened
-                return
-
-        if isinstance(node, items.Absolute):
-            current_state = replace(state, relative_reference=None)
-            for child in node:
-                if isinstance(child, items.Item):
-                    for flattened, current_state in self._iter_linear_nodes_with_state(child, current_state):
-                        yield flattened
+        filtered_children = self._filtered_node_items_state(node, state)
+        if filtered_children is not None:
+            for emitted_child, emitted_state in filtered_children:
+                for flattened, _ in self._iter_linear_nodes_with_state(emitted_child, emitted_state):
+                    yield flattened
             return
 
-        if isinstance(node, items.Postfix):
-            current_state = state
-            for child in node:
-                if isinstance(child, items.Item):
-                    for flattened, current_state in self._iter_linear_nodes_with_state(child, current_state):
-                        yield flattened
+        wrapper_children = self._wrapper_child_items_state(node, state)
+        if wrapper_children is not None:
+            children, current_state = wrapper_children
+            for child in children:
+                for flattened, current_state in self._iter_linear_nodes_with_state(child, current_state):
+                    yield flattened
             return
 
         yield self._flattened_node(node, state)
+
+    def _iter_sequential_music_list(self, node: items.MusicList, state: _WalkState) -> Iterable[_FlattenedNode]:
+        sequence = self._item_children(node)
+        index = 0
+        current_state = state
+        while index < len(sequence):
+            tag_result = self._consume_tag_filter(sequence, index, current_state)
+            if tag_result is not None:
+                current_state = tag_result.remaining_state
+                for emitted_child, emitted_state in tag_result.emitted:
+                    emitted_current_state = emitted_state
+                    for flattened, emitted_current_state in self._iter_linear_nodes_with_state(emitted_child, emitted_current_state):
+                        yield flattened
+                    current_state = emitted_current_state
+                index += tag_result.consumed
+                continue
+
+            child = sequence[index]
+            if isinstance(child, items.Command) and str(child.token) == "\\killCues":
+                current_state = replace(current_state, cues_killed=True)
+                index += 1
+                continue
+
+            ottava_change = self._parse_ottava_change(sequence, index)
+            if ottava_change is not None:
+                yield self._flattened_node(ottava_change[0], current_state)
+                index += ottava_change[1]
+                continue
+
+            barline_change = self._parse_barline_change(sequence, index)
+            if barline_change is not None:
+                yield self._flattened_node(barline_change[0], current_state)
+                index += barline_change[1]
+                continue
+
+            cue_request = self._parse_cue_insertion(sequence, index, current_state)
+            if cue_request is not None:
+                yield self._flattened_node(cue_request[0], current_state)
+                index += cue_request[1]
+                continue
+
+            for flattened, current_state in self._iter_linear_nodes_with_state(child, current_state):
+                yield flattened
+            index += 1
 
     def _flatten_repeat(self, node: items.Repeat, state: _WalkState) -> Iterable[_FlattenedNode]:
         specifier = node.specifier()
@@ -1719,9 +1663,9 @@ class LilypondConverter:
             return
 
         if specifier == "volta":
-            alternatives = [child for child in alt if isinstance(child, items.Item)] if alt else []
+            alternatives = self._item_children(alt) if alt else []
             if len(alternatives) == 1 and isinstance(alternatives[0], items.MusicList):
-                alternatives = [child for child in alternatives[0] if isinstance(child, items.Item)]
+                alternatives = self._item_children(alternatives[0])
             if alternatives and len(alternatives) < repeat_count:
                 alternatives.extend([alternatives[-1]] * (repeat_count - len(alternatives)))
 
@@ -1783,6 +1727,38 @@ class LilypondConverter:
 
     def _copy_pitch(self, raw_pitch) -> object:
         return raw_pitch.copy() if hasattr(raw_pitch, "copy") else raw_pitch
+
+    def _transposed_child_state(self, node: items.Transpose, state: _WalkState) -> tuple[items.Item, _WalkState] | None:
+        children = self._item_children(node)
+        if len(children) < 3 or not isinstance(children[0], items.Note) or not isinstance(children[1], items.Note):
+            return None
+        transpose_state = replace(
+            state,
+            transpose_specs=state.transpose_specs + (self._transpose_spec(children[0].pitch, children[1].pitch),),
+        )
+        return children[2], transpose_state
+
+    def _scaled_child_items_state(self, node: items.Scaler, state: _WalkState) -> tuple[list[items.Item], _WalkState]:
+        scaled_state = replace(state, scale=state.scale * node.scaling)
+        scaled_children = [
+            child for child in node if isinstance(child, items.Item) and not isinstance(child, (items.Number, items.Duration))
+        ]
+        return scaled_children, scaled_state
+
+    def _wrapper_child_items_state(self, node: items.Item, state: _WalkState) -> tuple[list[items.Item], _WalkState] | None:
+        if isinstance(node, items.Relative):
+            children = self._item_children(node)
+            if not children or not isinstance(children[0], items.Note):
+                return None
+            return children[1:], replace(state, relative_reference=self._copy_pitch(children[0].pitch))
+
+        if isinstance(node, items.Absolute):
+            return self._item_children(node), replace(state, relative_reference=None)
+
+        if isinstance(node, items.Postfix):
+            return self._item_children(node), state
+
+        return None
 
     def _parse_barline_change(
         self,
@@ -1991,7 +1967,7 @@ class LilypondConverter:
         state: _WalkState | None = None,
     ) -> Iterable[tuple[items.Item, _WalkState]]:
         state = state or _WalkState()
-        sequence = [child for child in node if isinstance(child, items.Item)]
+        sequence = self._item_children(node)
         index = 0
         current_state = state
         while index < len(sequence):
@@ -2015,7 +1991,7 @@ class LilypondConverter:
 
         if isinstance(node, items.Tag):
             command_name = str(node.token).lstrip("\\")
-            tag_children = [child for child in node if isinstance(child, items.Item)]
+            tag_children = self._item_children(node)
             tag_name = self._extract_tag_name(tag_children[0] if tag_children else None)
             content_nodes = tuple((child, self._state_with_removed_tag(state, tag_name)) for child in tag_children[1:])
             if command_name == "removeWithTag":
@@ -2060,6 +2036,21 @@ class LilypondConverter:
 
         return None
 
+    def _filtered_node_items_state(
+        self,
+        node: items.Item,
+        state: _WalkState,
+    ) -> tuple[tuple[items.Item, _WalkState], ...] | None:
+        tag_result = self._consume_tag_filter([node], 0, state)
+        if tag_result is None:
+            return None
+        return tag_result.emitted
+
+    def _item_children(self, node: items.Item | None) -> list[items.Item]:
+        if node is None:
+            return []
+        return [child for child in node if isinstance(child, items.Item)]
+
     def _state_with_removed_tag(self, state: _WalkState, tag_name: str | None) -> _WalkState:
         if not tag_name:
             return state
@@ -2099,13 +2090,9 @@ class LilypondConverter:
             return Fraction(0, 1)
 
         if isinstance(node, items.Transpose):
-            children = [child for child in node if isinstance(child, items.Item)]
-            if len(children) >= 3 and isinstance(children[0], items.Note) and isinstance(children[1], items.Note):
-                transpose_state = replace(
-                    state,
-                    transpose_specs=state.transpose_specs + (self._transpose_spec(children[0].pitch, children[1].pitch),),
-                )
-                return self._duration_of_music(children[2], transpose_state)
+            transposed_child = self._transposed_child_state(node, state)
+            if transposed_child is not None:
+                return self._duration_of_music(transposed_child[0], transposed_child[1])
             return Fraction(0, 1)
 
         if isinstance(node, items.MusicList):
@@ -2120,13 +2107,10 @@ class LilypondConverter:
             return total
 
         if isinstance(node, items.Scaler):
-            scaled_state = replace(state, scale=state.scale * node.scaling)
+            scaled_children, scaled_state = self._scaled_child_items_state(node, state)
             total = Fraction(0, 1)
-            for child in node:
-                if isinstance(child, (items.Number, items.Duration)):
-                    continue
-                if isinstance(child, items.Item):
-                    total += self._duration_of_music(child, scaled_state)
+            for child in scaled_children:
+                total += self._duration_of_music(child, scaled_state)
             return total
 
         if isinstance(node, items.Repeat):
@@ -2141,19 +2125,19 @@ class LilypondConverter:
                     )
             return total
 
-        if isinstance(node, items.Tag):
-            tag_result = self._consume_tag_filter([node], 0, state)
-            if tag_result is not None:
-                total = Fraction(0, 1)
-                for child, child_state in tag_result.emitted:
-                    total += self._duration_of_music(child, child_state)
-                return total
-
-        if isinstance(node, (items.Absolute, items.Relative, items.Postfix)):
+        filtered_children = self._filtered_node_items_state(node, state)
+        if filtered_children is not None:
             total = Fraction(0, 1)
-            for child in node:
-                if isinstance(child, items.Item):
-                    total += self._duration_of_music(child, state)
+            for child, child_state in filtered_children:
+                total += self._duration_of_music(child, child_state)
+            return total
+
+        wrapper_children = self._wrapper_child_items_state(node, state)
+        if wrapper_children is not None:
+            children, child_state = wrapper_children
+            total = Fraction(0, 1)
+            for child in children:
+                total += self._duration_of_music(child, child_state)
             return total
 
         if isinstance(node, (items.Note, items.Rest, items.Chord, items.Skip)):
