@@ -90,6 +90,21 @@ class MusicXmlWriter:
                 if measure_index in multiple_rest_continuations:
                     continue
 
+                if measure_index in multiple_rest_starts:
+                    measure = self._measure_for_voice(part, part.voices[0], measure_index, score_measure_durations[measure_index])
+                    active_wedges[part.voices[0].id] = self._append_measure_voice(
+                        measure_element,
+                        part,
+                        part.voices[0].id,
+                        measure,
+                        active_trill_lines[part.voices[0].id],
+                        active_wedges[part.voices[0].id],
+                    )
+                    barline_style = self._barline_for_measure(part, measure_index) or score_measure_barlines[measure_index]
+                    if barline_style is not None:
+                        self._append_barline(measure_element, barline_style)
+                    continue
+
                 for voice_index, voice in enumerate(part.voices):
                     measure = self._measure_for_voice(part, voice, measure_index, score_measure_durations[measure_index])
                     if voice_index > 0:
@@ -200,7 +215,14 @@ class MusicXmlWriter:
         for member_index, part in enumerate(parts, start=1):
             divisions = lcm(divisions, part.divisions)
             for voice in part.voices:
-                voices.append(Voice(id=str(len(voices) + 1), source_name=voice.source_name, measures=voice.measures))
+                voices.append(
+                    Voice(
+                        id=str(len(voices) + 1),
+                        source_name=voice.source_name,
+                        measures=voice.measures,
+                        compress_empty_measures=voice.compress_empty_measures,
+                    )
+                )
 
         return Part(
             id=first.id,

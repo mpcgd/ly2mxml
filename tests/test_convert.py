@@ -434,6 +434,94 @@ def test_cli_convert_combined_mode_scopes_wedges_by_voice(
     assert open_wedges == []
 
 
+def test_cli_convert_combined_mode_preserves_empty_part_multirests(
+    repo_root: Path,
+    sample_entrypoint: Path,
+    tmp_path: Path,
+) -> None:
+    output_path = tmp_path / "sample-combined-empty-parts.musicxml"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "ly2mxml",
+            "convert",
+            str(sample_entrypoint),
+            "--partcombine-mode",
+            "combined",
+            "-o",
+            str(output_path),
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    assert result.stderr.strip() == ""
+
+    root = ET.parse(output_path).getroot()
+    part_names = {score_part.attrib["id"]: score_part.findtext("part-name") for score_part in root.find("part-list")}
+    part = next(part for part in root.findall("part") if part_names.get(part.attrib["id"]) == "Hautbois (ad lib.)")
+    measures = part.findall("measure")
+    divisions = int(measures[0].findtext("./attributes/divisions"))
+    last = measures[-1]
+    last_notes = last.findall("./note")
+    first_notes = measures[0].findall("./note")
+
+    assert len(measures) == 76
+    assert measures[0].findtext("./attributes/measure-style/multiple-rest") == "75"
+    assert measures[0].find("./backup") is None
+    assert [note.findtext("voice") for note in first_notes] == ["1"]
+    assert all(note.find("rest") is not None for note in first_notes)
+    assert last.findtext("./backup/duration") == str(3 * divisions // 2)
+    assert last.findtext("./barline/bar-style") == "light-heavy"
+    assert [note.findtext("voice") for note in last_notes] == ["1", "2"]
+    assert all(note.find("rest") is not None for note in last_notes)
+    assert all(note.findtext("duration") == str(3 * divisions // 2) for note in last_notes)
+
+
+def test_cli_convert_combined_mode_uses_single_rest_for_multimeasure_rests(
+    repo_root: Path,
+    sample_entrypoint: Path,
+    tmp_path: Path,
+) -> None:
+    output_path = tmp_path / "sample-combined-multirests.musicxml"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "ly2mxml",
+            "convert",
+            str(sample_entrypoint),
+            "--partcombine-mode",
+            "combined",
+            "-o",
+            str(output_path),
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    assert result.stderr.strip() == ""
+
+    root = ET.parse(output_path).getroot()
+    multiple_rest_measures = [
+        measure
+        for part in root.findall("part")
+        for measure in part.findall("measure")
+        if measure.find("./attributes/measure-style/multiple-rest") is not None
+    ]
+
+    assert multiple_rest_measures
+    assert all(len(measure.findall("./note")) == 1 for measure in multiple_rest_measures)
+    assert all(measure.find("./backup") is None for measure in multiple_rest_measures)
+
+
 def test_build_score_attaches_addlyrics(lyrics_entrypoint: Path) -> None:
     score = LilypondConverter().build_score(lyrics_entrypoint)
 
