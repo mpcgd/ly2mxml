@@ -96,6 +96,7 @@ def test_cli_convert_pads_empty_sample_parts(repo_root: Path, sample_entrypoint:
         assert measures[0].findtext("./attributes/measure-style/multiple-rest") == "75"
         assert measures[-1].findtext("./note/duration") == str(3 * divisions // 2)
         assert measures[-1].find("./note/rest") is not None
+        assert measures[-1].findtext("./barline/bar-style") == "light-heavy"
 
 
 def test_cli_convert_writes_opening_tempo_once(repo_root: Path, sample_entrypoint: Path, tmp_path: Path) -> None:

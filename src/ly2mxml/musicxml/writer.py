@@ -45,6 +45,7 @@ class MusicXmlWriter:
         rendered_parts = self._render_parts(score.parts, export_options.partcombine_mode)
         score_measure_count = max((len(voice.measures) for part in rendered_parts for voice in part.voices), default=0)
         score_measure_durations = self._score_measure_durations(rendered_parts, score_measure_count)
+        score_measure_barlines = self._score_measure_barlines(rendered_parts, score_measure_count)
         self._ensure_part_divisions(rendered_parts, score_measure_durations)
 
         if score.metadata.title:
@@ -95,7 +96,7 @@ class MusicXmlWriter:
                         duration = ET.SubElement(backup, "duration")
                         duration.text = str(self._duration_to_units(score_measure_durations[measure_index], part.divisions))
                     self._append_measure_voice(measure_element, part, voice.id, measure, active_trill_lines[voice.id])
-                barline_style = self._barline_for_measure(part, measure_index)
+                barline_style = self._barline_for_measure(part, measure_index) or score_measure_barlines[measure_index]
                 if barline_style is not None:
                     self._append_barline(measure_element, barline_style)
 
@@ -463,6 +464,20 @@ class MusicXmlWriter:
                 duration = parts[0].measure_length
             durations.append(duration)
         return durations
+
+    def _score_measure_barlines(self, parts: list[Part], measure_count: int) -> list[str | None]:
+        barlines: list[str | None] = []
+        for measure_index in range(measure_count):
+            barline_style = next(
+                (
+                    self._barline_for_measure(part, measure_index)
+                    for part in parts
+                    if self._barline_for_measure(part, measure_index) is not None
+                ),
+                None,
+            )
+            barlines.append(barline_style)
+        return barlines
 
     def _ensure_part_divisions(self, parts: list[Part], measure_durations: list[Fraction]) -> None:
         required_divisions = 1

@@ -6114,6 +6114,9 @@
         <type>quarter</type>
         <dot />
       </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
     </measure>
   </part>
   <part id="P4">
@@ -6226,6 +6229,9 @@
         <type>quarter</type>
         <dot />
       </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
     </measure>
   </part>
   <part id="P5">
@@ -14969,6 +14975,9 @@
         <voice>1</voice>
         <type>eighth</type>
       </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
     </measure>
   </part>
   <part id="P7">
@@ -18150,6 +18159,9 @@
         <voice>1</voice>
         <type>eighth</type>
       </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
     </measure>
   </part>
   <part id="P8">
@@ -21331,6 +21343,9 @@
         <voice>1</voice>
         <type>eighth</type>
       </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
     </measure>
   </part>
   <part id="P9">
@@ -23853,6 +23868,9 @@
         <voice>1</voice>
         <type>eighth</type>
       </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
     </measure>
   </part>
   <part id="P10">
@@ -26157,6 +26175,9 @@
         <voice>1</voice>
         <type>eighth</type>
       </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
     </measure>
   </part>
   <part id="P11">
@@ -27434,6 +27455,9 @@
         <voice>1</voice>
         <type>eighth</type>
       </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
     </measure>
   </part>
   <part id="P12">
@@ -28711,6 +28735,9 @@
         <voice>1</voice>
         <type>eighth</type>
       </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
     </measure>
   </part>
   <part id="P13">
@@ -30171,6 +30198,9 @@
         <voice>1</voice>
         <type>eighth</type>
       </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
     </measure>
   </part>
   <part id="P14">
@@ -31631,6 +31661,9 @@
         <voice>1</voice>
         <type>eighth</type>
       </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
     </measure>
   </part>
   <part id="P15">
@@ -33008,6 +33041,9 @@
         <voice>1</voice>
         <type>eighth</type>
       </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
     </measure>
   </part>
   <part id="P16">
@@ -33120,6 +33156,9 @@
         <type>quarter</type>
         <dot />
       </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
     </measure>
   </part>
   <part id="P17">
@@ -34404,6 +34443,9 @@
         <type>quarter</type>
         <dot />
       </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
     </measure>
   </part>
   <part id="P18">
@@ -34516,6 +34558,9 @@
         <type>quarter</type>
         <dot />
       </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
     </measure>
   </part>
   <part id="P19">
@@ -34628,6 +34673,9 @@
         <type>quarter</type>
         <dot />
       </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
     </measure>
   </part>
   <part id="P20">
@@ -34740,6 +34788,9 @@
         <type>quarter</type>
         <dot />
       </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
     </measure>
   </part>
   <part id="P21">
@@ -34852,6 +34903,9 @@
         <type>quarter</type>
         <dot />
       </note>
+      <barline location="right">
+        <bar-style>light-heavy</bar-style>
+      </barline>
     </measure>
   </part>
 </score-partwise>
