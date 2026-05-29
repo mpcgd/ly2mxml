@@ -351,11 +351,11 @@ class MusicXmlWriter:
             if event.slur_start_count:
                 notations = self._ensure_notations(note, notations)
                 for _ in range(event.slur_start_count):
-                    ET.SubElement(notations, "slur", type="start", number="1")
+                    ET.SubElement(notations, "slur", type="start", number=voice_id)
             if event.slur_stop_count:
                 notations = self._ensure_notations(note, notations)
                 for _ in range(event.slur_stop_count):
-                    ET.SubElement(notations, "slur", type="stop", number="1")
+                    ET.SubElement(notations, "slur", type="stop", number=voice_id)
             if event.tuplet_start:
                 notations = self._ensure_notations(note, notations)
                 ET.SubElement(notations, "tuplet", type="start", number="1")

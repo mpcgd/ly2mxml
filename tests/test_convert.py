@@ -522,6 +522,48 @@ def test_cli_convert_combined_mode_uses_single_rest_for_multimeasure_rests(
     assert all(measure.find("./backup") is None for measure in multiple_rest_measures)
 
 
+def test_cli_convert_combined_mode_scopes_slurs_by_voice(
+    repo_root: Path,
+    sample_entrypoint: Path,
+    tmp_path: Path,
+) -> None:
+    output_path = tmp_path / "sample-combined-slurs.musicxml"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "ly2mxml",
+            "convert",
+            str(sample_entrypoint),
+            "--partcombine-mode",
+            "combined",
+            "-o",
+            str(output_path),
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    assert result.stderr.strip() == ""
+
+    root = ET.parse(output_path).getroot()
+    saw_voice_two_slur = False
+
+    for note in root.findall('.//note'):
+        voice = note.findtext('voice') or '1'
+        slurs = note.findall('./notations/slur')
+        if not slurs:
+            continue
+        if voice == '2':
+            saw_voice_two_slur = True
+        assert all(slur.attrib.get('number') == voice for slur in slurs)
+
+    assert saw_voice_two_slur
+
+
 def test_build_score_attaches_addlyrics(lyrics_entrypoint: Path) -> None:
     score = LilypondConverter().build_score(lyrics_entrypoint)
 
