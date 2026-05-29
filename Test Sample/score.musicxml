@@ -6007,7 +6007,7 @@
   <part id="P3">
     <measure number="1">
       <attributes>
-        <divisions>1</divisions>
+        <divisions>2</divisions>
         <key>
           <fifths>-1</fifths>
           <mode>major</mode>
@@ -6021,12 +6021,12 @@
           <line>2</line>
         </clef>
         <measure-style>
-          <multiple-rest>76</multiple-rest>
+          <multiple-rest>75</multiple-rest>
         </measure-style>
       </attributes>
       <note>
         <rest measure="yes" />
-        <duration>3</duration>
+        <duration>6</duration>
         <voice>1</voice>
         <type>half</type>
         <dot />
@@ -6106,12 +6106,20 @@
     <measure number="73" />
     <measure number="74" />
     <measure number="75" />
-    <measure number="76" />
+    <measure number="76">
+      <note>
+        <rest measure="yes" />
+        <duration>3</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <dot />
+      </note>
+    </measure>
   </part>
   <part id="P4">
     <measure number="1">
       <attributes>
-        <divisions>1</divisions>
+        <divisions>2</divisions>
         <key>
           <fifths>-1</fifths>
           <mode>major</mode>
@@ -6125,12 +6133,12 @@
           <line>2</line>
         </clef>
         <measure-style>
-          <multiple-rest>76</multiple-rest>
+          <multiple-rest>75</multiple-rest>
         </measure-style>
       </attributes>
       <note>
         <rest measure="yes" />
-        <duration>3</duration>
+        <duration>6</duration>
         <voice>1</voice>
         <type>half</type>
         <dot />
@@ -6210,7 +6218,15 @@
     <measure number="73" />
     <measure number="74" />
     <measure number="75" />
-    <measure number="76" />
+    <measure number="76">
+      <note>
+        <rest measure="yes" />
+        <duration>3</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <dot />
+      </note>
+    </measure>
   </part>
   <part id="P5">
     <measure number="1">
@@ -33011,7 +33027,7 @@
           <line>4</line>
         </clef>
         <measure-style>
-          <multiple-rest>76</multiple-rest>
+          <multiple-rest>75</multiple-rest>
         </measure-style>
       </attributes>
       <note>
@@ -33096,7 +33112,15 @@
     <measure number="73" />
     <measure number="74" />
     <measure number="75" />
-    <measure number="76" />
+    <measure number="76">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <dot />
+      </note>
+    </measure>
   </part>
   <part id="P17">
     <measure number="1">
@@ -34337,7 +34361,7 @@
     <measure number="51">
       <attributes>
         <measure-style>
-          <multiple-rest>26</multiple-rest>
+          <multiple-rest>25</multiple-rest>
         </measure-style>
       </attributes>
       <note>
@@ -34372,7 +34396,15 @@
     <measure number="73" />
     <measure number="74" />
     <measure number="75" />
-    <measure number="76" />
+    <measure number="76">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <dot />
+      </note>
+    </measure>
   </part>
   <part id="P18">
     <measure number="1">
@@ -34391,7 +34423,7 @@
           <line>2</line>
         </clef>
         <measure-style>
-          <multiple-rest>76</multiple-rest>
+          <multiple-rest>75</multiple-rest>
         </measure-style>
       </attributes>
       <note>
@@ -34476,7 +34508,15 @@
     <measure number="73" />
     <measure number="74" />
     <measure number="75" />
-    <measure number="76" />
+    <measure number="76">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <dot />
+      </note>
+    </measure>
   </part>
   <part id="P19">
     <measure number="1">
@@ -34495,7 +34535,7 @@
           <line>3</line>
         </clef>
         <measure-style>
-          <multiple-rest>76</multiple-rest>
+          <multiple-rest>75</multiple-rest>
         </measure-style>
       </attributes>
       <note>
@@ -34580,7 +34620,15 @@
     <measure number="73" />
     <measure number="74" />
     <measure number="75" />
-    <measure number="76" />
+    <measure number="76">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <dot />
+      </note>
+    </measure>
   </part>
   <part id="P20">
     <measure number="1">
@@ -34599,7 +34647,7 @@
           <line>4</line>
         </clef>
         <measure-style>
-          <multiple-rest>76</multiple-rest>
+          <multiple-rest>75</multiple-rest>
         </measure-style>
       </attributes>
       <note>
@@ -34684,7 +34732,15 @@
     <measure number="73" />
     <measure number="74" />
     <measure number="75" />
-    <measure number="76" />
+    <measure number="76">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <dot />
+      </note>
+    </measure>
   </part>
   <part id="P21">
     <measure number="1">
@@ -34703,7 +34759,7 @@
           <line>4</line>
         </clef>
         <measure-style>
-          <multiple-rest>76</multiple-rest>
+          <multiple-rest>75</multiple-rest>
         </measure-style>
       </attributes>
       <note>
@@ -34788,6 +34844,14 @@
     <measure number="73" />
     <measure number="74" />
     <measure number="75" />
-    <measure number="76" />
+    <measure number="76">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <dot />
+      </note>
+    </measure>
   </part>
 </score-partwise>

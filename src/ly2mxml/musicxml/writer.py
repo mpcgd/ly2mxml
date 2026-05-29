@@ -43,6 +43,9 @@ class MusicXmlWriter:
         export_options = self._resolve_export_options(export_options, partcombine_mode)
         root = ET.Element("score-partwise", version="4.0")
         rendered_parts = self._render_parts(score.parts, export_options.partcombine_mode)
+        score_measure_count = max((len(voice.measures) for part in rendered_parts for voice in part.voices), default=0)
+        score_measure_durations = self._score_measure_durations(rendered_parts, score_measure_count)
+        self._ensure_part_divisions(rendered_parts, score_measure_durations)
 
         if score.metadata.title:
             title = ET.SubElement(root, "movement-title")
@@ -68,12 +71,10 @@ class MusicXmlWriter:
                 part_abbreviation = ET.SubElement(score_part, "part-abbreviation")
                 part_abbreviation.text = part.short_name
 
-        score_measure_count = max((len(voice.measures) for part in rendered_parts for voice in part.voices), default=0)
-
         for part_index, part in enumerate(rendered_parts):
             part_element = ET.SubElement(root, "part", id=part.id)
             measure_count = score_measure_count
-            multiple_rest_starts, multiple_rest_continuations = self._multiple_rest_map(part, measure_count)
+            multiple_rest_starts, multiple_rest_continuations = self._multiple_rest_map(part, score_measure_durations)
             active_trill_lines: dict[str, set[tuple[tuple[str, int, int], ...]]] = {voice.id: set() for voice in part.voices}
             for measure_index in range(measure_count):
                 measure_element = ET.SubElement(part_element, "measure", number=str(measure_index + 1))
@@ -88,11 +89,11 @@ class MusicXmlWriter:
                     continue
 
                 for voice_index, voice in enumerate(part.voices):
-                    measure = self._measure_for_voice(part, voice, measure_index)
+                    measure = self._measure_for_voice(part, voice, measure_index, score_measure_durations[measure_index])
                     if voice_index > 0:
                         backup = ET.SubElement(measure_element, "backup")
                         duration = ET.SubElement(backup, "duration")
-                        duration.text = str(self._duration_to_units(part.measure_length, part.divisions))
+                        duration.text = str(self._duration_to_units(score_measure_durations[measure_index], part.divisions))
                     self._append_measure_voice(measure_element, part, voice.id, measure, active_trill_lines[voice.id])
                 barline_style = self._barline_for_measure(part, measure_index)
                 if barline_style is not None:
@@ -113,20 +114,21 @@ class MusicXmlWriter:
             return ExportOptions(partcombine_mode=partcombine_mode, cue_mode=export_options.cue_mode)
         return export_options
 
-    def _multiple_rest_map(self, part: Part, measure_count: int) -> tuple[dict[int, int], set[int]]:
+    def _multiple_rest_map(self, part: Part, measure_durations: list[Fraction]) -> tuple[dict[int, int], set[int]]:
         if not part.voices or not all(voice.compress_empty_measures for voice in part.voices):
             return {}, set()
 
         starts: dict[int, int] = {}
         continuations: set[int] = set()
+        measure_count = len(measure_durations)
         measure_index = 0
         while measure_index < measure_count:
-            if not self._is_multiple_rest_measure(part, measure_index):
+            if not self._is_multiple_rest_measure(part, measure_index, measure_durations[measure_index]):
                 measure_index += 1
                 continue
 
             run_end = measure_index + 1
-            while run_end < measure_count and self._is_multiple_rest_measure(part, run_end):
+            while run_end < measure_count and self._is_multiple_rest_measure(part, run_end, measure_durations[run_end]):
                 run_end += 1
 
             run_length = run_end - measure_index
@@ -138,15 +140,17 @@ class MusicXmlWriter:
 
         return starts, continuations
 
-    def _is_multiple_rest_measure(self, part: Part, measure_index: int) -> bool:
+    def _is_multiple_rest_measure(self, part: Part, measure_index: int, expected_duration: Fraction) -> bool:
+        if expected_duration != part.measure_length:
+            return False
         for voice in part.voices:
-            measure = self._measure_for_voice(part, voice, measure_index)
+            measure = self._measure_for_voice(part, voice, measure_index, expected_duration)
             if len(measure.events) != 1:
                 return False
             event = measure.events[0]
             if not event.is_rest or event.is_grace:
                 return False
-            if event.duration != part.measure_length or measure.duration != part.measure_length:
+            if event.duration != expected_duration or measure.duration != expected_duration:
                 return False
             if event.directions or event.articulations or event.ornaments or event.lyrics:
                 return False
@@ -254,7 +258,7 @@ class MusicXmlWriter:
             if event.is_cue:
                 ET.SubElement(note, "cue")
             rest_attrs: dict[str, str] = {}
-            if event.duration == part.measure_length and len(measure.events) == 1:
+            if event.duration == measure.duration and len(measure.events) == 1:
                 rest_attrs["measure"] = "yes"
             ET.SubElement(note, "rest", rest_attrs)
             if not event.is_grace:
@@ -443,15 +447,39 @@ class MusicXmlWriter:
         bar_style = ET.SubElement(barline, "bar-style")
         bar_style.text = style
 
-    def _measure_for_voice(self, part: Part, voice, measure_index: int):
+    def _score_measure_durations(self, parts: list[Part], measure_count: int) -> list[Fraction]:
+        durations: list[Fraction] = []
+        for measure_index in range(measure_count):
+            duration = max(
+                (
+                    voice.measures[measure_index].duration
+                    for part in parts
+                    for voice in part.voices
+                    if measure_index < len(voice.measures)
+                ),
+                default=Fraction(0, 1),
+            )
+            if duration == 0 and parts:
+                duration = parts[0].measure_length
+            durations.append(duration)
+        return durations
+
+    def _ensure_part_divisions(self, parts: list[Part], measure_durations: list[Fraction]) -> None:
+        required_divisions = 1
+        for duration in measure_durations:
+            required_divisions = lcm(required_divisions, (duration * 4).denominator)
+        for part in parts:
+            part.divisions = lcm(part.divisions, required_divisions)
+
+    def _measure_for_voice(self, part: Part, voice, measure_index: int, expected_duration: Fraction):
         if measure_index < len(voice.measures):
             return voice.measures[measure_index]
         from ly2mxml.model.score import Measure, MusicEvent
 
         return Measure(
             number=measure_index + 1,
-            events=[MusicEvent(duration=part.measure_length, is_rest=True)],
-            duration=part.measure_length,
+            events=[MusicEvent(duration=expected_duration, is_rest=True)],
+            duration=expected_duration,
         )
 
     def _duration_to_units(self, duration: Fraction, divisions: int) -> int:

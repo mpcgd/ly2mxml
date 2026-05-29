@@ -90,9 +90,12 @@ def test_cli_convert_pads_empty_sample_parts(repo_root: Path, sample_entrypoint:
     for expected_name in {"Hautbois I", "Hautbois II"}:
         part = next(part for part in root.findall("part") if part_names.get(part.attrib["id"]) == expected_name)
         measures = part.findall("measure")
+        divisions = int(measures[0].findtext("./attributes/divisions"))
 
         assert len(measures) == 76
-        assert measures[0].findtext("./attributes/measure-style/multiple-rest") == "76"
+        assert measures[0].findtext("./attributes/measure-style/multiple-rest") == "75"
+        assert measures[-1].findtext("./note/duration") == str(3 * divisions // 2)
+        assert measures[-1].find("./note/rest") is not None
 
 
 def test_cli_convert_writes_opening_tempo_once(repo_root: Path, sample_entrypoint: Path, tmp_path: Path) -> None:
