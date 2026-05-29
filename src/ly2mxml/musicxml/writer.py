@@ -77,12 +77,13 @@ class MusicXmlWriter:
             measure_count = score_measure_count
             multiple_rest_starts, multiple_rest_continuations = self._multiple_rest_map(part, score_measure_durations)
             active_trill_lines: dict[str, set[tuple[tuple[str, int, int], ...]]] = {voice.id: set() for voice in part.voices}
+            active_wedges: dict[str, str | None] = {voice.id: None for voice in part.voices}
             for measure_index in range(measure_count):
                 measure_element = ET.SubElement(part_element, "measure", number=str(measure_index + 1))
                 if measure_index == 0:
                     self._append_attributes(measure_element, part)
                     if part_index == 0 and part.tempo_text:
-                        self._append_direction(measure_element, Direction(kind="tempo", value=part.tempo_text))
+                        self._append_direction(measure_element, Direction(kind="tempo", value=part.tempo_text), None)
                 if measure_index in multiple_rest_starts:
                     self._append_multiple_rest(measure_element, multiple_rest_starts[measure_index])
 
@@ -95,7 +96,14 @@ class MusicXmlWriter:
                         backup = ET.SubElement(measure_element, "backup")
                         duration = ET.SubElement(backup, "duration")
                         duration.text = str(self._duration_to_units(score_measure_durations[measure_index], part.divisions))
-                    self._append_measure_voice(measure_element, part, voice.id, measure, active_trill_lines[voice.id])
+                    active_wedges[voice.id] = self._append_measure_voice(
+                        measure_element,
+                        part,
+                        voice.id,
+                        measure,
+                        active_trill_lines[voice.id],
+                        active_wedges[voice.id],
+                    )
                 barline_style = self._barline_for_measure(part, measure_index) or score_measure_barlines[measure_index]
                 if barline_style is not None:
                     self._append_barline(measure_element, barline_style)
@@ -238,12 +246,14 @@ class MusicXmlWriter:
         voice_id: str,
         measure,
         active_trill_lines: set[tuple[tuple[str, int, int], ...]],
-    ) -> None:
+        active_wedge: str | None,
+    ) -> str | None:
         for event in measure.events:
             for direction in event.directions:
-                self._append_direction(measure_element, direction)
+                active_wedge = self._append_direction(measure_element, direction, active_wedge)
             trill_line_type = self._trill_line_type(event, active_trill_lines)
             self._append_event(measure_element, part, voice_id, measure, event, trill_line_type=trill_line_type)
+        return active_wedge
 
     def _append_event(
         self,
@@ -355,7 +365,25 @@ class MusicXmlWriter:
         octave = ET.SubElement(pitch_element, "octave")
         octave.text = str(pitch.octave)
 
-    def _append_direction(self, measure_element: ET.Element, direction: Direction) -> None:
+    def _append_direction(
+        self,
+        measure_element: ET.Element,
+        direction: Direction,
+        active_wedge: str | None,
+    ) -> str | None:
+        if direction.kind == "dynamic" and active_wedge is not None:
+            active_wedge = self._append_direction(measure_element, Direction(kind="wedge", value="stop"), active_wedge)
+
+        if direction.kind == "wedge":
+            if direction.value == "stop":
+                if active_wedge is None:
+                    return None
+                next_active_wedge = None
+            else:
+                next_active_wedge = direction.value
+        else:
+            next_active_wedge = active_wedge
+
         direction_attributes: dict[str, str] = {}
         if direction.kind == "octave-shift":
             placement, _, _ = direction.value.split(":", 2)
@@ -373,6 +401,7 @@ class MusicXmlWriter:
         else:
             words = ET.SubElement(direction_type, "words")
             words.text = direction.value
+        return next_active_wedge
 
     def _append_time_modification(self, note_element: ET.Element, modification: tuple[int, int]) -> None:
         time_modification = ET.SubElement(note_element, "time-modification")

@@ -124,6 +124,49 @@ def test_cli_convert_writes_opening_tempo_once(repo_root: Path, sample_entrypoin
     assert tempo_locations == [("Flûte I", "1")]
 
 
+def test_cli_convert_does_not_emit_orphan_wedge_stops(repo_root: Path, sample_entrypoint: Path, tmp_path: Path) -> None:
+    output_path = tmp_path / "sample-no-orphan-wedges.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(sample_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    assert result.stderr.strip() == ""
+
+    root = ET.parse(output_path).getroot()
+    part_names = {score_part.attrib["id"]: score_part.findtext("part-name") for score_part in root.find("part-list")}
+    orphan_stops: list[tuple[str | None, str | None]] = []
+    open_wedges: list[tuple[str | None, str | None]] = []
+
+    for part in root.findall("part"):
+        active_wedge = False
+        active_measure = None
+        for measure in part.findall("measure"):
+            for direction in measure.findall("direction"):
+                wedge = direction.find("./direction-type/wedge")
+                if wedge is None:
+                    continue
+                wedge_type = wedge.attrib.get("type")
+                if wedge_type in {"crescendo", "diminuendo"}:
+                    active_wedge = True
+                    active_measure = measure.attrib.get("number")
+                elif wedge_type == "stop":
+                    if not active_wedge:
+                        orphan_stops.append((part_names.get(part.attrib["id"]), measure.attrib.get("number")))
+                    active_wedge = False
+                    active_measure = None
+
+        if active_wedge:
+            open_wedges.append((part_names.get(part.attrib["id"]), active_measure))
+
+    assert orphan_stops == []
+    assert open_wedges == []
+
+
 def test_convert_file_can_merge_partcombine_groups(sample_entrypoint: Path, tmp_path: Path) -> None:
     output_path = tmp_path / "sample-combined.musicxml"
 

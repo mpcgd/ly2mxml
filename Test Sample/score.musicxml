@@ -8032,11 +8032,6 @@
       </note>
     </measure>
     <measure number="31">
-      <direction>
-        <direction-type>
-          <wedge type="stop" />
-        </direction-type>
-      </direction>
       <note>
         <pitch>
           <step>F</step>
@@ -12103,6 +12098,11 @@
     <measure number="21">
       <direction>
         <direction-type>
+          <wedge type="stop" />
+        </direction-type>
+      </direction>
+      <direction>
+        <direction-type>
           <dynamics>
             <p />
           </dynamics>
@@ -12731,11 +12731,6 @@
       </note>
     </measure>
     <measure number="31">
-      <direction>
-        <direction-type>
-          <wedge type="stop" />
-        </direction-type>
-      </direction>
       <note>
         <pitch>
           <step>A</step>
@@ -16008,11 +16003,6 @@
       </note>
     </measure>
     <measure number="31">
-      <direction>
-        <direction-type>
-          <wedge type="stop" />
-        </direction-type>
-      </direction>
       <note>
         <pitch>
           <step>F</step>
@@ -19192,11 +19182,6 @@
       </note>
     </measure>
     <measure number="31">
-      <direction>
-        <direction-type>
-          <wedge type="stop" />
-        </direction-type>
-      </direction>
       <note>
         <pitch>
           <step>F</step>
@@ -21972,6 +21957,11 @@
     <measure number="24">
       <direction>
         <direction-type>
+          <wedge type="stop" />
+        </direction-type>
+      </direction>
+      <direction>
+        <direction-type>
           <dynamics>
             <f />
           </dynamics>
@@ -24495,6 +24485,11 @@
       </note>
     </measure>
     <measure number="24">
+      <direction>
+        <direction-type>
+          <wedge type="stop" />
+        </direction-type>
+      </direction>
       <direction>
         <direction-type>
           <dynamics>
@@ -33352,11 +33347,6 @@
       </note>
     </measure>
     <measure number="31">
-      <direction>
-        <direction-type>
-          <wedge type="stop" />
-        </direction-type>
-      </direction>
       <note>
         <pitch>
           <step>F</step>
