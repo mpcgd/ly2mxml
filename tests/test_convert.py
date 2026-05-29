@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import Counter
 from fractions import Fraction
 import subprocess
 import sys
@@ -8,6 +9,41 @@ import xml.etree.ElementTree as ET
 
 from ly2mxml.converter import LilypondConverter
 from ly2mxml.options import ExportOptions
+
+
+def _music21_anchor_signature(note) -> tuple[int | None, str, str | tuple[str, ...]]:
+    if note.isChord:
+        pitch = tuple(pitch.nameWithOctave for pitch in note.pitches)
+    elif note.isRest:
+        pitch = "rest"
+    else:
+        pitch = note.pitch.nameWithOctave
+    return note.measureNumber, str(note.offset), pitch
+
+
+def _music21_text_expression_signature(score, music21) -> Counter[tuple[int | None, str, str]]:
+    return Counter(
+        (expression.measureNumber, str(expression.offset), expression.content)
+        for expression in score.recurse().getElementsByClass(music21.expressions.TextExpression)
+    )
+
+
+def _music21_tempo_signature(score, music21) -> Counter[tuple[int | None, str, str | None, int | float | None]]:
+    return Counter(
+        (mark.measureNumber, str(mark.offset), getattr(mark, "text", None), getattr(mark, "number", None))
+        for mark in score.recurse().getElementsByClass(music21.tempo.MetronomeMark)
+    )
+
+
+def _music21_wedge_type_signature(score, music21) -> Counter[str]:
+    return Counter(type(wedge).__name__ for wedge in score.recurse().getElementsByClass(music21.dynamics.DynamicWedge))
+
+
+def _music21_trill_extension_signature(score, music21) -> Counter[tuple[tuple, tuple]]:
+    return Counter(
+        (_music21_anchor_signature(extension.getFirst()), _music21_anchor_signature(extension.getLast()))
+        for extension in score.recurse().getElementsByClass(music21.expressions.TrillExtension)
+    )
 
 
 def test_preflight_accepts_sample_project(sample_entrypoint: Path) -> None:
@@ -562,6 +598,37 @@ def test_cli_convert_combined_mode_scopes_slurs_by_voice(
         assert all(slur.attrib.get('number') == voice for slur in slurs)
 
     assert saw_voice_two_slur
+
+
+def test_music21_import_preserves_sample_text_and_tempo_signatures(sample_music21_scores) -> None:
+    music21, separate_score, combined_score = sample_music21_scores
+
+    separate_text = _music21_text_expression_signature(separate_score, music21)
+    combined_text = _music21_text_expression_signature(combined_score, music21)
+
+    assert separate_text == combined_text
+    assert separate_text[(1, "0.0", "Maestoso")] == 1
+    assert _music21_tempo_signature(separate_score, music21) == _music21_tempo_signature(combined_score, music21)
+
+
+def test_music21_import_preserves_sample_wedge_types(sample_music21_scores) -> None:
+    music21, separate_score, combined_score = sample_music21_scores
+
+    separate_wedges = _music21_wedge_type_signature(separate_score, music21)
+    combined_wedges = _music21_wedge_type_signature(combined_score, music21)
+
+    assert separate_wedges == combined_wedges
+    assert sum(separate_wedges.values()) == 35
+
+
+def test_music21_import_preserves_sample_trill_extensions(sample_music21_scores) -> None:
+    music21, separate_score, combined_score = sample_music21_scores
+
+    separate_trills = _music21_trill_extension_signature(separate_score, music21)
+    combined_trills = _music21_trill_extension_signature(combined_score, music21)
+
+    assert separate_trills == combined_trills
+    assert sum(separate_trills.values()) == 2
 
 
 def test_build_score_attaches_addlyrics(lyrics_entrypoint: Path) -> None:

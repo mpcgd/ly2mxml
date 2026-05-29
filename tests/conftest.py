@@ -4,6 +4,8 @@ from pathlib import Path
 
 import pytest
 
+from ly2mxml.converter import LilypondConverter
+
 
 @pytest.fixture
 def repo_root() -> Path:
@@ -13,6 +15,26 @@ def repo_root() -> Path:
 @pytest.fixture
 def sample_entrypoint(repo_root: Path) -> Path:
     return repo_root / "Test Sample" / "score.ly"
+
+
+@pytest.fixture
+def music21_module():
+    return pytest.importorskip("music21")
+
+
+@pytest.fixture
+def sample_music21_scores(sample_entrypoint: Path, tmp_path: Path, music21_module):
+    separate_output = tmp_path / "sample-music21-separate.musicxml"
+    combined_output = tmp_path / "sample-music21-combined.musicxml"
+
+    LilypondConverter().convert_file(sample_entrypoint, separate_output)
+    LilypondConverter(partcombine_mode="combined").convert_file(sample_entrypoint, combined_output)
+
+    return (
+        music21_module,
+        music21_module.converter.parse(str(separate_output)),
+        music21_module.converter.parse(str(combined_output)),
+    )
 
 
 @pytest.fixture
