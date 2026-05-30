@@ -86,13 +86,25 @@ class MusicXmlWriter:
         software.text = "ly2mxml"
 
         part_list = ET.SubElement(root, "part-list")
+        group_number_stack: list[int] = []
+        next_group_number = 1
         for part in rendered_parts:
+            if part.group_start is not None:
+                gn = next_group_number
+                next_group_number += 1
+                group_number_stack.append(gn)
+                pg = ET.SubElement(part_list, "part-group", type="start", number=str(gn))
+                ET.SubElement(pg, "group-symbol").text = part.group_start
+                ET.SubElement(pg, "group-barline").text = "yes"
             score_part = ET.SubElement(part_list, "score-part", id=part.id)
             part_name = ET.SubElement(score_part, "part-name")
             part_name.text = part.name
             if part.short_name:
                 part_abbreviation = ET.SubElement(score_part, "part-abbreviation")
                 part_abbreviation.text = part.short_name
+            if part.group_stop and group_number_stack:
+                gn = group_number_stack.pop()
+                ET.SubElement(part_list, "part-group", type="stop", number=str(gn))
 
         for part_index, part in enumerate(rendered_parts):
             part_element = ET.SubElement(root, "part", id=part.id)
@@ -481,6 +493,16 @@ class MusicXmlWriter:
                     fermata_elem = ET.SubElement(notations, "fermata", type="upright")
                     if fermata_shape:
                         fermata_elem.text = fermata_shape
+            if index == 0:
+                if event.arpeggiate:
+                    notations = self._ensure_notations(note, notations)
+                    ET.SubElement(notations, "arpeggiate")
+                if event.glissando_start:
+                    notations = self._ensure_notations(note, notations)
+                    ET.SubElement(notations, "glissando", type="start", number="1")
+                if event.glissando_stop:
+                    notations = self._ensure_notations(note, notations)
+                    ET.SubElement(notations, "glissando", type="stop", number="1")
             for lyric in event.lyrics:
                 self._append_lyric(note, lyric)
 
@@ -626,8 +648,14 @@ class MusicXmlWriter:
 
     def _append_barline(self, measure_element: ET.Element, style: str) -> None:
         barline = ET.SubElement(measure_element, "barline", location="right")
-        bar_style = ET.SubElement(barline, "bar-style")
-        bar_style.text = style
+        if ":" in style:
+            bar_style_text, repeat_direction = style.split(":", 1)
+        else:
+            bar_style_text, repeat_direction = style, None
+        bar_style_elem = ET.SubElement(barline, "bar-style")
+        bar_style_elem.text = bar_style_text
+        if repeat_direction:
+            ET.SubElement(barline, "repeat", direction=repeat_direction)
 
     def _score_measure_durations(self, parts: list[Part], measure_count: int) -> list[Fraction]:
         durations: list[Fraction] = []

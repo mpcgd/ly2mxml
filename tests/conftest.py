@@ -254,3 +254,33 @@ def key_change_entrypoint(repo_root: Path) -> Path:
 @pytest.fixture
 def time_change_entrypoint(repo_root: Path) -> Path:
     return repo_root / "tests" / "fixtures" / "time_change.ly"
+
+
+@pytest.fixture
+def skip_spacer_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "skip_spacer.ly"
+
+
+@pytest.fixture
+def barlines_extended_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "barlines_extended.ly"
+
+
+@pytest.fixture
+def partial_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "partial.ly"
+
+
+@pytest.fixture
+def arpeggio_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "arpeggio.ly"
+
+
+@pytest.fixture
+def glissando_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "glissando.ly"
+
+
+@pytest.fixture
+def staff_groups_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "staff_groups.ly"

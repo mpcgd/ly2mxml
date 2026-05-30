@@ -25,8 +25,10 @@ from ly2mxml.options import ExportOptions
 
 KNOWN_BUILTIN_USER_COMMANDS = {
     "addQuote",
+    "arpeggio",
     "breathe",
     "compressEmptyMeasures",
+    "glissando",
     "killCues",
     "mark",
     "ottava",
@@ -40,6 +42,13 @@ KNOWN_BUILTIN_USER_COMMANDS = {
     "tag",
     "tremblement",
     "haydn",
+}
+
+STAFF_GROUP_SYMBOLS: dict[str, str] = {
+    "StaffGroup": "bracket",
+    "ChoirStaff": "bracket",
+    "GrandStaff": "brace",
+    "PianoStaff": "brace",
 }
 
 SUPPORTED_FEATURES = {
@@ -343,6 +352,14 @@ class _RehearsalMark:
 
 
 @dataclass(frozen=True, slots=True)
+class _PartialDuration:
+    """Represent a \\partial directive with its effective measure duration."""
+
+    duration: Fraction
+    source_node: items.Item
+
+
+@dataclass(frozen=True, slots=True)
 class _NewContextCommand:
     context_type: str
     context_id: str | None
@@ -354,7 +371,7 @@ class _NewContextCommand:
 class _FlattenedNode:
     """Carry one flattened node together with the state needed to render it."""
 
-    node: items.Item | _CueInsertion | _OttavaChange | _BarlineChange | _RehearsalMark
+    node: items.Item | _CueInsertion | _OttavaChange | _BarlineChange | _RehearsalMark | _PartialDuration
     is_grace: bool
     grace_slash: bool
     scale: Fraction
@@ -383,6 +400,7 @@ class _VoiceBuildState:
     current_key_fifths: int = 0
     current_key_mode: str = "major"
     current_time_signature: tuple[int, int] = (4, 4)
+    pending_glissando_stop: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -545,7 +563,9 @@ class LilypondConverter:
         # Staff contexts are the closest LilyPond structure to exported parts,
         # so score assembly starts there and only then resolves voice planning
         # and optional partCombine grouping inside each staff.
-        for staff_index, (staff_context, walk_state) in enumerate(self._iter_staff_contexts(score_node), start=1):
+        current_group_id: int | None = None
+        current_group_parts: list[Part] = []
+        for staff_index, (staff_context, walk_state, group_id, group_symbol) in enumerate(self._iter_staff_contexts(score_node), start=1):
             built_parts = self._build_parts(
                 staff_context,
                 staff_index,
@@ -555,11 +575,28 @@ class LilypondConverter:
                 diagnostics,
                 walk_state,
             )
+            added: list[Part] = []
             for part in built_parts:
                 if part.voices:
                     part.divisions = self._compute_divisions(part)
                     parts.append(part)
+                    added.append(part)
             next_part_index += len(built_parts)
+
+            # Track group boundaries and annotate parts accordingly.
+            if group_id != current_group_id:
+                if current_group_parts:
+                    current_group_parts[-1].group_stop = True
+                current_group_id = group_id
+                current_group_parts = []
+                if group_id is not None and added:
+                    added[0].group_start = group_symbol
+            if group_id is not None:
+                current_group_parts.extend(added)
+
+        # Close any group still open after the last staff.
+        if current_group_parts:
+            current_group_parts[-1].group_stop = True
 
         return Score(metadata=metadata, parts=parts, diagnostics=diagnostics)
 
@@ -683,15 +720,27 @@ class LilypondConverter:
                 return node
         return None
 
-    def _iter_staff_contexts(self, node: items.Item, state: _WalkState | None = None) -> Iterator[tuple[items.Context, _WalkState]]:
-        """Yield each ``Staff`` context together with the state used to reach it."""
+    def _iter_staff_contexts(
+        self,
+        node: items.Item,
+        state: _WalkState | None = None,
+        group_id: int | None = None,
+        group_symbol: str | None = None,
+    ) -> Iterator[tuple[items.Context, _WalkState, int | None, str | None]]:
+        """Yield each ``Staff`` context together with walk state and group info."""
 
         state = state or _WalkState()
         if isinstance(node, items.Context) and node.context() == "Staff":
-            yield node, state
+            yield node, state, group_id, group_symbol
+            return
+        if isinstance(node, items.Context) and node.context() in STAFF_GROUP_SYMBOLS:
+            new_group_id = id(node)
+            new_group_symbol = STAFF_GROUP_SYMBOLS[node.context()]
+            for child, child_state in self._iter_filtered_children(node, state):
+                yield from self._iter_staff_contexts(child, child_state, new_group_id, new_group_symbol)
             return
         for child, child_state in self._iter_filtered_children(node, state):
-            yield from self._iter_staff_contexts(child, child_state)
+            yield from self._iter_staff_contexts(child, child_state, group_id, group_symbol)
 
     def _build_parts(
         self,
@@ -1491,10 +1540,18 @@ class LilypondConverter:
         )
 
         walk_state = replace(initial_state or _WalkState(), allow_cues=allow_cues, measure_length=measure_length)
+        # When \partial is used, the full measure length is saved here so that
+        # it can be restored once the pickup measure closes.
+        _partial_full_length: Fraction | None = None
         # ``_iter_linear_nodes`` resolves the nested LilyPond wrappers that can
         # affect duration, pitch interpretation, cue suppression, tag filtering,
         # and transient direction state before events are assembled into measures.
         for flattened in self._iter_linear_nodes(music_node, walk_state):
+            # Restore the full measure length as soon as the pickup measure has
+            # been finalized (i.e. voice.measures is no longer empty).
+            if _partial_full_length is not None and voice.measures:
+                measure_length = _partial_full_length
+                _partial_full_length = None
             node = flattened.node
             is_grace = flattened.is_grace
             if isinstance(node, _OttavaChange):
@@ -1557,6 +1614,9 @@ class LilypondConverter:
                     pending_directions=state.pending_directions,
                 )
                 state.pending_directions.clear()
+                if state.pending_glissando_stop and not flattened.is_grace:
+                    event.glissando_stop = True
+                    state.pending_glissando_stop = False
                 self._add_voice_event(voice, state, event, measure_length, source_name, diagnostics, node)
             elif isinstance(node, items.Chord):
                 state.attachment_event = None
@@ -1569,6 +1629,9 @@ class LilypondConverter:
                     pending_directions=state.pending_directions,
                 )
                 state.pending_directions.clear()
+                if state.pending_glissando_stop and not flattened.is_grace:
+                    event.glissando_stop = True
+                    state.pending_glissando_stop = False
                 self._add_voice_event(voice, state, event, measure_length, source_name, diagnostics, node)
             elif isinstance(node, items.Rest):
                 state.attachment_event = None
@@ -1585,6 +1648,27 @@ class LilypondConverter:
                 )
                 state.pending_directions.clear()
                 self._add_voice_event(voice, state, event, measure_length, source_name, diagnostics, node)
+            elif isinstance(node, items.Skip):
+                state.attachment_event = None
+                event = self._build_voice_event(
+                    duration=self._duration_from_node(
+                        node.duration,
+                        flattened.scale,
+                        token=str(node.token),
+                        measure_length=measure_length,
+                    ),
+                    flattened=flattened,
+                    pending_directions=state.pending_directions,
+                    is_rest=True,
+                )
+                state.pending_directions.clear()
+                self._add_voice_event(voice, state, event, measure_length, source_name, diagnostics, node)
+            elif isinstance(node, _PartialDuration):
+                # Save the full measure length and shrink the current measure to
+                # the pickup duration.  The restoration happens at the top of the
+                # next iteration once voice.measures is non-empty.
+                _partial_full_length = measure_length
+                measure_length = node.duration
             elif isinstance(node, items.Dynamic):
                 direction = self._dynamic_to_direction(str(node.token))
                 if direction is None:
@@ -1631,6 +1715,17 @@ class LilypondConverter:
                     target_event = self._voice_attachment_target(state)
                     if target_event is not None:
                         target_event.breath_mark = True
+                    continue
+                if token == "\\arpeggio":
+                    target_event = self._voice_attachment_target(state)
+                    if target_event is not None:
+                        target_event.arpeggiate = True
+                    continue
+                if token == "\\glissando":
+                    target_event = self._voice_attachment_target(state)
+                    if target_event is not None:
+                        target_event.glissando_start = True
+                        state.pending_glissando_stop = True
                     continue
                 if token == "\\compressEmptyMeasures":
                     voice.compress_empty_measures = True
@@ -2049,6 +2144,14 @@ class LilypondConverter:
                 if fraction:
                     new_length = Fraction(child.numerator(), int(1 / fraction))
                     current_state = replace(current_state, measure_length=new_length)
+
+            if isinstance(child, items.Partial):
+                partial_len = child.partial_length()
+                if partial_len:
+                    current_state = replace(current_state, measure_length=partial_len)
+                    yield self._flattened_node(_PartialDuration(duration=partial_len, source_node=child), current_state)
+                    index += 1
+                    continue
 
             for flattened, current_state in self._iter_linear_nodes_with_state(child, current_state):
                 yield flattened
@@ -2789,6 +2892,9 @@ class LilypondConverter:
             tremolo_type=event.tremolo_type,
             tremolo_slashes=event.tremolo_slashes,
             lyrics=list(event.lyrics),
+            arpeggiate=event.arpeggiate,
+            glissando_start=event.glissando_start,
+            glissando_stop=event.glissando_stop,
         )
 
     def _apply_lyrics(
@@ -2969,6 +3075,19 @@ class LilypondConverter:
         return {
             "||": "light-light",
             "|.": "light-heavy",
+            ".|": "heavy-light:forward",
+            ".|.": "heavy-heavy",
+            ":.": "dotted",
+            "!": "short",
+            "'": "tick",
+            "-": "dashed",
+            "": "none",
+            ";": "tick",
+            "\\|:": "heavy-light:forward",
+            ":|": "light-heavy:backward",
+            ":|:": "light-heavy:backward",
+            "|:": "heavy-light:forward",
+            "::": "dotted",
         }.get(value)
 
     def _resolve_clef(self, clef_name: str | None) -> tuple[str, int, int | None] | None:

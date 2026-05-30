@@ -99,6 +99,9 @@ class MusicEvent:
     tremolo_type: str = ""
     tremolo_slashes: int = 0
     breath_mark: bool = False
+    arpeggiate: bool = False
+    glissando_start: bool = False
+    glissando_stop: bool = False
     lyrics: list[Lyric] = field(default_factory=list)
 
     @property
@@ -151,6 +154,8 @@ class Part:
     combine_member: int | None = None
     combined_name: str | None = None
     combined_short_name: str | None = None
+    group_start: str | None = None
+    group_stop: bool = False
 
     @property
     def measure_length(self) -> Fraction:

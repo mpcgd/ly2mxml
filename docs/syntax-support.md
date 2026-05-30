@@ -20,6 +20,8 @@ Use the sections below as the support contract:
 - key signatures with `\key`
 - time signatures with `\time`
 - opening staff clef extraction and mid-staff clef changes via `\clef "name"` inside a voice stream
+- spacer rests with `s` (e.g. `s4`) and `\skip`
+- pickup / anacrusis measure with `\partial`
 
 ### Structural expansion and duration handling
 
@@ -42,13 +44,16 @@ Use the sections below as the support contract:
 - ornaments: `\trill`, `\mordent`, `\prall`, `\turn`, `\reverseturn`, `\prallmordent`, `\prallprall`, `\downmordent`, `\upmordent`, `\tremblement`, `\haydn`
 - fermata variants: `\fermata`, `\shortfermata`, `\longfermata`, `\verylongfermata`
 - technical notations: `\upbow`, `\downbow`, `\stopped`, `\open`, `\flageolet`, `\snappizzicato`, `\thumb`, `\lheel`, `\rheel`, `\ltoe`, `\rtoe`
-- explicit barlines with `\bar`
+- explicit barlines with `\bar` including repeat barlines (`\|:`, `:|`), double barline (`||`), final barline (`|.`), dotted, dashed, short, tick, and invisible forms
 - `\ottava`
+- `\arpeggio`
+- `\glissando` (start/stop pair on successive notes)
 
 ### Parts, voices, and assembly
 
 - `\partCombine` planning and export
 - export of partCombine groups as either separate parts or one combined MusicXML part
+- staff group brackets via `\new StaffGroup`, `\new ChoirStaff`, `\new GrandStaff`, and `\new PianoStaff` (bracket or brace in MusicXML)
 - `\include`
 - user-variable assignment resolution
 
@@ -119,7 +124,7 @@ Use the sections below as the support contract:
 
 ### Barlines and tempo
 
-- Barline support should be described as explicit `\bar` support.
+- Barline support covers `\bar` with the following mapped forms: repeat start (`\|:` / `|:`), repeat end (`:|`), light-light (`||`), light-heavy (`|.`), heavy-heavy (`.|.`), dotted (`:.`), dashed (`-`), short (`!`), tick (`'`), and invisible (`""`). Repeat barlines include MusicXML `<repeat>` directives with direction.
 - Tempo handling should be described carefully from the current output behavior rather than as a generic playback feature promise.
 
 ## Not Yet Implemented / Unsupported

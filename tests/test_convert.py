@@ -122,7 +122,7 @@ def test_cli_convert_pads_empty_sample_parts(repo_root: Path, sample_entrypoint:
     assert result.stderr.strip() == ""
 
     root = ET.parse(output_path).getroot()
-    part_names = {score_part.attrib["id"]: score_part.findtext("part-name") for score_part in root.find("part-list")}
+    part_names = {score_part.attrib["id"]: score_part.findtext("part-name") for score_part in root.find("part-list") if score_part.tag == "score-part"}
 
     for expected_name in {"Hautbois I", "Hautbois II"}:
         part = next(part for part in root.findall("part") if part_names.get(part.attrib["id"]) == expected_name)
@@ -151,7 +151,7 @@ def test_cli_convert_writes_opening_tempo_once(repo_root: Path, sample_entrypoin
 
     root = ET.parse(output_path).getroot()
     tempo_locations: list[tuple[str | None, str | None]] = []
-    part_names = {score_part.attrib["id"]: score_part.findtext("part-name") for score_part in root.find("part-list")}
+    part_names = {score_part.attrib["id"]: score_part.findtext("part-name") for score_part in root.find("part-list") if score_part.tag == "score-part"}
     for part in root.findall("part"):
         for measure in part.findall("measure"):
             for words in measure.findall("./direction/direction-type/words"):
@@ -175,7 +175,7 @@ def test_cli_convert_does_not_emit_orphan_wedge_stops(repo_root: Path, sample_en
     assert result.stderr.strip() == ""
 
     root = ET.parse(output_path).getroot()
-    part_names = {score_part.attrib["id"]: score_part.findtext("part-name") for score_part in root.find("part-list")}
+    part_names = {score_part.attrib["id"]: score_part.findtext("part-name") for score_part in root.find("part-list") if score_part.tag == "score-part"}
     orphan_stops: list[tuple[str | None, str | None]] = []
     open_wedges: list[tuple[str | None, str | None]] = []
 
@@ -520,7 +520,7 @@ def test_cli_convert_combined_mode_preserves_empty_part_multirests(
     assert result.stderr.strip() == ""
 
     root = ET.parse(output_path).getroot()
-    part_names = {score_part.attrib["id"]: score_part.findtext("part-name") for score_part in root.find("part-list")}
+    part_names = {score_part.attrib["id"]: score_part.findtext("part-name") for score_part in root.find("part-list") if score_part.tag == "score-part"}
     part = next(part for part in root.findall("part") if part_names.get(part.attrib["id"]) == "Hautbois (ad lib.)")
     measures = part.findall("measure")
     divisions = int(measures[0].findtext("./attributes/divisions"))
@@ -1946,3 +1946,219 @@ def test_cli_convert_writes_mid_measure_time_changes(
     assert "<beat-type>4</beat-type>" in xml
     assert "<beats>6</beats>" in xml
     assert "<beat-type>8</beat-type>" in xml
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# Skip / spacer rests
+# ────────────────────────────────────────────────────────────────────────────
+
+
+def test_build_score_handles_skip_spacer(skip_spacer_entrypoint: Path) -> None:
+    from fractions import Fraction
+
+    score = LilypondConverter().build_score(skip_spacer_entrypoint)
+
+    assert not any(d.severity == "error" for d in score.diagnostics)
+    measures = score.parts[0].voices[0].measures
+    # Two measures of 4/4; all events should be present and sum to the measure
+    assert len(measures) == 2
+    for measure in measures:
+        total = sum(e.duration for e in measure.events)
+        assert total == Fraction(1, 1), f"Measure {measure.number} duration mismatch: {total}"
+
+
+def test_cli_convert_writes_skip_spacer(
+    repo_root: Path, skip_spacer_entrypoint: Path, tmp_path: Path
+) -> None:
+    output_path = tmp_path / "skip_spacer.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(skip_spacer_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+    assert result.stderr.strip() == ""
+    assert "<rest" in xml
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# Extended barlines (repeat, dotted, etc.)
+# ────────────────────────────────────────────────────────────────────────────
+
+
+def test_build_score_emits_extended_barline_styles(barlines_extended_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(barlines_extended_entrypoint)
+
+    assert not any(d.severity == "error" for d in score.diagnostics)
+    measures = score.parts[0].voices[0].measures
+    barlines = [m.right_barline for m in measures]
+    assert "heavy-light:forward" in barlines
+    assert "light-heavy:backward" in barlines
+    assert "light-light" in barlines
+    assert "heavy-heavy" in barlines
+
+
+def test_cli_convert_writes_repeat_barlines(
+    repo_root: Path, barlines_extended_entrypoint: Path, tmp_path: Path
+) -> None:
+    output_path = tmp_path / "barlines_extended.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(barlines_extended_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+    assert result.stderr.strip() == ""
+    assert 'direction="forward"' in xml
+    assert 'direction="backward"' in xml
+    assert "<repeat" in xml
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# \partial pickup measure
+# ────────────────────────────────────────────────────────────────────────────
+
+
+def test_build_score_handles_partial_measure(partial_entrypoint: Path) -> None:
+    from fractions import Fraction
+
+    score = LilypondConverter().build_score(partial_entrypoint)
+
+    assert not any(d.severity == "error" for d in score.diagnostics)
+    measures = score.parts[0].voices[0].measures
+    assert len(measures) >= 3
+    # First measure is a pickup: one quarter note (1/4)
+    assert measures[0].duration == Fraction(1, 4)
+    # Subsequent measures are full 4/4 measures
+    assert measures[1].duration == Fraction(1, 1)
+
+
+def test_cli_convert_writes_partial_measure(
+    repo_root: Path, partial_entrypoint: Path, tmp_path: Path
+) -> None:
+    output_path = tmp_path / "partial.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(partial_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+    assert result.stderr.strip() == ""
+    # The first measure should have a shorter duration than a full 4/4 measure.
+    assert "<measure " in xml
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# \arpeggio
+# ────────────────────────────────────────────────────────────────────────────
+
+
+def test_build_score_emits_arpeggio(arpeggio_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(arpeggio_entrypoint)
+
+    assert not any(d.severity == "error" for d in score.diagnostics)
+    measures = score.parts[0].voices[0].measures
+    events = [e for m in measures for e in m.events]
+    assert any(e.arpeggiate for e in events), "Expected at least one event with arpeggiate=True"
+
+
+def test_cli_convert_writes_arpeggio(
+    repo_root: Path, arpeggio_entrypoint: Path, tmp_path: Path
+) -> None:
+    output_path = tmp_path / "arpeggio.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(arpeggio_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+    assert result.stderr.strip() == ""
+    assert "<arpeggiate" in xml
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# \glissando
+# ────────────────────────────────────────────────────────────────────────────
+
+
+def test_build_score_emits_glissando(glissando_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(glissando_entrypoint)
+
+    assert not any(d.severity == "error" for d in score.diagnostics)
+    measures = score.parts[0].voices[0].measures
+    events = [e for m in measures for e in m.events]
+    assert any(e.glissando_start for e in events), "Expected glissando_start on some event"
+    assert any(e.glissando_stop for e in events), "Expected glissando_stop on some event"
+
+
+def test_cli_convert_writes_glissando(
+    repo_root: Path, glissando_entrypoint: Path, tmp_path: Path
+) -> None:
+    output_path = tmp_path / "glissando.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(glissando_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+    assert result.stderr.strip() == ""
+    assert 'type="start"' in xml
+    assert 'type="stop"' in xml
+    assert "<glissando" in xml
+
+
+# ────────────────────────────────────────────────────────────────────────────
+# Staff group brackets
+# ────────────────────────────────────────────────────────────────────────────
+
+
+def test_build_score_emits_staff_group_info(staff_groups_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(staff_groups_entrypoint)
+
+    assert not any(d.severity == "error" for d in score.diagnostics)
+    assert len(score.parts) >= 2
+    # First part should have group_start set to "bracket" (StaffGroup)
+    assert score.parts[0].group_start == "bracket"
+    # Last part of the group should have group_stop
+    assert score.parts[-1].group_stop is True
+
+
+def test_cli_convert_writes_staff_group_brackets(
+    repo_root: Path, staff_groups_entrypoint: Path, tmp_path: Path
+) -> None:
+    output_path = tmp_path / "staff_groups.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(staff_groups_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+    assert result.stderr.strip() == ""
+    assert "<part-group" in xml
+    assert 'type="start"' in xml
+    assert "<group-symbol>bracket</group-symbol>" in xml
+    assert 'type="stop"' in xml
