@@ -30,6 +30,10 @@ KNOWN_BUILTIN_USER_COMMANDS = {
     "ottava",
     "partCombine",
     "removeWithTag",
+    "rf",
+    "sff",
+    "sffz",
+    "sfpp",
     "tag",
 }
 
@@ -58,6 +62,8 @@ IGNORED_COMMANDS = {
 }
 
 DYNAMIC_MARKS = {
+    "\\ppp": "ppp",
+    "\\pppp": "pppp",
     "\\pp": "pp",
     "\\p": "p",
     "\\mp": "mp",
@@ -65,8 +71,17 @@ DYNAMIC_MARKS = {
     "\\f": "f",
     "\\ff": "ff",
     "\\fff": "fff",
+    "\\ffff": "ffff",
+    "\\fp": "fp",
+    "\\fz": "fz",
+    "\\rf": "rf",
+    "\\rfz": "rfz",
     "\\sf": "sf",
     "\\sfp": "sfp",
+    "\\sfpp": "sfpp",
+    "\\sfz": "sfz",
+    "\\sff": "sff",
+    "\\sffz": "sffz",
 }
 
 TEXT_DYNAMICS = {
@@ -82,17 +97,37 @@ WEDGE_DYNAMICS = {
 }
 
 ARTICULATION_MAP = {
-    "-.": "staccato",
     ".": "staccato",
-    "->": "accent",
+    "!": "staccatissimo",
     ">": "accent",
-    "--": "tenuto",
-    "-^": "strong-accent",
+    "-": "tenuto",
+    "_": "detached-legato",
     "^": "strong-accent",
 }
 
 ORNAMENT_MAP = {
     "\\trill": "trill-mark",
+    "\\mordent": "mordent",
+    "\\prall": "inverted-mordent",
+    "\\turn": "turn",
+    "\\reverseturn": "inverted-turn",
+}
+
+FERMATA_MAP = {
+    "\\fermata": "",
+    "\\shortfermata": "square",
+    "\\longfermata": "angled",
+    "\\verylongfermata": "square",
+}
+
+TECHNICAL_MAP = {
+    "\\upbow": "up-bow",
+    "\\downbow": "down-bow",
+    "\\stopped": "stopped",
+    "\\snappizzicato": "snap-pizzicato",
+    "\\open": "open-string",
+    "\\flageolet": "harmonic",
+    "\\thumb": "thumb-position",
 }
 
 DEFAULT_CLEF = ("G", 2, None)
@@ -1417,10 +1452,16 @@ class LilypondConverter:
                 token = str(node.token)
                 articulation = ARTICULATION_MAP.get(token)
                 ornament = ORNAMENT_MAP.get(token)
+                fermata = FERMATA_MAP.get(token)
+                technical = TECHNICAL_MAP.get(token)
                 if articulation:
                     target_event.articulations.append(articulation)
                 elif ornament:
                     target_event.ornaments.append(ornament)
+                elif fermata is not None:
+                    target_event.fermatas.append(fermata)
+                elif technical:
+                    target_event.technical.append(technical)
             elif isinstance(node, items.Slur):
                 target_event = self._voice_attachment_target(state)
                 if target_event is None:
@@ -1446,6 +1487,11 @@ class LilypondConverter:
                     continue
                 if token in IGNORED_COMMANDS:
                     continue
+            elif isinstance(node, items.UserCommand):
+                token = str(node.token)
+                direction = self._dynamic_to_direction(token)
+                if direction is not None:
+                    self._add_voice_direction(state, direction)
             elif isinstance(node, items.MusicList) and node.simultaneous:
                 diagnostics.append(
                     Diagnostic(
@@ -1768,6 +1814,13 @@ class LilypondConverter:
             for child in children:
                 for flattened, current_state in self._iter_linear_nodes_with_state(child, current_state):
                     yield flattened
+            return
+
+        if isinstance(node, items.Postfix):
+            for child in node:
+                if isinstance(child, items.Item):
+                    for flattened, _ in self._iter_linear_nodes_with_state(child, state):
+                        yield flattened
             return
 
         yield self._flattened_node(node, state)

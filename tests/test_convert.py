@@ -1190,3 +1190,239 @@ def test_converter_raises_on_conflicting_partcombine_mode() -> None:
             partcombine_mode="combined",
             export_options=ExportOptions(partcombine_mode="separate"),
         )
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Extended dynamic marks
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_build_score_emits_extended_dynamics(extended_dynamics_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(extended_dynamics_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    note_events = [
+        event
+        for measure in score.parts[0].voices[0].measures
+        for event in measure.events
+        if event.is_note
+    ]
+    dynamic_values = [
+        direction.value
+        for event in note_events
+        for direction in event.directions
+        if direction.kind == "dynamic"
+    ]
+
+    assert "ppp" in dynamic_values
+    assert "pppp" in dynamic_values
+    assert "ffff" in dynamic_values
+    assert "fp" in dynamic_values
+    assert "fz" in dynamic_values
+    assert "rfz" in dynamic_values
+    assert "rf" in dynamic_values
+    assert "sfz" in dynamic_values
+    assert "sff" in dynamic_values
+    assert "sffz" in dynamic_values
+    assert "sfpp" in dynamic_values
+
+
+def test_cli_convert_writes_extended_dynamics(
+    repo_root: Path, extended_dynamics_entrypoint: Path, tmp_path: Path
+) -> None:
+    output_path = tmp_path / "extended_dynamics.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(extended_dynamics_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert "<ppp />" in xml
+    assert "<pppp />" in xml
+    assert "<ffff />" in xml
+    assert "<fp />" in xml
+    assert "<fz />" in xml
+    assert "<rfz />" in xml
+    assert "<rf />" in xml
+    assert "<sfz />" in xml
+    assert "<sff />" in xml
+    assert "<sffz />" in xml
+    assert "<sfpp />" in xml
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Extended articulations: staccatissimo and detached-legato
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_build_score_emits_staccatissimo_and_detached_legato(staccatissimo_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(staccatissimo_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    note_events = [
+        event
+        for measure in score.parts[0].voices[0].measures
+        for event in measure.events
+        if event.is_note
+    ]
+
+    assert note_events[0].articulations == ["staccatissimo"]
+    assert note_events[1].articulations == ["detached-legato"]
+
+
+def test_cli_convert_writes_staccatissimo_and_detached_legato(
+    repo_root: Path, staccatissimo_entrypoint: Path, tmp_path: Path
+) -> None:
+    output_path = tmp_path / "staccatissimo.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(staccatissimo_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert "<staccatissimo />" in xml
+    assert "<detached-legato />" in xml
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Extended ornaments: mordent, prall, turn, reverseturn
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_build_score_emits_ornaments(ornaments_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(ornaments_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    note_events = [
+        event
+        for measure in score.parts[0].voices[0].measures
+        for event in measure.events
+        if event.is_note
+    ]
+
+    assert note_events[0].ornaments == ["mordent"]
+    assert note_events[1].ornaments == ["inverted-mordent"]
+    assert note_events[2].ornaments == ["turn"]
+    assert note_events[3].ornaments == ["inverted-turn"]
+
+
+def test_cli_convert_writes_ornaments(
+    repo_root: Path, ornaments_entrypoint: Path, tmp_path: Path
+) -> None:
+    output_path = tmp_path / "ornaments.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(ornaments_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert "<mordent />" in xml
+    assert "<inverted-mordent />" in xml
+    assert "<turn />" in xml
+    assert "<inverted-turn />" in xml
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Fermata notation
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_build_score_emits_fermata_variants(fermata_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(fermata_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    note_events = [
+        event
+        for measure in score.parts[0].voices[0].measures
+        for event in measure.events
+        if event.is_note
+    ]
+
+    assert note_events[0].fermatas == [""]
+    assert note_events[1].fermatas == ["square"]
+    assert note_events[3].fermatas == ["angled"]
+    assert note_events[5].fermatas == ["square"]
+
+
+def test_cli_convert_writes_fermata(
+    repo_root: Path, fermata_entrypoint: Path, tmp_path: Path
+) -> None:
+    output_path = tmp_path / "fermata.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(fermata_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert '<fermata type="upright"' in xml
+    assert ">angled<" in xml
+    assert ">square<" in xml
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Technical notations
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_build_score_emits_technical_notations(technical_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(technical_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    note_events = [
+        event
+        for measure in score.parts[0].voices[0].measures
+        for event in measure.events
+        if event.is_note
+    ]
+
+    assert note_events[0].technical == ["up-bow"]
+    assert note_events[1].technical == ["down-bow"]
+    assert note_events[2].technical == ["stopped"]
+    assert note_events[3].technical == ["open-string"]
+
+
+def test_cli_convert_writes_technical_notations(
+    repo_root: Path, technical_entrypoint: Path, tmp_path: Path
+) -> None:
+    output_path = tmp_path / "technical.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(technical_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert "<technical>" in xml
+    assert "<up-bow />" in xml
+    assert "<down-bow />" in xml
+    assert "<stopped />" in xml
+    assert "<open-string />" in xml

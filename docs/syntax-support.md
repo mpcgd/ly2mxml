@@ -34,10 +34,13 @@ Use the sections below as the support contract:
 - slurs
 - ties
 - grace notes, including bounded appoggiatura/acciaccatura slash handling
-- supported dynamic commands, including the mapped forms covered by the current converter
+- supported dynamic commands: `\ppp`, `\pppp`, `\pp`, `\p`, `\mp`, `\mf`, `\f`, `\ff`, `\fff`, `\ffff`, `\fp`, `\fz`, `\rf`, `\rfz`, `\sf`, `\sfp`, `\sfpp`, `\sfz`, `\sff`, `\sffz`
+- text dynamics `\cresc`, `\dim`, `\decresc`
 - wedge commands `\<`, `\>`, and `\!`
-- supported articulation spellings currently mapped in the converter
-- `\trill`
+- supported articulation spellings: staccato (`-.`, `.`), staccatissimo (`-!`), accent (`->`, `>`), tenuto (`--`), detached-legato (`-_`), strong-accent (`-^`, `^`)
+- ornaments: `\trill`, `\mordent`, `\prall`, `\turn`, `\reverseturn`
+- fermata variants: `\fermata`, `\shortfermata`, `\longfermata`, `\verylongfermata`
+- technical notations: `\upbow`, `\downbow`, `\stopped`, `\open`, `\flageolet`, `\snappizzicato`, `\thumb`
 - explicit barlines with `\bar`
 - `\ottava`
 
@@ -107,7 +110,8 @@ Use the sections below as the support contract:
 
 ### Dynamics, articulations, and Scheme
 
-- Document only the current mapped dynamic and articulation forms.
+- Document only the current mapped dynamic and articulation forms listed above.
+- Additional LilyPond dynamic or articulation commands beyond those listed are not handled.
 - Scheme support is bounded to parsing and lookup behavior used by the converter, not arbitrary Scheme evaluation.
 
 ### Barlines and tempo

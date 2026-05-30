@@ -436,11 +436,22 @@ class MusicXmlWriter:
                     ET.SubElement(ornaments, ornament)
                 if trill_line_type is not None:
                     ET.SubElement(ornaments, "wavy-line", type=trill_line_type)
+            if event.technical:
+                notations = self._ensure_notations(note, notations)
+                technical_elem = ET.SubElement(notations, "technical")
+                for technical_mark in event.technical:
+                    ET.SubElement(technical_elem, technical_mark)
             if event.articulations:
                 notations = self._ensure_notations(note, notations)
                 articulations = ET.SubElement(notations, "articulations")
                 for articulation in event.articulations:
                     ET.SubElement(articulations, articulation)
+            if event.fermatas:
+                notations = self._ensure_notations(note, notations)
+                for fermata_shape in event.fermatas:
+                    fermata_elem = ET.SubElement(notations, "fermata", type="upright")
+                    if fermata_shape:
+                        fermata_elem.text = fermata_shape
             for lyric in event.lyrics:
                 self._append_lyric(note, lyric)
 

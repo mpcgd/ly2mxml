@@ -169,3 +169,28 @@ def missing_score_entrypoint(repo_root: Path) -> Path:
 @pytest.fixture
 def lyric_surplus_entrypoint(repo_root: Path) -> Path:
     return repo_root / "tests" / "fixtures" / "lyric_surplus.ly"
+
+
+@pytest.fixture
+def extended_dynamics_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "extended_dynamics.ly"
+
+
+@pytest.fixture
+def staccatissimo_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "staccatissimo.ly"
+
+
+@pytest.fixture
+def ornaments_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "ornaments.ly"
+
+
+@pytest.fixture
+def fermata_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "fermata.ly"
+
+
+@pytest.fixture
+def technical_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "technical.ly"

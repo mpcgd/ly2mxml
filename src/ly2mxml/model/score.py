@@ -68,6 +68,8 @@ class MusicEvent:
     is_cue: bool = False
     articulations: list[str] = field(default_factory=list)
     ornaments: list[str] = field(default_factory=list)
+    fermatas: list[str] = field(default_factory=list)
+    technical: list[str] = field(default_factory=list)
     directions: list[Direction] = field(default_factory=list)
     slur_start_count: int = 0
     slur_stop_count: int = 0
