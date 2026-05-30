@@ -164,9 +164,38 @@ TECHNICAL_MAP = {
     "\\rheel": "heel",
     "\\ltoe": "toe",
     "\\rtoe": "toe",
+    # Harmonic variants
+    "\\naturalHarmonic": "harmonic",
+    "\\artificialHarmonic": "harmonic",
 }
 
 DEFAULT_CLEF = ("G", 2, None)
+
+VOICE_COMMAND_STEMS: dict[str, str | None] = {
+    "\\voiceOne": "up",
+    "\\voiceTwo": "down",
+    "\\voiceThree": "up",
+    "\\voiceFour": "down",
+    "\\stemUp": "up",
+    "\\stemDown": "down",
+    "\\stemNeutral": None,
+    "\\oneVoice": None,
+}
+
+PERFORMANCE_TEXT_MARKS: dict[str, str] = {
+    "\\arco": "arco",
+    "\\pizzicato": "pizz.",
+    "\\colLegno": "col legno",
+    "\\sulTasto": "sul tasto",
+    "\\sulPonticello": "sul ponticello",
+}
+
+CODA_SEGNO_COMMANDS: dict[str, str] = {
+    "\\coda": "coda",
+    "\\segno": "segno",
+    "\\codaMark": "coda",
+    "\\segnoCodaMark": "segno",
+}
 
 CLEF_MAP = {
     "treble": DEFAULT_CLEF,
@@ -360,6 +389,21 @@ class _PartialDuration:
 
 
 @dataclass(frozen=True, slots=True)
+class _SecondaryVoiceBlocks:
+    """Carry secondary sub-blocks from a mid-stream simultaneous expansion.
+
+    When ``<< {v1} \\\\ {v2} >>`` appears inside a sequential voice stream,
+    ``_iter_linear_nodes`` expands the primary sub-block inline and yields this
+    marker so that ``_build_voice`` can build the remaining sub-blocks as extra
+    voices appended to the part alongside the primary voice.
+    """
+
+    blocks: tuple[items.MusicList, ...]
+    walk_state: "_WalkState"
+    source_node: items.MusicList
+
+
+@dataclass(frozen=True, slots=True)
 class _NewContextCommand:
     context_type: str
     context_id: str | None
@@ -371,7 +415,7 @@ class _NewContextCommand:
 class _FlattenedNode:
     """Carry one flattened node together with the state needed to render it."""
 
-    node: items.Item | _CueInsertion | _OttavaChange | _BarlineChange | _RehearsalMark | _PartialDuration
+    node: items.Item | _CueInsertion | _OttavaChange | _BarlineChange | _RehearsalMark | _PartialDuration | _SecondaryVoiceBlocks
     is_grace: bool
     grace_slash: bool
     scale: Fraction
@@ -401,6 +445,7 @@ class _VoiceBuildState:
     current_key_mode: str = "major"
     current_time_signature: tuple[int, int] = (4, 4)
     pending_glissando_stop: bool = False
+    current_stem: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -1165,11 +1210,11 @@ class LilypondConverter:
             name=part_context.name or f"Part {part_context.staff_index}",
             short_name=part_context.short_name,
         )
-        for voice_index, voice_ref in enumerate(voice_refs, start=1):
+        for voice_ref in voice_refs:
             self._append_part_voice(
                 part,
                 voice_ref,
-                str(voice_index),
+                str(len(part.voices) + 1),
                 assignments,
                 quote_sources,
                 diagnostics,
@@ -1321,6 +1366,7 @@ class LilypondConverter:
             initial_key_fifths=part.key_fifths,
             initial_key_mode=part.key_mode,
             initial_time_signature=part.time_signature,
+            out_extra_voices=(extra_voices := []),
         )
         if not part.voices:
             self._promote_opening_voice_clef(part, voice)
@@ -1329,6 +1375,9 @@ class LilypondConverter:
             verse_number = verse_index if len(target_lyrics) > 1 else None
             self._apply_lyrics(voice, lyric_source, assignments, lyric_state, verse_number, diagnostics)
         part.voices.append(voice)
+        for extra_voice in extra_voices:
+            extra_voice.id = str(len(part.voices) + 1)
+            part.voices.append(extra_voice)
 
     def _split_voice_separator_block(
         self,
@@ -1527,6 +1576,7 @@ class LilypondConverter:
         initial_key_fifths: int = 0,
         initial_key_mode: str = "major",
         initial_time_signature: tuple[int, int] = (4, 4),
+        out_extra_voices: list[Voice] | None = None,
     ) -> Voice:
         """Flatten one LilyPond music source into a linear exported voice."""
 
@@ -1612,6 +1662,7 @@ class LilypondConverter:
                     pitches=[self._to_pitch(source_pitch, flattened.transpose_specs)],
                     flattened=flattened,
                     pending_directions=state.pending_directions,
+                    stem=state.current_stem,
                 )
                 state.pending_directions.clear()
                 if state.pending_glissando_stop and not flattened.is_grace:
@@ -1627,6 +1678,7 @@ class LilypondConverter:
                     pitches=pitches,
                     flattened=flattened,
                     pending_directions=state.pending_directions,
+                    stem=state.current_stem,
                 )
                 state.pending_directions.clear()
                 if state.pending_glissando_stop and not flattened.is_grace:
@@ -1675,10 +1727,14 @@ class LilypondConverter:
                     continue
                 self._add_voice_direction(state, direction)
             elif isinstance(node, items.Articulation):
+                token = str(node.token)
+                coda_segno = CODA_SEGNO_COMMANDS.get(token)
+                if coda_segno is not None:
+                    self._add_voice_direction(state, Direction(kind=coda_segno, value=""))
+                    continue
                 target_event = self._voice_attachment_target(state)
                 if target_event is None:
                     continue
-                token = str(node.token)
                 articulation = ARTICULATION_MAP.get(token)
                 ornament = ORNAMENT_MAP.get(token)
                 fermata = FERMATA_MAP.get(token)
@@ -1699,6 +1755,14 @@ class LilypondConverter:
                     target_event.slur_start_count += 1
                 else:
                     target_event.slur_stop_count += 1
+            elif isinstance(node, items.PhrasingSlur):
+                target_event = self._voice_attachment_target(state)
+                if target_event is None:
+                    continue
+                if node.event == "start":
+                    target_event.phrase_slur_start_count += 1
+                else:
+                    target_event.phrase_slur_stop_count += 1
             elif isinstance(node, items.Tie):
                 target_event = self._voice_attachment_target(state)
                 if target_event is None:
@@ -1710,6 +1774,16 @@ class LilypondConverter:
                 direction = self._dynamic_to_direction(token)
                 if direction is not None:
                     self._add_voice_direction(state, direction)
+                    continue
+                if token in VOICE_COMMAND_STEMS:
+                    state.current_stem = VOICE_COMMAND_STEMS[token]
+                    continue
+                if token in CODA_SEGNO_COMMANDS:
+                    self._add_voice_direction(state, Direction(kind=CODA_SEGNO_COMMANDS[token], value=""))
+                    continue
+                perf_text = PERFORMANCE_TEXT_MARKS.get(token)
+                if perf_text is not None:
+                    self._add_voice_direction(state, Direction(kind="words", value=perf_text))
                     continue
                 if token == "\\breathe":
                     target_event = self._voice_attachment_target(state)
@@ -1727,6 +1801,16 @@ class LilypondConverter:
                         target_event.glissando_start = True
                         state.pending_glissando_stop = True
                     continue
+                if token == "\\(":
+                    target_event = self._voice_attachment_target(state)
+                    if target_event is not None:
+                        target_event.phrase_slur_start_count += 1
+                    continue
+                if token == "\\)":
+                    target_event = self._voice_attachment_target(state)
+                    if target_event is not None:
+                        target_event.phrase_slur_stop_count += 1
+                    continue
                 if token == "\\compressEmptyMeasures":
                     voice.compress_empty_measures = True
                     continue
@@ -1738,21 +1822,56 @@ class LilypondConverter:
                 if direction is not None:
                     self._add_voice_direction(state, direction)
                 else:
-                    articulation = ARTICULATION_MAP.get(token)
-                    ornament = ORNAMENT_MAP.get(token)
-                    fermata = FERMATA_MAP.get(token)
-                    technical = TECHNICAL_MAP.get(token)
-                    if articulation or ornament or fermata is not None or technical:
-                        target_event = self._voice_attachment_target(state)
-                        if target_event is not None:
-                            if articulation:
-                                target_event.articulations.append(articulation)
-                            elif ornament:
-                                target_event.ornaments.append(ornament)
-                            elif fermata is not None:
-                                target_event.fermatas.append(fermata)
-                            elif technical:
-                                target_event.technical.append(technical)
+                    perf_text = PERFORMANCE_TEXT_MARKS.get(token)
+                    if perf_text is not None:
+                        self._add_voice_direction(state, Direction(kind="words", value=perf_text))
+                    else:
+                        articulation = ARTICULATION_MAP.get(token)
+                        ornament = ORNAMENT_MAP.get(token)
+                        fermata = FERMATA_MAP.get(token)
+                        technical = TECHNICAL_MAP.get(token)
+                        if articulation or ornament or fermata is not None or technical:
+                            target_event = self._voice_attachment_target(state)
+                            if target_event is not None:
+                                if articulation:
+                                    target_event.articulations.append(articulation)
+                                elif ornament:
+                                    target_event.ornaments.append(ornament)
+                                elif fermata is not None:
+                                    target_event.fermatas.append(fermata)
+                                elif technical:
+                                    target_event.technical.append(technical)
+            elif isinstance(node, _SecondaryVoiceBlocks):
+                if out_extra_voices is not None:
+                    # Build extra parallel voices for sub-blocks 2, 3, … from a
+                    # mid-stream simultaneous expansion.  Each extra voice gets
+                    # leading spacer rests so its measures align with the primary
+                    # voice's current timeline position.
+                    leading_measures = list(voice.measures)
+                    partial_elapsed = state.elapsed
+                    for secondary_block in node.blocks:
+                        sub_voice_id = f"{voice_id}_s{len(out_extra_voices) + 1}"
+                        secondary_voice = self._build_voice(
+                            voice_id=sub_voice_id,
+                            source_name=source_name,
+                            music_node=secondary_block,
+                            measure_length=measure_length,
+                            assignments=assignments,
+                            quote_sources=quote_sources,
+                            diagnostics=diagnostics,
+                            allow_cues=allow_cues,
+                            initial_state=node.walk_state,
+                            initial_clef=initial_clef,
+                            initial_key_fifths=initial_key_fifths,
+                            initial_key_mode=initial_key_mode,
+                            initial_time_signature=initial_time_signature,
+                        )
+                        self._prepend_spacer_measures_to_voice(
+                            secondary_voice,
+                            leading_measures,
+                            partial_elapsed,
+                        )
+                        out_extra_voices.append(secondary_voice)
             elif isinstance(node, items.MusicList) and node.simultaneous:
                 diagnostics.append(
                     Diagnostic(
@@ -1830,6 +1949,54 @@ class LilypondConverter:
         state.current_measure = Measure(number=state.current_measure.number + 1)
         state.elapsed = Fraction(0, 1)
         state.last_event = None
+
+    def _prepend_spacer_measures_to_voice(
+        self,
+        secondary_voice: Voice,
+        leading_measures: list[Measure],
+        partial_elapsed: Fraction,
+    ) -> None:
+        """Align a secondary voice with the primary voice's current position.
+
+        Prepends full-measure spacer rests matching the already-finalized
+        primary-voice measures, then inserts a partial-measure leading rest
+        when the simultaneous block starts mid-measure.
+        """
+        # Build spacer measures matching the durations of already-finalized
+        # primary measures so the secondary voice aligns measure-for-measure.
+        spacer_measures = [
+            Measure(
+                number=i + 1,
+                events=[MusicEvent(duration=m.duration, is_rest=True)],
+                duration=m.duration,
+            )
+            for i, m in enumerate(leading_measures)
+        ]
+
+        # Prepend a partial leading rest inside the first content measure when
+        # the simultaneous block begins mid-measure.
+        if partial_elapsed > 0:
+            if secondary_voice.measures:
+                first_content = secondary_voice.measures[0]
+                leading_rest = MusicEvent(duration=partial_elapsed, is_rest=True)
+                first_content.events.insert(0, leading_rest)
+                first_content.duration += partial_elapsed
+            else:
+                spacer_measures.append(
+                    Measure(
+                        number=len(spacer_measures) + 1,
+                        events=[MusicEvent(duration=partial_elapsed, is_rest=True)],
+                        duration=partial_elapsed,
+                    )
+                )
+
+        if not spacer_measures:
+            return
+
+        all_measures = spacer_measures + secondary_voice.measures
+        for i, measure in enumerate(all_measures):
+            measure.number = i + 1
+        secondary_voice.measures = all_measures
 
     def _voice_attachment_target(self, state: _VoiceBuildState) -> MusicEvent | None:
         return state.last_event or state.attachment_event
@@ -1969,6 +2136,7 @@ class LilypondConverter:
         pending_directions: list[Direction],
         pitches: list[Pitch] | None = None,
         is_rest: bool = False,
+        stem: str | None = None,
     ) -> MusicEvent:
         """Construct one intermediate-model event from a flattened parser node."""
 
@@ -1982,6 +2150,7 @@ class LilypondConverter:
             "tuplet_stop": flattened.tuplet_stop,
             "tremolo_type": flattened.tremolo_type,
             "tremolo_slashes": flattened.tremolo_slashes,
+            "stem": stem,
         }
         if pitches is not None:
             event_kwargs["pitches"] = pitches
@@ -2034,7 +2203,20 @@ class LilypondConverter:
 
         if isinstance(node, items.MusicList):
             if node.simultaneous:
-                yield self._flattened_node(node, state)
+                sub_blocks = self._split_voice_separator_block(node)
+                if sub_blocks is not None and len(sub_blocks) >= 2:
+                    # Expand primary sub-block inline so the main voice stream
+                    # contains its notes, then carry the secondary sub-blocks in a
+                    # marker so _build_voice can create extra parallel voices.
+                    yield from self._iter_sequential_music_list(sub_blocks[0], state)
+                    marker = _SecondaryVoiceBlocks(
+                        blocks=tuple(sub_blocks[1:]),
+                        walk_state=state,
+                        source_node=node,
+                    )
+                    yield self._flattened_node(marker, state)
+                else:
+                    yield self._flattened_node(node, state)
                 return
             yield from self._iter_sequential_music_list(node, state)
             return
@@ -2243,7 +2425,7 @@ class LilypondConverter:
             current_state = self._advance_relative_state(current_state, flattened)
             yield flattened, current_state
 
-    def _flattened_node(self, node: items.Item | _CueInsertion | _OttavaChange | _BarlineChange, state: _WalkState) -> _FlattenedNode:
+    def _flattened_node(self, node: items.Item | _CueInsertion | _OttavaChange | _BarlineChange | _RehearsalMark | _PartialDuration | _SecondaryVoiceBlocks, state: _WalkState) -> _FlattenedNode:
         flattened = _FlattenedNode(
             node=node,
             is_grace=state.is_grace,
@@ -2895,6 +3077,7 @@ class LilypondConverter:
             arpeggiate=event.arpeggiate,
             glissando_start=event.glissando_start,
             glissando_stop=event.glissando_stop,
+            stem=event.stem,
         )
 
     def _apply_lyrics(

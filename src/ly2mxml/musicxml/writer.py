@@ -441,6 +441,9 @@ class MusicXmlWriter:
                 ET.SubElement(note, "dot")
             if event.time_modification:
                 self._append_time_modification(note, event.time_modification)
+            if event.stem and index == 0:
+                stem_elem = ET.SubElement(note, "stem")
+                stem_elem.text = event.stem
 
             notations = None
             if event.tie_start:
@@ -459,6 +462,14 @@ class MusicXmlWriter:
                 notations = self._ensure_notations(note, notations)
                 for _ in range(event.slur_stop_count):
                     ET.SubElement(notations, "slur", type="stop", number=voice_id)
+            if event.phrase_slur_start_count:
+                notations = self._ensure_notations(note, notations)
+                for _ in range(event.phrase_slur_start_count):
+                    ET.SubElement(notations, "slur", type="start", number="2")
+            if event.phrase_slur_stop_count:
+                notations = self._ensure_notations(note, notations)
+                for _ in range(event.phrase_slur_stop_count):
+                    ET.SubElement(notations, "slur", type="stop", number="2")
             if event.tuplet_start:
                 notations = self._ensure_notations(note, notations)
                 ET.SubElement(notations, "tuplet", type="start", number="1")
@@ -560,6 +571,10 @@ class MusicXmlWriter:
         elif direction.kind == "rehearsal":
             rehearsal = ET.SubElement(direction_type, "rehearsal")
             rehearsal.text = direction.value
+        elif direction.kind == "coda":
+            ET.SubElement(direction_type, "coda")
+        elif direction.kind == "segno":
+            ET.SubElement(direction_type, "segno")
         elif direction.kind == "metronome":
             beat_unit, _, bpm = direction.value.partition(":")
             metronome = ET.SubElement(direction_type, "metronome", parentheses="no")

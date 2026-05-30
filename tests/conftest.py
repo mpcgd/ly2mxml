@@ -232,6 +232,36 @@ def voice_separator_entrypoint(repo_root: Path) -> Path:
 
 
 @pytest.fixture
+def polyphony_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "polyphony.ly"
+
+
+@pytest.fixture
+def phrasing_slur_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "phrasing_slur.ly"
+
+
+@pytest.fixture
+def stem_direction_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "stem_direction.ly"
+
+
+@pytest.fixture
+def coda_segno_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "coda_segno.ly"
+
+
+@pytest.fixture
+def performance_text_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "performance_text.ly"
+
+
+@pytest.fixture
+def harmonics_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "harmonics.ly"
+
+
+@pytest.fixture
 def breath_mark_entrypoint(repo_root: Path) -> Path:
     return repo_root / "tests" / "fixtures" / "breath_mark.ly"
 

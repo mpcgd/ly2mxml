@@ -43,11 +43,15 @@ Use the sections below as the support contract:
 - supported articulation spellings: staccato (`-.`, `.`, `\staccato`), staccatissimo (`-!`, `\staccatissimo`), accent (`->`, `>`, `\accent`), tenuto (`--`, `\tenuto`), detached-legato (`-_`, `\portato`), strong-accent (`-^`, `^`, `\marcato`), soft-accent (`\espressivo`)
 - ornaments: `\trill`, `\mordent`, `\prall`, `\turn`, `\reverseturn`, `\prallmordent`, `\prallprall`, `\downmordent`, `\upmordent`, `\tremblement`, `\haydn`
 - fermata variants: `\fermata`, `\shortfermata`, `\longfermata`, `\verylongfermata`
-- technical notations: `\upbow`, `\downbow`, `\stopped`, `\open`, `\flageolet`, `\snappizzicato`, `\thumb`, `\lheel`, `\rheel`, `\ltoe`, `\rtoe`
+- technical notations: `\upbow`, `\downbow`, `\stopped`, `\open`, `\flageolet`, `\snappizzicato`, `\thumb`, `\lheel`, `\rheel`, `\ltoe`, `\rtoe`, `\naturalHarmonic`, `\artificialHarmonic`
 - explicit barlines with `\bar` including repeat barlines (`\|:`, `:|`), double barline (`||`), final barline (`|.`), dotted, dashed, short, tick, and invisible forms
 - `\ottava`
 - `\arpeggio`
 - `\glissando` (start/stop pair on successive notes)
+- phrasing slurs (`\(` … `\)` and `items.PhrasingSlur`)
+- stem direction commands: `\voiceOne`, `\voiceTwo`, `\voiceThree`, `\voiceFour`, `\stemUp`, `\stemDown`, `\stemNeutral`, `\oneVoice`
+- rehearsal marks: `\coda`, `\segno` (exported as MusicXML `<coda>` and `<segno>` direction types)
+- performance text marks: `\arco`, `\pizzicato`, `\colLegno`, `\sulTasto`, `\sulPonticello` (exported as `<words>` directions)
 
 ### Parts, voices, and assembly
 
@@ -56,6 +60,7 @@ Use the sections below as the support contract:
 - staff group brackets via `\new StaffGroup`, `\new ChoirStaff`, `\new GrandStaff`, and `\new PianoStaff` (bracket or brace in MusicXML)
 - `\include`
 - user-variable assignment resolution
+- mid-stream polyphony: `<< {v1} \\ {v2} >>` blocks embedded inside a sequential voice variable are split into multiple parallel MusicXML voices
 
 ### Quotes and cues
 
@@ -129,8 +134,6 @@ Use the sections below as the support contract:
 
 ## Not Yet Implemented / Unsupported
 
-- simultaneous music that requires true polyphonic flattening inside one linear voice stream (mid-stream `<<...>>` blocks)
-- top-level voice-separator shorthand (`<< {v1} \\ {v2} >>`) when not extracted during staff planning
 - repeat forms beyond `\repeat unfold`, `\repeat volta`, and `\repeat tremolo`
 - context-override clef scheduling (`\override Staff.Clef`); only `\clef "name"` inside a voice stream is supported
 - general Scheme-driven music evaluation or arbitrary Scheme execution semantics

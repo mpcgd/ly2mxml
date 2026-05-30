@@ -1720,6 +1720,223 @@ def test_cli_convert_writes_voice_separator(
 
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Mid-stream polyphony: << { v1 } \\ { v2 } >> inside a sequential variable
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_build_score_mid_stream_polyphony(polyphony_entrypoint: Path) -> None:
+    """<< {e' f'} \\ {g' a'} >> inside a sequential melody produces two voices."""
+    score = LilypondConverter().build_score(polyphony_entrypoint)
+
+    assert not any(d.severity == "error" for d in score.diagnostics)
+
+    assert len(score.parts) == 1
+    part = score.parts[0]
+
+    # The mid-stream split must have created a secondary voice
+    assert len(part.voices) >= 2, "Expected at least 2 voices from mid-stream << \\\\ >>"
+
+    def note_steps(voice_index: int) -> list[str]:
+        return [
+            e.pitches[0].step
+            for measure in part.voices[voice_index].measures
+            for e in measure.events
+            if e.is_note
+        ]
+
+    # Primary voice: c' d'  (before split) + e' f' (inside first sub-block) + b' c'' (after split)
+    v1 = note_steps(0)
+    assert "C" in v1
+    assert "D" in v1
+    assert "E" in v1
+    assert "F" in v1
+    assert "B" in v1
+
+    # Secondary voice: g' a' (inside second sub-block), padded with spacer rests at start
+    v2 = note_steps(1)
+    assert "G" in v2
+    assert "A" in v2
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Phrasing slurs  \( … \)
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_build_score_phrasing_slur(phrasing_slur_entrypoint: Path) -> None:
+    """\\( and \\) attach phrase_slur_start/stop counts to surrounding notes."""
+    score = LilypondConverter().build_score(phrasing_slur_entrypoint)
+
+    assert not any(d.severity == "error" for d in score.diagnostics)
+
+    events = [
+        e
+        for measure in score.parts[0].voices[0].measures
+        for e in measure.events
+        if e.is_note
+    ]
+
+    # c'\( → phrase slur start
+    assert events[0].phrase_slur_start_count >= 1
+    # f'\) → phrase slur stop
+    assert events[3].phrase_slur_stop_count >= 1
+    # g'\( → second slur start
+    assert events[4].phrase_slur_start_count >= 1
+    # a'\) → second slur stop
+    assert events[5].phrase_slur_stop_count >= 1
+
+
+def test_writer_emits_phrasing_slur_xml(phrasing_slur_entrypoint: Path, tmp_path: Path, repo_root: Path) -> None:
+    output_path = tmp_path / "phrasing_slur.musicxml"
+    import subprocess, sys
+    subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(phrasing_slur_entrypoint), "-o", str(output_path)],
+        cwd=repo_root, capture_output=True, check=True, text=True,
+    )
+    xml = output_path.read_text(encoding="utf-8")
+    assert '<slur type="start" number="2"' in xml
+    assert '<slur type="stop" number="2"' in xml
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Stem direction  \stemUp / \stemDown / \stemNeutral
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_build_score_stem_direction(stem_direction_entrypoint: Path) -> None:
+    """\\stemUp, \\stemDown, \\stemNeutral set MusicEvent.stem appropriately."""
+    score = LilypondConverter().build_score(stem_direction_entrypoint)
+
+    assert not any(d.severity == "error" for d in score.diagnostics)
+
+    events = [
+        e
+        for measure in score.parts[0].voices[0].measures
+        for e in measure.events
+        if e.is_note
+    ]
+
+    # \stemUp c' d' → stem == "up"
+    assert events[0].stem == "up"
+    assert events[1].stem == "up"
+    # \stemDown e' f' → stem == "down"
+    assert events[2].stem == "down"
+    assert events[3].stem == "down"
+    # \stemNeutral g' … → stem == None
+    assert events[4].stem is None
+
+
+def test_writer_emits_stem_element(stem_direction_entrypoint: Path, tmp_path: Path, repo_root: Path) -> None:
+    output_path = tmp_path / "stem_direction.musicxml"
+    import subprocess, sys
+    subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(stem_direction_entrypoint), "-o", str(output_path)],
+        cwd=repo_root, capture_output=True, check=True, text=True,
+    )
+    xml = output_path.read_text(encoding="utf-8")
+    assert "<stem>up</stem>" in xml
+    assert "<stem>down</stem>" in xml
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Coda and segno directions
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_build_score_coda_segno(coda_segno_entrypoint: Path) -> None:
+    """\\segno and \\coda produce directions with kind 'segno' and 'coda'."""
+    score = LilypondConverter().build_score(coda_segno_entrypoint)
+
+    assert not any(d.severity == "error" for d in score.diagnostics)
+
+    all_directions = [
+        d
+        for voice in score.parts[0].voices
+        for measure in voice.measures
+        for event in measure.events
+        for d in event.directions
+    ]
+    kinds = {d.kind for d in all_directions}
+    assert "segno" in kinds
+    assert "coda" in kinds
+
+
+def test_writer_emits_coda_segno_xml(coda_segno_entrypoint: Path, tmp_path: Path, repo_root: Path) -> None:
+    output_path = tmp_path / "coda_segno.musicxml"
+    import subprocess, sys
+    subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(coda_segno_entrypoint), "-o", str(output_path)],
+        cwd=repo_root, capture_output=True, check=True, text=True,
+    )
+    xml = output_path.read_text(encoding="utf-8")
+    assert "<coda" in xml
+    assert "<segno" in xml
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Performance text marks  \arco, \pizzicato
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_build_score_performance_text(performance_text_entrypoint: Path) -> None:
+    """\\arco and \\pizzicato produce 'words' directions with the correct text."""
+    score = LilypondConverter().build_score(performance_text_entrypoint)
+
+    assert not any(d.severity == "error" for d in score.diagnostics)
+
+    from ly2mxml.model.score import Direction
+    all_directions: list[Direction] = [
+        d
+        for voice in score.parts[0].voices
+        for measure in voice.measures
+        for event in measure.events
+        for d in event.directions
+    ]
+    texts = {d.value for d in all_directions if d.kind == "words"}
+    assert "arco" in texts
+    assert "pizz." in texts
+
+
+def test_writer_emits_performance_text_xml(performance_text_entrypoint: Path, tmp_path: Path, repo_root: Path) -> None:
+    output_path = tmp_path / "performance_text.musicxml"
+    import subprocess, sys
+    subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(performance_text_entrypoint), "-o", str(output_path)],
+        cwd=repo_root, capture_output=True, check=True, text=True,
+    )
+    xml = output_path.read_text(encoding="utf-8")
+    assert "arco" in xml
+    assert "pizz." in xml
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Natural and artificial harmonics
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_build_score_harmonics(harmonics_entrypoint: Path) -> None:
+    """\\naturalHarmonic and \\artificialHarmonic map to the 'harmonic' technical mark."""
+    score = LilypondConverter().build_score(harmonics_entrypoint)
+
+    assert not any(d.severity == "error" for d in score.diagnostics)
+
+    events = [
+        e
+        for measure in score.parts[0].voices[0].measures
+        for e in measure.events
+        if e.is_note
+    ]
+    assert "harmonic" in events[0].technical   # \naturalHarmonic
+    assert "harmonic" in events[1].technical   # \artificialHarmonic
+    assert events[2].technical == []           # plain note, no technical mark
+
+
+def test_writer_emits_harmonic_xml(harmonics_entrypoint: Path, tmp_path: Path, repo_root: Path) -> None:
+    output_path = tmp_path / "harmonics.musicxml"
+    import subprocess, sys
+    subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(harmonics_entrypoint), "-o", str(output_path)],
+        cwd=repo_root, capture_output=True, check=True, text=True,
+    )
+    xml = output_path.read_text(encoding="utf-8")
+    assert "<harmonic" in xml
+
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Breath marks
 # ──────────────────────────────────────────────────────────────────────────────
 

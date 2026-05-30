@@ -14,7 +14,7 @@ from typing import Literal
 from ly2mxml.diagnostics import Diagnostic
 
 
-DirectionKind = Literal["dynamic", "words", "tempo", "metronome", "wedge", "octave-shift", "rehearsal"]
+DirectionKind = Literal["dynamic", "words", "tempo", "metronome", "wedge", "octave-shift", "rehearsal", "coda", "segno"]
 LyricSyllabic = Literal["single", "begin", "middle", "end"]
 PartCombineMode = Literal["separate", "combined"]
 
@@ -103,6 +103,9 @@ class MusicEvent:
     glissando_start: bool = False
     glissando_stop: bool = False
     lyrics: list[Lyric] = field(default_factory=list)
+    stem: str | None = None
+    phrase_slur_start_count: int = 0
+    phrase_slur_stop_count: int = 0
 
     @property
     def is_note(self) -> bool:
