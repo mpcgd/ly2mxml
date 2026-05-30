@@ -194,3 +194,38 @@ def fermata_entrypoint(repo_root: Path) -> Path:
 @pytest.fixture
 def technical_entrypoint(repo_root: Path) -> Path:
     return repo_root / "tests" / "fixtures" / "technical.ly"
+
+
+@pytest.fixture
+def explicit_articulations_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "explicit_articulations.ly"
+
+
+@pytest.fixture
+def extended_ornaments_technical_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "extended_ornaments_technical.ly"
+
+
+@pytest.fixture
+def tremolo_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "tremolo.ly"
+
+
+@pytest.fixture
+def inline_lyricsto_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "inline_lyricsto.ly"
+
+
+@pytest.fixture
+def keep_with_tag_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "keep_with_tag.ly"
+
+
+@pytest.fixture
+def multi_tag_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "multi_tag.ly"
+
+
+@pytest.fixture
+def voice_separator_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "voice_separator.ly"

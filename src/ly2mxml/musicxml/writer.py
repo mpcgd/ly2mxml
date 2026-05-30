@@ -374,12 +374,16 @@ class MusicXmlWriter:
                 ET.SubElement(note, "dot")
             if event.time_modification:
                 self._append_time_modification(note, event.time_modification)
-            if event.tuplet_start or event.tuplet_stop:
-                notations = ET.SubElement(note, "notations")
+            if event.tuplet_start or event.tuplet_stop or event.tremolo_slashes:
+                rest_notations = ET.SubElement(note, "notations")
                 if event.tuplet_start:
-                    ET.SubElement(notations, "tuplet", type="start", number="1")
+                    ET.SubElement(rest_notations, "tuplet", type="start", number="1")
                 if event.tuplet_stop:
-                    ET.SubElement(notations, "tuplet", type="stop", number="1")
+                    ET.SubElement(rest_notations, "tuplet", type="stop", number="1")
+                if event.tremolo_slashes:
+                    ornaments = ET.SubElement(rest_notations, "ornaments")
+                    tremolo = ET.SubElement(ornaments, "tremolo", type=event.tremolo_type or "single")
+                    tremolo.text = str(event.tremolo_slashes)
             return
 
         for index, pitch in enumerate(event.pitches):
@@ -429,13 +433,16 @@ class MusicXmlWriter:
             if event.tuplet_stop:
                 notations = self._ensure_notations(note, notations)
                 ET.SubElement(notations, "tuplet", type="stop", number="1")
-            if event.ornaments or trill_line_type is not None:
+            if event.ornaments or trill_line_type is not None or event.tremolo_slashes:
                 notations = self._ensure_notations(note, notations)
                 ornaments = ET.SubElement(notations, "ornaments")
                 for ornament in event.ornaments:
                     ET.SubElement(ornaments, ornament)
                 if trill_line_type is not None:
                     ET.SubElement(ornaments, "wavy-line", type=trill_line_type)
+                if event.tremolo_slashes and index == 0:
+                    tremolo = ET.SubElement(ornaments, "tremolo", type=event.tremolo_type or "single")
+                    tremolo.text = str(event.tremolo_slashes)
             if event.technical:
                 notations = self._ensure_notations(note, notations)
                 technical_elem = ET.SubElement(notations, "technical")

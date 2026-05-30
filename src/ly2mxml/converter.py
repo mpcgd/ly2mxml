@@ -30,11 +30,14 @@ KNOWN_BUILTIN_USER_COMMANDS = {
     "ottava",
     "partCombine",
     "removeWithTag",
+    "keepWithTag",
     "rf",
     "sff",
     "sffz",
     "sfpp",
     "tag",
+    "tremblement",
+    "haydn",
 }
 
 SUPPORTED_FEATURES = {
@@ -46,6 +49,7 @@ SUPPORTED_FEATURES = {
     "multi-measure-rests",
     "part-combine",
     "relative-pitch",
+    "repeat:tremolo",
     "repeat:unfold",
     "repeat:volta",
     "scaled-durations",
@@ -103,6 +107,14 @@ ARTICULATION_MAP = {
     "-": "tenuto",
     "_": "detached-legato",
     "^": "strong-accent",
+    # Explicit command forms
+    "\\staccato": "staccato",
+    "\\staccatissimo": "staccatissimo",
+    "\\accent": "accent",
+    "\\tenuto": "tenuto",
+    "\\marcato": "strong-accent",
+    "\\portato": "detached-legato",
+    "\\espressivo": "soft-accent",
 }
 
 ORNAMENT_MAP = {
@@ -111,6 +123,14 @@ ORNAMENT_MAP = {
     "\\prall": "inverted-mordent",
     "\\turn": "turn",
     "\\reverseturn": "inverted-turn",
+    # Extended ornament forms
+    "\\prallmordent": "mordent",
+    "\\prallprall": "inverted-mordent",
+    "\\downmordent": "mordent",
+    "\\upmordent": "inverted-mordent",
+    # UserCommand-parsed ornaments (handled in UserCommand branch)
+    "\\tremblement": "trill-mark",
+    "\\haydn": "haydn",
 }
 
 FERMATA_MAP = {
@@ -128,6 +148,11 @@ TECHNICAL_MAP = {
     "\\open": "open-string",
     "\\flageolet": "harmonic",
     "\\thumb": "thumb-position",
+    # Foot/heel/toe marks
+    "\\lheel": "heel",
+    "\\rheel": "heel",
+    "\\ltoe": "toe",
+    "\\rtoe": "toe",
 }
 
 DEFAULT_CLEF = ("G", 2, None)
@@ -247,6 +272,7 @@ class _WalkState:
     cues_killed: bool = False
     allow_cues: bool = True
     removed_tags: frozenset[str] = frozenset()
+    keep_tags: frozenset[str] = frozenset()
     transpose_specs: tuple["_TransposeSpec", ...] = ()
     relative_reference: object | None = None
     measure_length: Fraction | None = None
@@ -318,6 +344,8 @@ class _FlattenedNode:
     time_modification: tuple[int, int] | None = None
     tuplet_start: bool = False
     tuplet_stop: bool = False
+    tremolo_type: str = ""
+    tremolo_slashes: int = 0
     resolved_pitches: tuple[object, ...] = ()
 
 
@@ -1004,6 +1032,14 @@ class LilypondConverter:
             target = lyric_reference.context_id()
             if target:
                 lyric_sources.setdefault(target, []).append((lyric_reference, state))
+        elif isinstance(lyric_reference, items.MusicList) and not lyric_reference.simultaneous:
+            # Handle inline block form: \new Lyrics { \lyricsto "voice" { words } }
+            # The MusicList wrapper contains one or more LyricsTo children.
+            for child in lyric_reference:
+                if isinstance(child, items.LyricsTo):
+                    target = child.context_id()
+                    if target:
+                        lyric_sources.setdefault(target, []).append((child, state))
 
     def _build_partcombine_member_parts(
         self,
@@ -1176,6 +1212,27 @@ class LilypondConverter:
             )
             return
 
+        # Detect voice-separator shorthand: << { v1 } \\ { v2 } ... >>
+        if isinstance(voice_music, items.MusicList) and voice_music.simultaneous:
+            sub_blocks = self._split_voice_separator_block(voice_music)
+            if sub_blocks is not None:
+                for sub_index, sub_block in enumerate(sub_blocks, start=1):
+                    sub_voice = self._build_voice(
+                        voice_id=f"{voice_id}_{sub_index}",
+                        source_name=voice_ref.name,
+                        music_node=sub_block,
+                        measure_length=part.measure_length,
+                        assignments=assignments,
+                        quote_sources=quote_sources,
+                        diagnostics=diagnostics,
+                        initial_state=voice_ref.state,
+                        initial_clef=(part.clef_sign, part.clef_line, part.clef_octave_change),
+                    )
+                    if not part.voices:
+                        self._promote_opening_voice_clef(part, sub_voice)
+                    part.voices.append(sub_voice)
+                return
+
         voice = self._build_voice(
             voice_id=voice_id,
             source_name=voice_ref.name,
@@ -1194,6 +1251,26 @@ class LilypondConverter:
             verse_number = verse_index if len(target_lyrics) > 1 else None
             self._apply_lyrics(voice, lyric_source, assignments, lyric_state, verse_number, diagnostics)
         part.voices.append(voice)
+
+    def _split_voice_separator_block(
+        self,
+        music_list: items.MusicList,
+    ) -> list[items.MusicList] | None:
+        """Return the sequential sub-blocks of a << { } \\\\ { } >> shorthand block.
+
+        Returns None if the block uses explicit \\new Voice contexts (already handled
+        by the context planning machinery) or has fewer than two sub-blocks.
+        """
+        sub_blocks: list[items.MusicList] = []
+        for child in music_list:
+            if isinstance(child, items.Context):
+                # Explicit \new Voice — handled separately; don't interfere
+                return None
+            if isinstance(child, items.VoiceSeparator):
+                continue
+            if isinstance(child, items.MusicList) and not child.simultaneous:
+                sub_blocks.append(child)
+        return sub_blocks if len(sub_blocks) >= 2 else None
 
     def _promote_opening_voice_clef(self, part: Part, voice: Voice) -> None:
         if not voice.measures or not voice.measures[0].clef_changes:
@@ -1492,6 +1569,22 @@ class LilypondConverter:
                 direction = self._dynamic_to_direction(token)
                 if direction is not None:
                     self._add_voice_direction(state, direction)
+                else:
+                    articulation = ARTICULATION_MAP.get(token)
+                    ornament = ORNAMENT_MAP.get(token)
+                    fermata = FERMATA_MAP.get(token)
+                    technical = TECHNICAL_MAP.get(token)
+                    if articulation or ornament or fermata is not None or technical:
+                        target_event = self._voice_attachment_target(state)
+                        if target_event is not None:
+                            if articulation:
+                                target_event.articulations.append(articulation)
+                            elif ornament:
+                                target_event.ornaments.append(ornament)
+                            elif fermata is not None:
+                                target_event.fermatas.append(fermata)
+                            elif technical:
+                                target_event.technical.append(technical)
             elif isinstance(node, items.MusicList) and node.simultaneous:
                 diagnostics.append(
                     Diagnostic(
@@ -1719,6 +1812,8 @@ class LilypondConverter:
             "time_modification": flattened.time_modification,
             "tuplet_start": flattened.tuplet_start,
             "tuplet_stop": flattened.tuplet_stop,
+            "tremolo_type": flattened.tremolo_type,
+            "tremolo_slashes": flattened.tremolo_slashes,
         }
         if pitches is not None:
             event_kwargs["pitches"] = pitches
@@ -1906,7 +2001,50 @@ class LilypondConverter:
                         yield flattened
             return
 
+        if specifier == "tremolo":
+            yield from self._flatten_tremolo(node, body, repeat_count, state)
+            return
+
         yield self._flattened_node(node, state)
+
+    def _flatten_tremolo(
+        self,
+        node: items.Repeat,
+        body: list[items.Item],
+        repeat_count: int,
+        state: _WalkState,
+    ) -> Iterable[_FlattenedNode]:
+        """Expand a tremolo repeat into scaled musical events with tremolo marks."""
+
+        import math
+
+        if repeat_count > 0 and (repeat_count & (repeat_count - 1)) == 0:
+            slash_count = int(math.log2(repeat_count))
+        else:
+            slash_count = max(1, round(math.log2(repeat_count))) if repeat_count > 0 else 1
+
+        scaled_state = replace(state, scale=state.scale * repeat_count)
+        body_flattened: list[_FlattenedNode] = []
+        current_state = scaled_state
+        for child in body:
+            if isinstance(child, items.Item):
+                for flattened, current_state in self._iter_linear_nodes_with_state(child, current_state):
+                    body_flattened.append(flattened)
+
+        musical_indices = [
+            i for i, f in enumerate(body_flattened) if isinstance(f.node, MUSICAL_NODE_TYPES)
+        ]
+
+        if len(musical_indices) == 1:
+            body_flattened[musical_indices[0]].tremolo_type = "single"
+            body_flattened[musical_indices[0]].tremolo_slashes = slash_count
+        elif len(musical_indices) >= 2:
+            body_flattened[musical_indices[0]].tremolo_type = "start"
+            body_flattened[musical_indices[0]].tremolo_slashes = slash_count
+            body_flattened[musical_indices[-1]].tremolo_type = "stop"
+            body_flattened[musical_indices[-1]].tremolo_slashes = slash_count
+
+        yield from body_flattened
 
     def _iter_linear_nodes_with_state(self, node: items.Item, state: _WalkState) -> Iterable[tuple[_FlattenedNode, _WalkState]]:
         current_state = state
@@ -2218,12 +2356,23 @@ class LilypondConverter:
         if isinstance(node, items.Tag):
             command_name = str(node.token).lstrip("\\")
             tag_children = self._item_children(node)
-            tag_name = self._extract_tag_name(tag_children[0] if tag_children else None)
-            content_nodes = tuple((child, self._state_with_removed_tag(state, tag_name)) for child in tag_children[1:])
+            tag_names = self._extract_tag_names(tag_children[0] if tag_children else None)
             if command_name == "removeWithTag":
+                content_nodes = tuple(
+                    (child, self._state_with_removed_tags(state, tag_names))
+                    for child in tag_children[1:]
+                )
+                return _SequenceFilterResult(emitted=content_nodes, remaining_state=state, consumed=1)
+            if command_name == "keepWithTag":
+                content_nodes = tuple(
+                    (child, self._state_with_keep_tags(state, tag_names))
+                    for child in tag_children[1:]
+                )
                 return _SequenceFilterResult(emitted=content_nodes, remaining_state=state, consumed=1)
             if command_name == "tag":
-                if tag_name in state.removed_tags:
+                if tag_names & state.removed_tags:
+                    return _SequenceFilterResult(emitted=(), remaining_state=state, consumed=1)
+                if state.keep_tags and not (tag_names & state.keep_tags):
                     return _SequenceFilterResult(emitted=(), remaining_state=state, consumed=1)
                 return _SequenceFilterResult(
                     emitted=tuple((child, state) for child in tag_children[1:]),
@@ -2238,21 +2387,33 @@ class LilypondConverter:
         next_node = sequence[start_index + 1] if start_index + 1 < len(sequence) else None
         command_name = self._raw_command_name(node, next_node)
         if command_name == "removeWithTag":
-            tag_name = self._extract_tag_name(next_node)
-            if tag_name is None:
+            tag_names = self._extract_tag_names(next_node)
+            if not tag_names:
                 return None
             return _SequenceFilterResult(
                 emitted=(),
-                remaining_state=self._state_with_removed_tag(state, tag_name),
+                remaining_state=self._state_with_removed_tags(state, tag_names),
+                consumed=2,
+            )
+
+        if command_name == "keepWithTag":
+            tag_names = self._extract_tag_names(next_node)
+            if not tag_names:
+                return None
+            return _SequenceFilterResult(
+                emitted=(),
+                remaining_state=self._state_with_keep_tags(state, tag_names),
                 consumed=2,
             )
 
         if command_name == "tag":
-            tag_name = self._extract_tag_name(next_node)
+            tag_names = self._extract_tag_names(next_node)
             content_node = sequence[start_index + 2] if start_index + 2 < len(sequence) else None
-            if tag_name is None or not isinstance(content_node, items.Item):
+            if not tag_names or not isinstance(content_node, items.Item):
                 return None
-            if tag_name in state.removed_tags:
+            if tag_names & state.removed_tags:
+                return _SequenceFilterResult(emitted=(), remaining_state=state, consumed=3)
+            if state.keep_tags and not (tag_names & state.keep_tags):
                 return _SequenceFilterResult(emitted=(), remaining_state=state, consumed=3)
             return _SequenceFilterResult(
                 emitted=((content_node, state),),
@@ -2282,23 +2443,47 @@ class LilypondConverter:
             return state
         return replace(state, removed_tags=state.removed_tags | frozenset({tag_name}))
 
+    def _state_with_removed_tags(self, state: _WalkState, tag_names: frozenset[str]) -> _WalkState:
+        if not tag_names:
+            return state
+        return replace(state, removed_tags=state.removed_tags | tag_names)
+
+    def _state_with_keep_tags(self, state: _WalkState, tag_names: frozenset[str]) -> _WalkState:
+        if not tag_names:
+            return state
+        return replace(state, keep_tags=state.keep_tags | tag_names)
+
     def _extract_tag_name(self, node: items.Item | None) -> str | None:
+        names = self._extract_tag_names(node)
+        return next(iter(names), None)
+
+    def _extract_tag_names(self, node: items.Item | None) -> frozenset[str]:
+        """Return all tag names from a tag argument (single or Scheme list form)."""
         if node is None:
-            return None
+            return frozenset()
         if isinstance(node, items.String):
-            return node.value()
+            v = node.value()
+            return frozenset({v}) if v else frozenset()
         if isinstance(node, items.Scheme):
-            text = node.get_string()
-            if text:
-                return text
+            names: set[str] = set()
+            self._collect_scheme_tag_names(node, names)
+            return frozenset(names)
+        # Recurse into children for wrapper nodes
+        names: set[str] = set()
         for child in node:
             if isinstance(child, items.Item):
-                tag_name = self._extract_tag_name(child)
-                if tag_name:
-                    return tag_name
+                names |= self._extract_tag_names(child)
+        if not names and type(node).__name__ == "SchemeItem":
+            return frozenset({str(node.token)})
+        return frozenset(names)
+
+    def _collect_scheme_tag_names(self, node: object, names: set[str]) -> None:
+        """Recursively collect all SchemeItem token strings into names."""
         if type(node).__name__ == "SchemeItem":
-            return str(node.token)
-        return None
+            names.add(str(getattr(node, "token", "")))
+        else:
+            for child in node:
+                self._collect_scheme_tag_names(child, names)
 
     def _duration_of_music(self, node: items.Item, state: _WalkState | None = None) -> Fraction:
         """Estimate rendered duration for supported LilyPond music nodes.
@@ -2487,6 +2672,8 @@ class LilypondConverter:
             time_modification=event.time_modification,
             tuplet_start=event.tuplet_start,
             tuplet_stop=event.tuplet_stop,
+            tremolo_type=event.tremolo_type,
+            tremolo_slashes=event.tremolo_slashes,
             lyrics=list(event.lyrics),
         )
 

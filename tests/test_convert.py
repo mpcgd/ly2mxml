@@ -1426,3 +1426,294 @@ def test_cli_convert_writes_technical_notations(
     assert "<down-bow />" in xml
     assert "<stopped />" in xml
     assert "<open-string />" in xml
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Explicit command-form articulations
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_build_score_emits_explicit_articulation_commands(explicit_articulations_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(explicit_articulations_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    note_events = [
+        event
+        for measure in score.parts[0].voices[0].measures
+        for event in measure.events
+        if event.is_note
+    ]
+
+    assert note_events[0].articulations == ["staccato"]
+    assert note_events[1].articulations == ["tenuto"]
+    assert note_events[2].articulations == ["strong-accent"]
+    assert note_events[3].articulations == ["accent"]
+    assert note_events[4].articulations == ["soft-accent"]
+    assert note_events[5].articulations == ["detached-legato"]
+    assert note_events[6].articulations == ["staccatissimo"]
+
+
+def test_cli_convert_writes_explicit_articulation_commands(
+    repo_root: Path, explicit_articulations_entrypoint: Path, tmp_path: Path
+) -> None:
+    output_path = tmp_path / "explicit_articulations.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(explicit_articulations_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert "<staccato />" in xml
+    assert "<tenuto />" in xml
+    assert "<strong-accent />" in xml
+    assert "<accent />" in xml
+    assert "<soft-accent />" in xml
+    assert "<detached-legato />" in xml
+    assert "<staccatissimo />" in xml
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Extended ornaments and technical marks
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_build_score_emits_extended_ornaments_and_technical(
+    extended_ornaments_technical_entrypoint: Path,
+) -> None:
+    score = LilypondConverter().build_score(extended_ornaments_technical_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    note_events = [
+        event
+        for measure in score.parts[0].voices[0].measures
+        for event in measure.events
+        if event.is_note
+    ]
+
+    assert note_events[0].ornaments == ["mordent"]        # \prallmordent
+    assert note_events[1].ornaments == ["inverted-mordent"]  # \prallprall
+    assert note_events[2].ornaments == ["mordent"]        # \downmordent
+    assert note_events[3].ornaments == ["inverted-mordent"]  # \upmordent
+    assert note_events[4].technical == ["heel"]           # \lheel
+    assert note_events[5].technical == ["heel"]           # \rheel
+    assert note_events[6].technical == ["toe"]            # \ltoe
+    assert note_events[7].technical == ["toe"]            # \rtoe
+
+
+def test_cli_convert_writes_extended_ornaments_and_technical(
+    repo_root: Path, extended_ornaments_technical_entrypoint: Path, tmp_path: Path
+) -> None:
+    output_path = tmp_path / "extended_ornaments_technical.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(extended_ornaments_technical_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert "<mordent />" in xml
+    assert "<inverted-mordent />" in xml
+    assert "<heel />" in xml
+    assert "<toe />" in xml
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Tremolo repeats
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_build_score_emits_tremolo(tremolo_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(tremolo_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    note_events = [
+        event
+        for measure in score.parts[0].voices[0].measures
+        for event in measure.events
+        if event.is_note
+    ]
+
+    # Single-note tremolo: \repeat tremolo 4 { c16 } → c quarter with 2 slashes
+    assert note_events[0].tremolo_type == "single"
+    assert note_events[0].tremolo_slashes == 2
+
+    # Two-note tremolo: \repeat tremolo 4 { d16 e16 } → d quarter start, e quarter stop
+    assert note_events[1].tremolo_type == "start"
+    assert note_events[1].tremolo_slashes == 2
+    assert note_events[2].tremolo_type == "stop"
+    assert note_events[2].tremolo_slashes == 2
+
+
+def test_cli_convert_writes_tremolo(
+    repo_root: Path, tremolo_entrypoint: Path, tmp_path: Path
+) -> None:
+    output_path = tmp_path / "tremolo.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(tremolo_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert '<tremolo type="single">2</tremolo>' in xml
+    assert '<tremolo type="start">2</tremolo>' in xml
+    assert '<tremolo type="stop">2</tremolo>' in xml
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Inline \lyricsto form: \new Lyrics { \lyricsto "voice" { words } }
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_build_score_applies_inline_lyricsto(inline_lyricsto_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(inline_lyricsto_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    note_events = [
+        event
+        for measure in score.parts[0].voices[0].measures
+        for event in measure.events
+        if event.is_note
+    ]
+
+    # "Hel -- lo world" → Hel(begin), lo(end), world(single)
+    assert note_events[0].lyrics and note_events[0].lyrics[0].syllabic == "begin"
+    assert note_events[1].lyrics and note_events[1].lyrics[0].syllabic == "end"
+    assert note_events[2].lyrics and note_events[2].lyrics[0].text == "world"
+    assert note_events[2].lyrics[0].syllabic == "single"
+
+
+def test_cli_convert_writes_inline_lyricsto(
+    repo_root: Path, inline_lyricsto_entrypoint: Path, tmp_path: Path
+) -> None:
+    output_path = tmp_path / "inline_lyricsto.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(inline_lyricsto_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert "<lyric" in xml
+    assert "<text>world</text>" in xml
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# \keepWithTag filtering
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_build_score_applies_keepwithtag(keep_with_tag_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(keep_with_tag_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    note_events = [
+        event
+        for measure in score.parts[0].voices[0].measures
+        for event in measure.events
+        if event.is_note
+    ]
+
+    # \keepWithTag #'solo keeps: \tag #'solo { c'4 }, untagged e'4, \tag #'solo { f'4 }
+    # \tag #'tutti { d'4 } is suppressed
+    steps = [event.pitches[0].step for event in note_events]
+    assert "D" not in steps         # tutti content suppressed
+    assert "C" in steps and "E" in steps and "F" in steps
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Multi-name tag lists: \tag #'(foo bar)
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_build_score_applies_multi_name_tag(multi_tag_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(multi_tag_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    note_events = [
+        event
+        for measure in score.parts[0].voices[0].measures
+        for event in measure.events
+        if event.is_note
+    ]
+
+    steps = [event.pitches[0].step for event in note_events]
+    # \removeWithTag #'foo suppresses \tag #'(foo bar) { c'4 } because foo is in the tag set
+    assert "C" not in steps   # multi-tag (foo bar) suppressed because foo is removed
+    assert "D" in steps       # \tag #'bar only → not suppressed
+    assert "E" in steps       # \tag #'other → not suppressed
+    assert "F" in steps       # untagged → always kept
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Voice-separator shorthand polyphony: << { v1 } \\ { v2 } >>
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_build_score_splits_voice_separator(voice_separator_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(voice_separator_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    # melody = << { c' d' e' f' } \\ { e' f' g' a' } >> → 2 voices
+    assert len(score.parts) == 1
+    assert len(score.parts[0].voices) == 2
+
+    voice1_notes = [
+        event
+        for measure in score.parts[0].voices[0].measures
+        for event in measure.events
+        if event.is_note
+    ]
+    voice2_notes = [
+        event
+        for measure in score.parts[0].voices[1].measures
+        for event in measure.events
+        if event.is_note
+    ]
+
+    v1_steps = [e.pitches[0].step for e in voice1_notes]
+    v2_steps = [e.pitches[0].step for e in voice2_notes]
+
+    assert v1_steps == ["C", "D", "E", "F"]
+    assert v2_steps == ["E", "F", "G", "A"]
+
+
+def test_cli_convert_writes_voice_separator(
+    repo_root: Path, voice_separator_entrypoint: Path, tmp_path: Path
+) -> None:
+    output_path = tmp_path / "voice_separator.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(voice_separator_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    # Both voices should be present — voice 2 notes use <chord> element after the first note
+    assert xml.count("<note") >= 8   # 4 notes × 2 voices

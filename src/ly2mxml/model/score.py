@@ -78,6 +78,8 @@ class MusicEvent:
     time_modification: tuple[int, int] | None = None
     tuplet_start: bool = False
     tuplet_stop: bool = False
+    tremolo_type: str = ""
+    tremolo_slashes: int = 0
     lyrics: list[Lyric] = field(default_factory=list)
 
     @property

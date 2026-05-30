@@ -19,12 +19,13 @@ Use the sections below as the support contract:
 - transposed music with `\transpose`
 - key signatures with `\key`
 - time signatures with `\time`
-- opening staff clef extraction and supported mid-staff clef changes
+- opening staff clef extraction and mid-staff clef changes via `\clef "name"` inside a voice stream
 
 ### Structural expansion and duration handling
 
 - `\repeat unfold`
 - `\repeat volta`
+- `\repeat tremolo` (single-note and two-note forms)
 - `\tuplet`
 - `\times`
 - `\scaleDurations`
@@ -37,10 +38,10 @@ Use the sections below as the support contract:
 - supported dynamic commands: `\ppp`, `\pppp`, `\pp`, `\p`, `\mp`, `\mf`, `\f`, `\ff`, `\fff`, `\ffff`, `\fp`, `\fz`, `\rf`, `\rfz`, `\sf`, `\sfp`, `\sfpp`, `\sfz`, `\sff`, `\sffz`
 - text dynamics `\cresc`, `\dim`, `\decresc`
 - wedge commands `\<`, `\>`, and `\!`
-- supported articulation spellings: staccato (`-.`, `.`), staccatissimo (`-!`), accent (`->`, `>`), tenuto (`--`), detached-legato (`-_`), strong-accent (`-^`, `^`)
-- ornaments: `\trill`, `\mordent`, `\prall`, `\turn`, `\reverseturn`
+- supported articulation spellings: staccato (`-.`, `.`, `\staccato`), staccatissimo (`-!`, `\staccatissimo`), accent (`->`, `>`, `\accent`), tenuto (`--`, `\tenuto`), detached-legato (`-_`, `\portato`), strong-accent (`-^`, `^`, `\marcato`), soft-accent (`\espressivo`)
+- ornaments: `\trill`, `\mordent`, `\prall`, `\turn`, `\reverseturn`, `\prallmordent`, `\prallprall`, `\downmordent`, `\upmordent`, `\tremblement`, `\haydn`
 - fermata variants: `\fermata`, `\shortfermata`, `\longfermata`, `\verylongfermata`
-- technical notations: `\upbow`, `\downbow`, `\stopped`, `\open`, `\flageolet`, `\snappizzicato`, `\thumb`
+- technical notations: `\upbow`, `\downbow`, `\stopped`, `\open`, `\flageolet`, `\snappizzicato`, `\thumb`, `\lheel`, `\rheel`, `\ltoe`, `\rtoe`
 - explicit barlines with `\bar`
 - `\ottava`
 
@@ -69,8 +70,9 @@ Use the sections below as the support contract:
 
 ### Tag filtering and measure-rest handling
 
-- bounded `\tag` handling
+- bounded `\tag` handling including multi-name tag lists
 - bounded `\removeWithTag` handling
+- `\keepWithTag` for tag-based content selection
 - `\compressEmptyMeasures`
 - uppercase measure-rest duration semantics such as `R1*10`
 - MusicXML multiple-rest export for supported consecutive full-measure rests
@@ -85,7 +87,7 @@ Use the sections below as the support contract:
 
 ### Repeats
 
-- Repeat support is limited to `\repeat unfold` and `\repeat volta`.
+- Repeat support covers `\repeat unfold`, `\repeat volta`, and `\repeat tremolo`.
 - Other repeat forms should not be described as supported.
 
 ### Cues
@@ -95,12 +97,13 @@ Use the sections below as the support contract:
 
 ### Lyrics
 
-- Lyrics support is intentionally limited to `\addlyrics` and the currently tested `\lyricsto` workflows.
+- Lyrics support covers `\addlyrics`, `\lyricsto` in named-voice variable form, and `\lyricsto` in inline block form (`\new Lyrics { \lyricsto "voice" { words } }`).
+- Multiple lyric verses are supported in the currently tested forms.
 - Do not describe the project as supporting LilyPond lyrics generically.
 
 ### Tags
 
-- Tag filtering is limited to the currently tested `\tag` and `\removeWithTag` forms.
+- Tag filtering supports the tested `\tag`, `\removeWithTag`, and `\keepWithTag` forms, including multi-name tag lists with Scheme list syntax.
 - Avoid claiming broad nested tag semantics beyond those forms.
 
 ### PartCombine
@@ -121,14 +124,15 @@ Use the sections below as the support contract:
 
 ## Not Yet Implemented / Unsupported
 
-- simultaneous music that requires true polyphonic flattening inside one linear voice stream
-- repeat forms beyond `\repeat unfold` and `\repeat volta`
-- mid-voice clef changes
+- simultaneous music that requires true polyphonic flattening inside one linear voice stream (mid-stream `<<...>>` blocks)
+- top-level voice-separator shorthand (`<< {v1} \\ {v2} >>`) when not extracted during staff planning
+- repeat forms beyond `\repeat unfold`, `\repeat volta`, and `\repeat tremolo`
+- context-override clef scheduling (`\override Staff.Clef`); only `\clef "name"` inside a voice stream is supported
 - general Scheme-driven music evaluation or arbitrary Scheme execution semantics
 - unknown LilyPond commands outside the currently handled command set
-- broader lyric constructs beyond `\addlyrics` and the current `\lyricsto` support
+- broader lyric constructs beyond the currently tested `\addlyrics` and `\lyricsto` forms
 - broader cue constructs beyond quote-based cue extraction from `\addQuote` sources
-- broader tag semantics beyond the currently tested `\tag` and `\removeWithTag` forms
+- broader tag semantics beyond the currently tested `\tag`, `\removeWithTag`, and `\keepWithTag` forms
 
 ## Areas Where Docs Should Stay Conservative
 
