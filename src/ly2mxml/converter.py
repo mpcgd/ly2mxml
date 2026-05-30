@@ -18,15 +18,17 @@ from ly.music import items
 
 from ly2mxml.diagnostics import Diagnostic, location_from_item
 from ly2mxml.frontend.python_ly_adapter import PythonLyAdapter, SourceAnalysis
-from ly2mxml.model.score import ClefChange, Direction, Lyric, Measure, MusicEvent, Part, PartCombineMode, Pitch, Score, ScoreMetadata, Voice
+from ly2mxml.model.score import ClefChange, Direction, KeyChange, Lyric, Measure, MusicEvent, Part, PartCombineMode, Pitch, Score, ScoreMetadata, TimeChange, Voice
 from ly2mxml.musicxml.writer import MusicXmlWriter
 from ly2mxml.options import ExportOptions
 
 
 KNOWN_BUILTIN_USER_COMMANDS = {
     "addQuote",
+    "breathe",
     "compressEmptyMeasures",
     "killCues",
+    "mark",
     "ottava",
     "partCombine",
     "removeWithTag",
@@ -223,6 +225,16 @@ KEY_FIFTHS = {
 
 PITCH_SCALE = (Fraction(0, 1), Fraction(2, 1), Fraction(4, 1), Fraction(5, 1), Fraction(7, 1), Fraction(9, 1), Fraction(11, 1))
 
+BEAT_UNIT_MAP = {
+    Fraction(1, 1): "whole",
+    Fraction(1, 2): "half",
+    Fraction(1, 4): "quarter",
+    Fraction(1, 8): "eighth",
+    Fraction(1, 16): "16th",
+    Fraction(1, 32): "32nd",
+    Fraction(1, 64): "64th",
+}
+
 DEFINE_PUBLIC_STRING_PATTERN = re.compile(r'#\(define-public\s+([\w-]+)\s+"([^"]*)"\)')
 NEW_CONTEXT_PATTERN = re.compile(r'\\new\s+([A-Za-z]+)(?:\s*=\s*"([^"]+)")?\s*$')
 UNRESOLVED_COMMAND_PATTERN = re.compile(r"\\+([A-Za-z]+)\b")
@@ -325,6 +337,12 @@ class _BarlineChange:
 
 
 @dataclass(frozen=True, slots=True)
+class _RehearsalMark:
+    label: str | None  # None means auto-number from converter counter
+    source_node: items.Item
+
+
+@dataclass(frozen=True, slots=True)
 class _NewContextCommand:
     context_type: str
     context_id: str | None
@@ -336,7 +354,7 @@ class _NewContextCommand:
 class _FlattenedNode:
     """Carry one flattened node together with the state needed to render it."""
 
-    node: items.Item | _CueInsertion | _OttavaChange | _BarlineChange
+    node: items.Item | _CueInsertion | _OttavaChange | _BarlineChange | _RehearsalMark
     is_grace: bool
     grace_slash: bool
     scale: Fraction
@@ -362,6 +380,9 @@ class _VoiceBuildState:
     attachment_event: MusicEvent | None = None
     pending_tie_signature: tuple[tuple[str, int, int], ...] | None = None
     active_ottava: int | None = None
+    current_key_fifths: int = 0
+    current_key_mode: str = "major"
+    current_time_signature: tuple[int, int] = (4, 4)
 
 
 @dataclass(frozen=True, slots=True)
@@ -439,6 +460,7 @@ class LilypondConverter:
         self._source_text_cache: dict[Path, str] = {}
         self._quote_voice_cache: dict[tuple[str, Fraction], Voice] = {}
         self._scheme_values_cache: dict[Path, dict[str, str]] = {}
+        self._rehearsal_mark_counter: int = 0
 
     def preflight(self, entrypoint: str | Path) -> ConversionPreflight:
         """Inspect a LilyPond project and classify known unsupported features."""
@@ -506,6 +528,7 @@ class LilypondConverter:
         score_node = self._first_score(document)
         diagnostics: list[Diagnostic] = []
         self._quote_voice_cache = {}
+        self._rehearsal_mark_counter = 0
 
         if score_node is None:
             diagnostics.append(
@@ -1227,6 +1250,9 @@ class LilypondConverter:
                         diagnostics=diagnostics,
                         initial_state=voice_ref.state,
                         initial_clef=(part.clef_sign, part.clef_line, part.clef_octave_change),
+                        initial_key_fifths=part.key_fifths,
+                        initial_key_mode=part.key_mode,
+                        initial_time_signature=part.time_signature,
                     )
                     if not part.voices:
                         self._promote_opening_voice_clef(part, sub_voice)
@@ -1243,6 +1269,9 @@ class LilypondConverter:
             diagnostics=diagnostics,
             initial_state=voice_ref.state,
             initial_clef=(part.clef_sign, part.clef_line, part.clef_octave_change),
+            initial_key_fifths=part.key_fifths,
+            initial_key_mode=part.key_mode,
+            initial_time_signature=part.time_signature,
         )
         if not part.voices:
             self._promote_opening_voice_clef(part, voice)
@@ -1446,11 +1475,20 @@ class LilypondConverter:
         allow_cues: bool = True,
         initial_state: _WalkState | None = None,
         initial_clef: tuple[str, int, int | None] | None = None,
+        initial_key_fifths: int = 0,
+        initial_key_mode: str = "major",
+        initial_time_signature: tuple[int, int] = (4, 4),
     ) -> Voice:
         """Flatten one LilyPond music source into a linear exported voice."""
 
         voice = Voice(id=voice_id, source_name=source_name)
-        state = _VoiceBuildState(current_measure=Measure(number=1), current_clef=initial_clef or DEFAULT_CLEF)
+        state = _VoiceBuildState(
+            current_measure=Measure(number=1),
+            current_clef=initial_clef or DEFAULT_CLEF,
+            current_key_fifths=initial_key_fifths,
+            current_key_mode=initial_key_mode,
+            current_time_signature=initial_time_signature,
+        )
 
         walk_state = replace(initial_state or _WalkState(), allow_cues=allow_cues, measure_length=measure_length)
         # ``_iter_linear_nodes`` resolves the nested LilyPond wrappers that can
@@ -1466,6 +1504,12 @@ class LilypondConverter:
                 style = self._barline_style(node.value)
                 if style is not None:
                     self._apply_voice_barline(voice, state, style)
+            elif isinstance(node, _RehearsalMark):
+                label = node.label
+                if label is None:
+                    self._rehearsal_mark_counter += 1
+                    label = chr(ord("A") + (self._rehearsal_mark_counter - 1) % 26)
+                self._add_voice_direction(state, Direction(kind="rehearsal", value=label))
             elif isinstance(node, _CueInsertion):
                 self._add_cue_insertion(
                     voice,
@@ -1479,6 +1523,30 @@ class LilypondConverter:
                 )
             elif isinstance(node, items.Clef):
                 self._add_voice_clef_change(voice, state, node, measure_length, source_name, diagnostics)
+            elif isinstance(node, items.Tempo):
+                for direction in self._tempo_directions(node):
+                    self._add_voice_direction(state, direction)
+            elif isinstance(node, items.KeySignature):
+                pitch = node.pitch()
+                new_mode = node.mode() or "major"
+                new_fifths = self._key_fifths(pitch, new_mode, flattened.transpose_specs)
+                if new_fifths != state.current_key_fifths or new_mode != state.current_key_mode:
+                    state.current_measure.key_changes.append(
+                        KeyChange(offset=state.elapsed, fifths=new_fifths, mode=new_mode)
+                    )
+                    state.current_key_fifths = new_fifths
+                    state.current_key_mode = new_mode
+            elif isinstance(node, items.TimeSignature):
+                fraction = node.fraction()
+                if fraction:
+                    new_num = node.numerator()
+                    new_den = int(1 / fraction)
+                    if (new_num, new_den) != state.current_time_signature:
+                        state.current_measure.time_changes.append(
+                            TimeChange(offset=state.elapsed, numerator=new_num, denominator=new_den)
+                        )
+                        state.current_time_signature = (new_num, new_den)
+                        measure_length = Fraction(new_num, new_den)
             elif isinstance(node, items.Note):
                 state.attachment_event = None
                 source_pitch = flattened.resolved_pitches[0] if flattened.resolved_pitches else node.pitch
@@ -1558,6 +1626,11 @@ class LilypondConverter:
                 direction = self._dynamic_to_direction(token)
                 if direction is not None:
                     self._add_voice_direction(state, direction)
+                    continue
+                if token == "\\breathe":
+                    target_event = self._voice_attachment_target(state)
+                    if target_event is not None:
+                        target_event.breath_mark = True
                     continue
                 if token == "\\compressEmptyMeasures":
                     voice.compress_empty_measures = True
@@ -1956,11 +2029,26 @@ class LilypondConverter:
                 index += barline_change[1]
                 continue
 
+            rehearsal_mark = self._parse_rehearsal_mark(sequence, index)
+            if rehearsal_mark is not None:
+                yield self._flattened_node(rehearsal_mark[0], current_state)
+                index += rehearsal_mark[1]
+                continue
+
             cue_request = self._parse_cue_insertion(sequence, index, current_state)
             if cue_request is not None:
                 yield self._flattened_node(cue_request[0], current_state)
                 index += cue_request[1]
                 continue
+
+            # Update measure_length in walk state when a time signature is
+            # encountered so that full-measure rests (R) following the change
+            # compute their duration against the new signature.
+            if isinstance(child, items.TimeSignature):
+                fraction = child.fraction()
+                if fraction:
+                    new_length = Fraction(child.numerator(), int(1 / fraction))
+                    current_state = replace(current_state, measure_length=new_length)
 
             for flattened, current_state in self._iter_linear_nodes_with_state(child, current_state):
                 yield flattened
@@ -2138,6 +2226,32 @@ class LilypondConverter:
             return None
 
         return _BarlineChange(value=value, source_node=node), 2
+
+    def _parse_rehearsal_mark(
+        self,
+        sequence: list[items.Item],
+        start_index: int,
+    ) -> tuple[_RehearsalMark, int] | None:
+        node = sequence[start_index]
+        if not isinstance(node, items.Command) or str(node.token) != "\\mark":
+            return None
+
+        next_node = sequence[start_index + 1] if start_index + 1 < len(sequence) else None
+
+        # \mark #N – explicit number
+        scheme_int = self._extract_scheme_int(next_node)
+        if scheme_int is not None:
+            return _RehearsalMark(label=str(scheme_int), source_node=node), 2
+
+        # \mark "text" – explicit string
+        if isinstance(next_node, items.String):
+            text = next_node.value()
+            if text:
+                return _RehearsalMark(label=text, source_node=node), 2
+
+        # \mark \default – auto-numbered; consume the \default token if present
+        consumed = 2 if (isinstance(next_node, items.Command) and str(next_node.token) == "\\default") else 1
+        return _RehearsalMark(label=None, source_node=node), consumed
 
     def _parse_cue_insertion(
         self,
@@ -2895,6 +3009,27 @@ class LilypondConverter:
         placement = "below" if ottava_value < 0 else "above"
         size = abs(ottava_value) * 7 + 1
         return Direction(kind="octave-shift", value=f"{placement}:{shift_type}:{size}")
+
+    def _tempo_directions(self, node: items.Tempo) -> list[Direction]:
+        """Return the Direction objects that represent one LilyPond tempo mark."""
+
+        directions: list[Direction] = []
+        text = self._extract_text(node.text())
+        if text:
+            directions.append(Direction(kind="tempo", value=text))
+
+        duration_attr = getattr(node, "duration", None)
+        if duration_attr and duration_attr[0]:
+            beat_fraction = duration_attr[0] * duration_attr[1]
+            beat_unit = BEAT_UNIT_MAP.get(beat_fraction)
+            bpm = next(
+                (int(str(child.token)) for child in node if isinstance(child, items.Number) and str(child.token).isdigit()),
+                None,
+            )
+            if beat_unit and bpm is not None:
+                directions.append(Direction(kind="metronome", value=f"{beat_unit}:{bpm}"))
+
+        return directions
 
     def _extract_text(self, node: items.Item | None, scheme_values: dict[str, str] | None = None) -> str | None:
         if node is None:

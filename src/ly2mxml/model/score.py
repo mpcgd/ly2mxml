@@ -14,7 +14,7 @@ from typing import Literal
 from ly2mxml.diagnostics import Diagnostic
 
 
-DirectionKind = Literal["dynamic", "words", "tempo", "wedge", "octave-shift"]
+DirectionKind = Literal["dynamic", "words", "tempo", "metronome", "wedge", "octave-shift", "rehearsal"]
 LyricSyllabic = Literal["single", "begin", "middle", "end"]
 PartCombineMode = Literal["separate", "combined"]
 
@@ -44,6 +44,24 @@ class ClefChange:
     sign: str
     line: int
     octave_change: int | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class KeyChange:
+    """Represent a key signature change at a measure-relative musical offset."""
+
+    offset: Fraction
+    fifths: int
+    mode: str
+
+
+@dataclass(frozen=True, slots=True)
+class TimeChange:
+    """Represent a time signature change at a measure-relative musical offset."""
+
+    offset: Fraction
+    numerator: int
+    denominator: int
 
 
 @dataclass(frozen=True, slots=True)
@@ -80,6 +98,7 @@ class MusicEvent:
     tuplet_stop: bool = False
     tremolo_type: str = ""
     tremolo_slashes: int = 0
+    breath_mark: bool = False
     lyrics: list[Lyric] = field(default_factory=list)
 
     @property
@@ -97,6 +116,8 @@ class Measure:
     events: list[MusicEvent] = field(default_factory=list)
     duration: Fraction = Fraction(0, 1)
     clef_changes: list[ClefChange] = field(default_factory=list)
+    key_changes: list[KeyChange] = field(default_factory=list)
+    time_changes: list[TimeChange] = field(default_factory=list)
     right_barline: str | None = None
 
 

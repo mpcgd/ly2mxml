@@ -1717,3 +1717,232 @@ def test_cli_convert_writes_voice_separator(
     assert result.stderr.strip() == ""
     # Both voices should be present — voice 2 notes use <chord> element after the first note
     assert xml.count("<note") >= 8   # 4 notes × 2 voices
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Breath marks
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_build_score_emits_breath_mark(breath_mark_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(breath_mark_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    note_events = [
+        event
+        for measure in score.parts[0].voices[0].measures
+        for event in measure.events
+        if event.is_note
+    ]
+
+    # f' has \breathe, g' does not, a' has \breathe
+    assert note_events[3].breath_mark is True    # f' in measure 1
+    assert note_events[4].breath_mark is False   # g' in measure 2
+    assert note_events[5].breath_mark is True    # a' in measure 2
+
+
+def test_cli_convert_writes_breath_mark(
+    repo_root: Path, breath_mark_entrypoint: Path, tmp_path: Path
+) -> None:
+    output_path = tmp_path / "breath_mark.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(breath_mark_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert "<breath-mark />" in xml
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Tempo directions (text and metronome)
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_build_score_emits_tempo_directions(tempo_change_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(tempo_change_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    all_directions = [
+        direction
+        for measure in score.parts[0].voices[0].measures
+        for event in measure.events
+        for direction in event.directions
+    ]
+
+    kinds = [d.kind for d in all_directions]
+    assert "tempo" in kinds
+    assert "metronome" in kinds
+
+    tempo_dir = next(d for d in all_directions if d.kind == "tempo")
+    assert tempo_dir.value == "Allegro"
+
+    metronome_dir = next(d for d in all_directions if d.kind == "metronome")
+    beat_unit, bpm = metronome_dir.value.split(":")
+    assert beat_unit == "quarter"
+    assert bpm == "120"
+
+
+def test_cli_convert_writes_tempo_directions(
+    repo_root: Path, tempo_change_entrypoint: Path, tmp_path: Path
+) -> None:
+    output_path = tmp_path / "tempo_change.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(tempo_change_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert "<words>Allegro</words>" in xml
+    assert "<metronome" in xml
+    assert "<beat-unit>quarter</beat-unit>" in xml
+    assert "<per-minute>120</per-minute>" in xml
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Rehearsal marks
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_build_score_emits_rehearsal_marks(rehearsal_mark_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(rehearsal_mark_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    all_directions = [
+        direction
+        for measure in score.parts[0].voices[0].measures
+        for event in measure.events
+        for direction in event.directions
+    ]
+
+    rehearsal_dirs = [d for d in all_directions if d.kind == "rehearsal"]
+    assert len(rehearsal_dirs) == 3
+
+    labels = [d.value for d in rehearsal_dirs]
+    assert labels[0] == "A"     # \mark \default → auto "A"
+    assert labels[1] == "B"     # \mark \default → auto "B"
+    assert labels[2] == "Coda"  # \mark "Coda"
+
+
+def test_cli_convert_writes_rehearsal_marks(
+    repo_root: Path, rehearsal_mark_entrypoint: Path, tmp_path: Path
+) -> None:
+    output_path = tmp_path / "rehearsal_mark.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(rehearsal_mark_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert "<rehearsal>A</rehearsal>" in xml
+    assert "<rehearsal>B</rehearsal>" in xml
+    assert "<rehearsal>Coda</rehearsal>" in xml
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Mid-measure key changes
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_build_score_preserves_mid_measure_key_changes(key_change_entrypoint: Path) -> None:
+    from ly2mxml.model.score import KeyChange
+
+    score = LilypondConverter().build_score(key_change_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    measures = score.parts[0].voices[0].measures
+
+    # Measure 0: C major (initial, no KeyChange recorded)
+    assert measures[0].key_changes == []
+    # Measure 1: G major (1 sharp)
+    assert len(measures[1].key_changes) == 1
+    assert measures[1].key_changes[0].fifths == 1
+    assert measures[1].key_changes[0].mode == "major"
+    # Measure 2: D minor (-1 flat relative, but in absolute: 1 flat BEFORE key change — depends on converter)
+    assert len(measures[2].key_changes) == 1
+    assert measures[2].key_changes[0].mode == "minor"
+
+
+def test_cli_convert_writes_mid_measure_key_changes(
+    repo_root: Path, key_change_entrypoint: Path, tmp_path: Path
+) -> None:
+    output_path = tmp_path / "key_change.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(key_change_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert "<fifths>1</fifths>" in xml   # G major
+    assert "<mode>minor</mode>" in xml
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Mid-measure time signature changes
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_build_score_preserves_mid_measure_time_changes(time_change_entrypoint: Path) -> None:
+    from ly2mxml.model.score import TimeChange
+
+    score = LilypondConverter().build_score(time_change_entrypoint)
+
+    assert not any(diagnostic.severity == "error" for diagnostic in score.diagnostics)
+
+    measures = score.parts[0].voices[0].measures
+
+    # Measure 0: 4/4 (initial, no TimeChange)
+    assert measures[0].time_changes == []
+    # Measure 1: 3/4
+    assert len(measures[1].time_changes) == 1
+    assert measures[1].time_changes[0].numerator == 3
+    assert measures[1].time_changes[0].denominator == 4
+    # Measure 2: 6/8
+    assert len(measures[2].time_changes) == 1
+    assert measures[2].time_changes[0].numerator == 6
+    assert measures[2].time_changes[0].denominator == 8
+
+
+def test_cli_convert_writes_mid_measure_time_changes(
+    repo_root: Path, time_change_entrypoint: Path, tmp_path: Path
+) -> None:
+    output_path = tmp_path / "time_change.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(time_change_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    xml = output_path.read_text(encoding="utf-8")
+
+    assert result.stderr.strip() == ""
+    assert "<beats>3</beats>" in xml
+    assert "<beat-type>4</beat-type>" in xml
+    assert "<beats>6</beats>" in xml
+    assert "<beat-type>8</beat-type>" in xml

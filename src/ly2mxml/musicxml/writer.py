@@ -11,7 +11,7 @@ from math import lcm
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
-from ly2mxml.model.score import ClefChange, Direction, Lyric, MusicEvent, Part, PartCombineMode, Pitch, Score, Voice
+from ly2mxml.model.score import ClefChange, Direction, KeyChange, Lyric, MusicEvent, Part, PartCombineMode, Pitch, Score, TimeChange, Voice
 from ly2mxml.options import ExportOptions
 
 
@@ -125,6 +125,8 @@ class MusicXmlWriter:
                         self._clef_changes_for_measure(part, measure_index, score_measure_durations[measure_index]),
                         active_trill_lines[part.voices[0].id],
                         active_wedges[part.voices[0].id],
+                        key_changes=self._key_changes_for_measure(part, measure_index, score_measure_durations[measure_index]),
+                        time_changes=self._time_changes_for_measure(part, measure_index, score_measure_durations[measure_index]),
                     )
                     barline_style = self._barline_for_measure(part, measure_index) or score_measure_barlines[measure_index]
                     if barline_style is not None:
@@ -148,6 +150,8 @@ class MusicXmlWriter:
                         self._clef_changes_for_measure(part, measure_index, score_measure_durations[measure_index]) if voice_index == 0 else (),
                         active_trill_lines[voice.id],
                         active_wedges[voice.id],
+                        key_changes=self._key_changes_for_measure(part, measure_index, score_measure_durations[measure_index]) if voice_index == 0 else (),
+                        time_changes=self._time_changes_for_measure(part, measure_index, score_measure_durations[measure_index]) if voice_index == 0 else (),
                     )
                 barline_style = self._barline_for_measure(part, measure_index) or score_measure_barlines[measure_index]
                 if barline_style is not None:
@@ -305,15 +309,25 @@ class MusicXmlWriter:
         clef_changes: tuple[ClefChange, ...],
         active_trill_lines: set[tuple[tuple[str, int, int], ...]],
         active_wedge: str | None,
+        key_changes: tuple[KeyChange, ...] = (),
+        time_changes: tuple[TimeChange, ...] = (),
     ) -> str | None:
         """Append one voice's measure content and return the updated wedge state."""
 
         clef_index = 0
+        key_index = 0
+        time_index = 0
         elapsed = Fraction(0, 1)
         for event in measure.events:
             while clef_index < len(clef_changes) and clef_changes[clef_index].offset == elapsed:
                 self._append_clef_change(measure_element, clef_changes[clef_index])
                 clef_index += 1
+            while key_index < len(key_changes) and key_changes[key_index].offset == elapsed:
+                self._append_key_change(measure_element, key_changes[key_index])
+                key_index += 1
+            while time_index < len(time_changes) and time_changes[time_index].offset == elapsed:
+                self._append_time_change(measure_element, time_changes[time_index])
+                time_index += 1
             for direction in event.directions:
                 active_wedge = self._append_direction(measure_element, direction, active_wedge, voice_id)
             trill_line_type = self._trill_line_type(event, active_trill_lines)
@@ -324,6 +338,12 @@ class MusicXmlWriter:
         while clef_index < len(clef_changes) and clef_changes[clef_index].offset == elapsed:
             self._append_clef_change(measure_element, clef_changes[clef_index])
             clef_index += 1
+        while key_index < len(key_changes) and key_changes[key_index].offset == elapsed:
+            self._append_key_change(measure_element, key_changes[key_index])
+            key_index += 1
+        while time_index < len(time_changes) and time_changes[time_index].offset == elapsed:
+            self._append_time_change(measure_element, time_changes[time_index])
+            time_index += 1
         return active_wedge
 
     def _append_clef_change(self, measure_element: ET.Element, clef_change: ClefChange) -> None:
@@ -448,11 +468,13 @@ class MusicXmlWriter:
                 technical_elem = ET.SubElement(notations, "technical")
                 for technical_mark in event.technical:
                     ET.SubElement(technical_elem, technical_mark)
-            if event.articulations:
+            if event.articulations or (event.breath_mark and index == 0):
                 notations = self._ensure_notations(note, notations)
                 articulations = ET.SubElement(notations, "articulations")
                 for articulation in event.articulations:
                     ET.SubElement(articulations, articulation)
+                if event.breath_mark and index == 0:
+                    ET.SubElement(articulations, "breath-mark")
             if event.fermatas:
                 notations = self._ensure_notations(note, notations)
                 for fermata_shape in event.fermatas:
@@ -513,6 +535,16 @@ class MusicXmlWriter:
         elif direction.kind == "octave-shift":
             _, shift_type, size = direction.value.split(":", 2)
             ET.SubElement(direction_type, "octave-shift", type=shift_type, size=size)
+        elif direction.kind == "rehearsal":
+            rehearsal = ET.SubElement(direction_type, "rehearsal")
+            rehearsal.text = direction.value
+        elif direction.kind == "metronome":
+            beat_unit, _, bpm = direction.value.partition(":")
+            metronome = ET.SubElement(direction_type, "metronome", parentheses="no")
+            beat_unit_elem = ET.SubElement(metronome, "beat-unit")
+            beat_unit_elem.text = beat_unit
+            per_minute = ET.SubElement(metronome, "per-minute")
+            per_minute.text = bpm
         else:
             words = ET.SubElement(direction_type, "words")
             words.text = direction.value
@@ -652,6 +684,36 @@ class MusicXmlWriter:
             if measure.clef_changes:
                 return tuple(measure.clef_changes)
         return ()
+
+    def _key_changes_for_measure(self, part: Part, measure_index: int, expected_duration: Fraction) -> tuple[KeyChange, ...]:
+        for voice in part.voices:
+            measure = self._measure_for_voice(part, voice, measure_index, expected_duration)
+            if measure.key_changes:
+                return tuple(measure.key_changes)
+        return ()
+
+    def _time_changes_for_measure(self, part: Part, measure_index: int, expected_duration: Fraction) -> tuple[TimeChange, ...]:
+        for voice in part.voices:
+            measure = self._measure_for_voice(part, voice, measure_index, expected_duration)
+            if measure.time_changes:
+                return tuple(measure.time_changes)
+        return ()
+
+    def _append_key_change(self, measure_element: ET.Element, key_change: KeyChange) -> None:
+        attributes = ET.SubElement(measure_element, "attributes")
+        key = ET.SubElement(attributes, "key")
+        fifths = ET.SubElement(key, "fifths")
+        fifths.text = str(key_change.fifths)
+        mode = ET.SubElement(key, "mode")
+        mode.text = key_change.mode
+
+    def _append_time_change(self, measure_element: ET.Element, time_change: TimeChange) -> None:
+        attributes = ET.SubElement(measure_element, "attributes")
+        time = ET.SubElement(attributes, "time")
+        beats = ET.SubElement(time, "beats")
+        beats.text = str(time_change.numerator)
+        beat_type = ET.SubElement(time, "beat-type")
+        beat_type.text = str(time_change.denominator)
 
     def _duration_to_units(self, duration: Fraction, divisions: int) -> int:
         return int(duration * 4 * divisions)

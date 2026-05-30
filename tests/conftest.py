@@ -229,3 +229,28 @@ def multi_tag_entrypoint(repo_root: Path) -> Path:
 @pytest.fixture
 def voice_separator_entrypoint(repo_root: Path) -> Path:
     return repo_root / "tests" / "fixtures" / "voice_separator.ly"
+
+
+@pytest.fixture
+def breath_mark_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "breath_mark.ly"
+
+
+@pytest.fixture
+def tempo_change_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "tempo_change.ly"
+
+
+@pytest.fixture
+def rehearsal_mark_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "rehearsal_mark.ly"
+
+
+@pytest.fixture
+def key_change_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "key_change.ly"
+
+
+@pytest.fixture
+def time_change_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "time_change.ly"
