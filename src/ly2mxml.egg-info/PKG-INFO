@@ -6,3 +6,5 @@ Requires-Python: >=3.12
 Requires-Dist: python-ly>=0.9
 Provides-Extra: dev
 Requires-Dist: pytest>=8.2; extra == "dev"
+Requires-Dist: pytest-cov>=5.0; extra == "dev"
+Requires-Dist: music21>=10.3; extra == "dev"

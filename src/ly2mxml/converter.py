@@ -365,12 +365,17 @@ class LilypondConverter:
         if export_options is None:
             export_options = ExportOptions(partcombine_mode=partcombine_mode)
         elif partcombine_mode != "separate" and export_options.partcombine_mode != partcombine_mode:
-            export_options = ExportOptions(partcombine_mode=partcombine_mode, cue_mode=export_options.cue_mode)
+            raise ValueError(
+                f"Conflicting partcombine_mode: positional argument '{partcombine_mode}' "
+                f"differs from export_options.partcombine_mode '{export_options.partcombine_mode}'. "
+                "Pass the mode in one place only."
+            )
 
         self.export_options = export_options
         self.partcombine_mode = export_options.partcombine_mode
         self._source_text_cache: dict[Path, str] = {}
         self._quote_voice_cache: dict[tuple[str, Fraction], Voice] = {}
+        self._scheme_values_cache: dict[Path, dict[str, str]] = {}
 
     def preflight(self, entrypoint: str | Path) -> ConversionPreflight:
         """Inspect a LilyPond project and classify known unsupported features."""
@@ -545,6 +550,11 @@ class LilypondConverter:
         return quotes
 
     def _collect_define_public_strings(self, document: items.Document) -> dict[str, str]:
+        raw_root_name = getattr(document.document, "filename", None)
+        cache_key = Path(raw_root_name).resolve() if raw_root_name else None
+        if cache_key is not None and cache_key in self._scheme_values_cache:
+            return self._scheme_values_cache[cache_key]
+
         values: dict[str, str] = {}
 
         def visit(doc: items.Document) -> None:
@@ -556,6 +566,8 @@ class LilypondConverter:
                     values[name] = value
 
         self._visit_documents(document, visit)
+        if cache_key is not None:
+            self._scheme_values_cache[cache_key] = values
         return values
 
     def _visit_documents(self, document: items.Document, visitor: callable) -> None:
@@ -1145,7 +1157,7 @@ class LilypondConverter:
         target_lyrics = lyric_sources.get(voice_ref.lyric_target, [])
         for verse_index, (lyric_source, lyric_state) in enumerate(target_lyrics, start=1):
             verse_number = verse_index if len(target_lyrics) > 1 else None
-            self._apply_lyrics(voice, lyric_source, assignments, lyric_state, verse_number)
+            self._apply_lyrics(voice, lyric_source, assignments, lyric_state, verse_number, diagnostics)
         part.voices.append(voice)
 
     def _promote_opening_voice_clef(self, part: Part, voice: Voice) -> None:
@@ -1242,7 +1254,18 @@ class LilypondConverter:
         for flattened in self._iter_linear_nodes(music_node, initial_state or _WalkState()):
             node = flattened.node
             if isinstance(node, items.TimeSignature):
-                settings.time_signature = (node.numerator(), int(1 / node.fraction()))
+                fraction = node.fraction()
+                if not fraction:
+                    diagnostics.append(
+                        Diagnostic(
+                            code="invalid-time-signature",
+                            message="Time signature has a zero denominator and was ignored.",
+                            severity="error",
+                            location=location_from_item(node),
+                        )
+                    )
+                else:
+                    settings.time_signature = (node.numerator(), int(1 / fraction))
             elif isinstance(node, items.KeySignature):
                 pitch = node.pitch()
                 settings.key_mode = node.mode() or "major"
@@ -1555,7 +1578,7 @@ class LilypondConverter:
                 diagnostics.append(
                     Diagnostic(
                         code="measure-overflow",
-                        message=f"Voice {source_name} exceeds the measure length.",
+                        message=f"Voice {source_name} exceeds the length of measure {state.current_measure.number}.",
                         severity="error",
                         location=location_from_item(origin) if origin is not None else None,
                     )
@@ -2421,6 +2444,7 @@ class LilypondConverter:
         assignments: dict[str, items.Item | None],
         initial_state: _WalkState | None = None,
         verse_number: int | None = None,
+        diagnostics: list[Diagnostic] | None = None,
     ) -> None:
         """Attach lyric tokens to note events in score order for one voice."""
 
@@ -2432,12 +2456,14 @@ class LilypondConverter:
         note_index = 0
         previous_hyphen = False
         last_lyric_event: MusicEvent | None = None
+        surplus_tokens: list[_LyricToken] = []
 
         # LilyPond lyric streams are interpreted as a sequence of tokens aligned
         # against note events. The converter keeps this deliberately simple and
         # bounded so public support claims match only the tested workflows.
         for index, token in enumerate(lyric_tokens):
             if note_index >= len(note_events):
+                surplus_tokens = lyric_tokens[index:]
                 break
 
             if token.kind == "text":
@@ -2472,6 +2498,21 @@ class LilypondConverter:
             elif token.kind == "skip":
                 note_index += 1
                 previous_hyphen = False
+
+        if diagnostics is not None:
+            surplus_syllables = sum(1 for t in surplus_tokens if t.kind == "text")
+            if surplus_syllables:
+                verse_label = f" (verse {verse_number})" if verse_number is not None else ""
+                diagnostics.append(
+                    Diagnostic(
+                        code="lyric-surplus",
+                        message=(
+                            f"Voice {voice.source_name} has {surplus_syllables} lyric syllable(s)"
+                            f" with no matching note{verse_label}."
+                        ),
+                        severity="warning",
+                    )
+                )
 
     def _iter_lyric_tokens(
         self,

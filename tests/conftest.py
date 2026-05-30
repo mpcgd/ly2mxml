@@ -159,3 +159,13 @@ def multi_measure_rest_entrypoint(repo_root: Path) -> Path:
 @pytest.fixture
 def uncompressed_rest_entrypoint(repo_root: Path) -> Path:
     return repo_root / "tests" / "fixtures" / "uncompressed_rest.ly"
+
+
+@pytest.fixture
+def missing_score_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "missing_score.ly"
+
+
+@pytest.fixture
+def lyric_surplus_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "lyric_surplus.ly"

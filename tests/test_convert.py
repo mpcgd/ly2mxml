@@ -1163,3 +1163,30 @@ def test_cli_convert_writes_ottava_octave_shift(repo_root: Path, ottava_entrypoi
     assert '<direction placement="above">' in xml
     assert '<octave-shift type="down" size="8"' in xml
     assert '<octave-shift type="stop" size="8"' in xml
+
+
+def test_build_score_emits_missing_score_diagnostic(missing_score_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(missing_score_entrypoint)
+
+    codes = [d.code for d in score.diagnostics]
+    assert "missing-score" in codes
+    assert any(d.severity == "error" for d in score.diagnostics if d.code == "missing-score")
+    assert score.parts == []
+
+
+def test_build_score_warns_on_lyric_surplus(lyric_surplus_entrypoint: Path) -> None:
+    score = LilypondConverter().build_score(lyric_surplus_entrypoint)
+
+    warning_codes = [d.code for d in score.diagnostics if d.severity == "warning"]
+    assert "lyric-surplus" in warning_codes
+
+
+def test_converter_raises_on_conflicting_partcombine_mode() -> None:
+    import pytest as _pytest
+    from ly2mxml.options import ExportOptions
+
+    with _pytest.raises(ValueError, match="Conflicting partcombine_mode"):
+        LilypondConverter(
+            partcombine_mode="combined",
+            export_options=ExportOptions(partcombine_mode="separate"),
+        )

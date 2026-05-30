@@ -1,9 +1,12 @@
+README.md
 pyproject.toml
 src/ly2mxml/__init__.py
 src/ly2mxml/__main__.py
 src/ly2mxml/cli.py
+src/ly2mxml/converter.py
 src/ly2mxml/diagnostics.py
 src/ly2mxml/loader.py
+src/ly2mxml/options.py
 src/ly2mxml.egg-info/PKG-INFO
 src/ly2mxml.egg-info/SOURCES.txt
 src/ly2mxml.egg-info/dependency_links.txt
@@ -12,6 +15,12 @@ src/ly2mxml.egg-info/requires.txt
 src/ly2mxml.egg-info/top_level.txt
 src/ly2mxml/frontend/__init__.py
 src/ly2mxml/frontend/python_ly_adapter.py
+src/ly2mxml/model/__init__.py
+src/ly2mxml/model/score.py
+src/ly2mxml/musicxml/__init__.py
+src/ly2mxml/musicxml/writer.py
 tests/test_adapter.py
 tests/test_cli.py
+tests/test_convert.py
 tests/test_loader.py
+tests/test_writer.py

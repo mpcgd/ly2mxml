@@ -337,8 +337,10 @@ class MusicXmlWriter:
         line_element = ET.SubElement(clef, "line")
         line_element.text = str(line)
         if octave_change is not None:
+            # MusicXML 4.0 allows clef-octave-change values from -3 to 3.
+            clamped = max(-3, min(3, octave_change))
             octave_element = ET.SubElement(clef, "clef-octave-change")
-            octave_element.text = str(octave_change)
+            octave_element.text = str(clamped)
 
     def _append_event(
         self,
