@@ -8,7 +8,7 @@ defined in :mod:`ly2mxml.model.score`.
 
 from __future__ import annotations
 
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from fractions import Fraction
 from typing import Iterable, Mapping
 
@@ -164,6 +164,32 @@ CODA_SEGNO_COMMANDS: dict[str, str] = {
 # Commands explicitly ignored during voice building.
 IGNORED_COMMANDS: frozenset[str] = frozenset({"\\compressEmptyMeasures"})
 
+
+@dataclass
+class _LoopCtx:
+    """Mutable loop-local state shared by build_voice and its handlers."""
+
+    measure_length: Fraction
+    partial_full_length: Fraction | None = None
+
+
+@dataclass(frozen=True)
+class _BuildCallCtx:
+    """Immutable per-call arguments forwarded to every node handler."""
+
+    voice_id: str
+    source_name: str
+    assignments: dict
+    quote_sources: dict
+    diagnostics: list
+    allow_cues: bool
+    initial_clef: tuple | None
+    initial_key_fifths: int
+    initial_key_mode: str
+    initial_time_signature: tuple
+    out_extra_voices: list | None
+
+
 # ---------------------------------------------------------------------------
 # VoiceBuilder
 # ---------------------------------------------------------------------------
@@ -182,6 +208,31 @@ class VoiceBuilder:
         self.export_options = export_options
         self._rehearsal_mark_counter: int = 0
         self._quote_voice_cache: dict[tuple[str, Fraction], Voice] = {}
+        self._dispatch: dict[type, object] = {
+            _OttavaChange: self._handle_ottava_change,
+            _BarlineChange: self._handle_barline_change,
+            _RehearsalMark: self._handle_rehearsal_mark,
+            _CueInsertion: self._handle_cue_insertion,
+            _PartialDuration: self._handle_partial_duration,
+            _SecondaryVoiceBlocks: self._handle_secondary_voice_blocks,
+            items.Clef: self._handle_clef,
+            items.Tempo: self._handle_tempo,
+            items.KeySignature: self._handle_key_signature,
+            items.TimeSignature: self._handle_time_signature,
+            items.Note: self._handle_note,
+            items.Chord: self._handle_chord,
+            items.Rest: self._handle_rest,
+            items.Skip: self._handle_skip,
+            items.Dynamic: self._handle_dynamic,
+            items.Articulation: self._handle_articulation,
+            items.Slur: self._handle_slur,
+            items.PhrasingSlur: self._handle_phrasing_slur,
+            items.Tie: self._handle_tie,
+            items.Command: self._handle_command,
+            items.UserCommand: self._handle_user_command,
+            items.MusicList: self._handle_simultaneous_music,
+            items.Repeat: self._handle_repeat,
+        }
 
     # ------------------------------------------------------------------
     # Public entry point
@@ -220,197 +271,474 @@ class VoiceBuilder:
             allow_cues=allow_cues,
             measure_length=measure_length,
         )
-        _partial_full_length: Fraction | None = None
+        ctx = _BuildCallCtx(
+            voice_id=voice_id,
+            source_name=source_name,
+            assignments=assignments,
+            quote_sources=quote_sources,
+            diagnostics=diagnostics,
+            allow_cues=allow_cues,
+            initial_clef=initial_clef,
+            initial_key_fifths=initial_key_fifths,
+            initial_key_mode=initial_key_mode,
+            initial_time_signature=initial_time_signature,
+            out_extra_voices=out_extra_voices,
+        )
+        loop = _LoopCtx(measure_length=measure_length)
 
         for flattened in self.linearizer._iter_linear_nodes(music_node, walk_state):
-            if _partial_full_length is not None and voice.measures:
-                measure_length = _partial_full_length
-                _partial_full_length = None
+            if loop.partial_full_length is not None and voice.measures:
+                loop.measure_length = loop.partial_full_length
+                loop.partial_full_length = None
 
-            node = flattened.node
-            is_grace = flattened.is_grace
+            handler = self._dispatch.get(type(flattened.node))
+            if handler is not None:
+                handler(flattened, voice, state, loop, ctx)
 
-            if isinstance(node, _OttavaChange):
-                state.pending_directions.extend(
-                    self._ottava_directions(node.value, state.active_ottava)
+        if state.current_measure.events or state.elapsed:
+            state.current_measure.duration = state.elapsed
+            voice.measures.append(state.current_measure)
+
+        return voice
+
+    # ------------------------------------------------------------------
+    # Node handlers (one per dispatched type)
+    # ------------------------------------------------------------------
+
+    def _handle_ottava_change(
+        self,
+        flattened: _FlattenedNode,
+        voice: Voice,
+        state: _VoiceBuildState,
+        loop: _LoopCtx,
+        ctx: _BuildCallCtx,
+    ) -> None:
+        node = flattened.node
+        state.pending_directions.extend(
+            self._ottava_directions(node.value, state.active_ottava)
+        )
+        state.active_ottava = node.value or None
+
+    def _handle_barline_change(
+        self,
+        flattened: _FlattenedNode,
+        voice: Voice,
+        state: _VoiceBuildState,
+        loop: _LoopCtx,
+        ctx: _BuildCallCtx,
+    ) -> None:
+        style = self._barline_style(flattened.node.value)
+        if style is not None:
+            self._apply_voice_barline(voice, state, style)
+
+    def _handle_rehearsal_mark(
+        self,
+        flattened: _FlattenedNode,
+        voice: Voice,
+        state: _VoiceBuildState,
+        loop: _LoopCtx,
+        ctx: _BuildCallCtx,
+    ) -> None:
+        label = flattened.node.label
+        if label is None:
+            self._rehearsal_mark_counter += 1
+            label = chr(ord('A') + (self._rehearsal_mark_counter - 1) % 26)
+        self._add_voice_direction(state, Direction(kind='rehearsal', value=label))
+
+    def _handle_cue_insertion(
+        self,
+        flattened: _FlattenedNode,
+        voice: Voice,
+        state: _VoiceBuildState,
+        loop: _LoopCtx,
+        ctx: _BuildCallCtx,
+    ) -> None:
+        self._add_cue_insertion(
+            voice,
+            state,
+            flattened.node,
+            loop.measure_length,
+            ctx.source_name,
+            ctx.assignments,
+            ctx.quote_sources,
+            ctx.diagnostics,
+        )
+
+    def _handle_clef(
+        self,
+        flattened: _FlattenedNode,
+        voice: Voice,
+        state: _VoiceBuildState,
+        loop: _LoopCtx,
+        ctx: _BuildCallCtx,
+    ) -> None:
+        self._add_voice_clef_change(
+            voice,
+            state,
+            flattened.node,
+            loop.measure_length,
+            ctx.source_name,
+            ctx.diagnostics,
+        )
+
+    def _handle_tempo(
+        self,
+        flattened: _FlattenedNode,
+        voice: Voice,
+        state: _VoiceBuildState,
+        loop: _LoopCtx,
+        ctx: _BuildCallCtx,
+    ) -> None:
+        for direction in self._tempo_directions(flattened.node):
+            self._add_voice_direction(state, direction)
+
+    def _handle_key_signature(
+        self,
+        flattened: _FlattenedNode,
+        voice: Voice,
+        state: _VoiceBuildState,
+        loop: _LoopCtx,
+        ctx: _BuildCallCtx,
+    ) -> None:
+        node = flattened.node
+        pitch = node.pitch()
+        new_mode = node.mode() or 'major'
+        new_fifths = _sr.key_fifths(pitch, new_mode, flattened.transpose_specs)
+        if new_fifths != state.current_key_fifths or new_mode != state.current_key_mode:
+            state.current_measure.key_changes.append(
+                KeyChange(
+                    offset=state.elapsed,
+                    fifths=new_fifths,
+                    mode=new_mode,
                 )
-                state.active_ottava = node.value or None
+            )
+            state.current_key_fifths = new_fifths
+            state.current_key_mode = new_mode
 
-            elif isinstance(node, _BarlineChange):
-                style = self._barline_style(node.value)
-                if style is not None:
-                    self._apply_voice_barline(voice, state, style)
-
-            elif isinstance(node, _RehearsalMark):
-                label = node.label
-                if label is None:
-                    self._rehearsal_mark_counter += 1
-                    label = chr(ord("A") + (self._rehearsal_mark_counter - 1) % 26)
-                self._add_voice_direction(state, Direction(kind="rehearsal", value=label))
-
-            elif isinstance(node, _CueInsertion):
-                self._add_cue_insertion(
-                    voice,
-                    state,
-                    node,
-                    measure_length,
-                    source_name,
-                    assignments,
-                    quote_sources,
-                    diagnostics,
-                )
-
-            elif isinstance(node, items.Clef):
-                self._add_voice_clef_change(
-                    voice, state, node, measure_length, source_name, diagnostics
-                )
-
-            elif isinstance(node, items.Tempo):
-                for direction in self._tempo_directions(node):
-                    self._add_voice_direction(state, direction)
-
-            elif isinstance(node, items.KeySignature):
-                pitch = node.pitch()
-                new_mode = node.mode() or "major"
-                new_fifths = _sr.key_fifths(pitch, new_mode, flattened.transpose_specs)
-                if new_fifths != state.current_key_fifths or new_mode != state.current_key_mode:
-                    state.current_measure.key_changes.append(
-                        KeyChange(
-                            offset=state.elapsed,
-                            fifths=new_fifths,
-                            mode=new_mode,
-                        )
+    def _handle_time_signature(
+        self,
+        flattened: _FlattenedNode,
+        voice: Voice,
+        state: _VoiceBuildState,
+        loop: _LoopCtx,
+        ctx: _BuildCallCtx,
+    ) -> None:
+        node = flattened.node
+        fraction = node.fraction()
+        if fraction:
+            new_num = node.numerator()
+            new_den = int(1 / fraction)
+            if (new_num, new_den) != state.current_time_signature:
+                state.current_measure.time_changes.append(
+                    TimeChange(
+                        offset=state.elapsed,
+                        numerator=new_num,
+                        denominator=new_den,
                     )
-                    state.current_key_fifths = new_fifths
-                    state.current_key_mode = new_mode
+                )
+                state.current_time_signature = (new_num, new_den)
+                loop.measure_length = Fraction(new_num, new_den)
 
-            elif isinstance(node, items.TimeSignature):
-                fraction = node.fraction()
-                if fraction:
-                    new_num = node.numerator()
-                    new_den = int(1 / fraction)
-                    if (new_num, new_den) != state.current_time_signature:
-                        state.current_measure.time_changes.append(
-                            TimeChange(
-                                offset=state.elapsed,
-                                numerator=new_num,
-                                denominator=new_den,
-                            )
-                        )
-                        state.current_time_signature = (new_num, new_den)
-                        measure_length = Fraction(new_num, new_den)
+    def _handle_note(
+        self,
+        flattened: _FlattenedNode,
+        voice: Voice,
+        state: _VoiceBuildState,
+        loop: _LoopCtx,
+        ctx: _BuildCallCtx,
+    ) -> None:
+        node = flattened.node
+        state.attachment_event = None
+        source_pitch = (
+            flattened.resolved_pitches[0]
+            if flattened.resolved_pitches
+            else node.pitch
+        )
+        event = self._build_voice_event(
+            duration=self.linearizer._duration_from_node(
+                node.duration, flattened.scale
+            ),
+            pitches=[_sr.to_pitch(source_pitch, flattened.transpose_specs)],
+            flattened=flattened,
+            pending_directions=state.pending_directions,
+            stem=state.current_stem,
+        )
+        state.pending_directions.clear()
+        if state.pending_glissando_stop and not flattened.is_grace:
+            event.glissando_stop = True
+            state.pending_glissando_stop = False
+        self._add_voice_event(
+            voice, state, event, loop.measure_length, ctx.source_name, ctx.diagnostics, node
+        )
 
-            elif isinstance(node, items.Note):
-                state.attachment_event = None
-                source_pitch = (
-                    flattened.resolved_pitches[0]
-                    if flattened.resolved_pitches
-                    else node.pitch
-                )
-                event = self._build_voice_event(
-                    duration=self.linearizer._duration_from_node(
-                        node.duration, flattened.scale
-                    ),
-                    pitches=[_sr.to_pitch(source_pitch, flattened.transpose_specs)],
-                    flattened=flattened,
-                    pending_directions=state.pending_directions,
-                    stem=state.current_stem,
-                )
-                state.pending_directions.clear()
-                if state.pending_glissando_stop and not flattened.is_grace:
-                    event.glissando_stop = True
-                    state.pending_glissando_stop = False
-                self._add_voice_event(
-                    voice, state, event, measure_length, source_name, diagnostics, node
-                )
+    def _handle_chord(
+        self,
+        flattened: _FlattenedNode,
+        voice: Voice,
+        state: _VoiceBuildState,
+        loop: _LoopCtx,
+        ctx: _BuildCallCtx,
+    ) -> None:
+        node = flattened.node
+        state.attachment_event = None
+        chord_pitches = flattened.resolved_pitches or tuple(
+            child.pitch for child in node if isinstance(child, items.Note)
+        )
+        pitches = [
+            _sr.to_pitch(source_pitch, flattened.transpose_specs)
+            for source_pitch in chord_pitches
+        ]
+        event = self._build_voice_event(
+            duration=self.linearizer._duration_from_node(
+                node.duration, flattened.scale
+            ),
+            pitches=pitches,
+            flattened=flattened,
+            pending_directions=state.pending_directions,
+            stem=state.current_stem,
+        )
+        state.pending_directions.clear()
+        if state.pending_glissando_stop and not flattened.is_grace:
+            event.glissando_stop = True
+            state.pending_glissando_stop = False
+        self._add_voice_event(
+            voice, state, event, loop.measure_length, ctx.source_name, ctx.diagnostics, node
+        )
 
-            elif isinstance(node, items.Chord):
-                state.attachment_event = None
-                chord_pitches = flattened.resolved_pitches or tuple(
-                    child.pitch for child in node if isinstance(child, items.Note)
-                )
-                pitches = [
-                    _sr.to_pitch(source_pitch, flattened.transpose_specs)
-                    for source_pitch in chord_pitches
-                ]
-                event = self._build_voice_event(
-                    duration=self.linearizer._duration_from_node(
-                        node.duration, flattened.scale
-                    ),
-                    pitches=pitches,
-                    flattened=flattened,
-                    pending_directions=state.pending_directions,
-                    stem=state.current_stem,
-                )
-                state.pending_directions.clear()
-                if state.pending_glissando_stop and not flattened.is_grace:
-                    event.glissando_stop = True
-                    state.pending_glissando_stop = False
-                self._add_voice_event(
-                    voice, state, event, measure_length, source_name, diagnostics, node
-                )
+    def _handle_rest(
+        self,
+        flattened: _FlattenedNode,
+        voice: Voice,
+        state: _VoiceBuildState,
+        loop: _LoopCtx,
+        ctx: _BuildCallCtx,
+    ) -> None:
+        node = flattened.node
+        state.attachment_event = None
+        event = self._build_voice_event(
+            duration=self.linearizer._duration_from_node(
+                node.duration,
+                flattened.scale,
+                token=str(node.token),
+                measure_length=loop.measure_length,
+            ),
+            flattened=flattened,
+            pending_directions=state.pending_directions,
+            is_rest=True,
+        )
+        state.pending_directions.clear()
+        self._add_voice_event(
+            voice, state, event, loop.measure_length, ctx.source_name, ctx.diagnostics, node
+        )
 
-            elif isinstance(node, items.Rest):
-                state.attachment_event = None
-                event = self._build_voice_event(
-                    duration=self.linearizer._duration_from_node(
-                        node.duration,
-                        flattened.scale,
-                        token=str(node.token),
-                        measure_length=measure_length,
-                    ),
-                    flattened=flattened,
-                    pending_directions=state.pending_directions,
-                    is_rest=True,
-                )
-                state.pending_directions.clear()
-                self._add_voice_event(
-                    voice, state, event, measure_length, source_name, diagnostics, node
-                )
+    def _handle_skip(
+        self,
+        flattened: _FlattenedNode,
+        voice: Voice,
+        state: _VoiceBuildState,
+        loop: _LoopCtx,
+        ctx: _BuildCallCtx,
+    ) -> None:
+        node = flattened.node
+        state.attachment_event = None
+        event = self._build_voice_event(
+            duration=self.linearizer._duration_from_node(
+                node.duration,
+                flattened.scale,
+                token=str(node.token),
+                measure_length=loop.measure_length,
+            ),
+            flattened=flattened,
+            pending_directions=state.pending_directions,
+            is_rest=True,
+        )
+        state.pending_directions.clear()
+        self._add_voice_event(
+            voice, state, event, loop.measure_length, ctx.source_name, ctx.diagnostics, node
+        )
 
-            elif isinstance(node, items.Skip):
-                state.attachment_event = None
-                event = self._build_voice_event(
-                    duration=self.linearizer._duration_from_node(
-                        node.duration,
-                        flattened.scale,
-                        token=str(node.token),
-                        measure_length=measure_length,
-                    ),
-                    flattened=flattened,
-                    pending_directions=state.pending_directions,
-                    is_rest=True,
-                )
-                state.pending_directions.clear()
-                self._add_voice_event(
-                    voice, state, event, measure_length, source_name, diagnostics, node
-                )
+    def _handle_partial_duration(
+        self,
+        flattened: _FlattenedNode,
+        voice: Voice,
+        state: _VoiceBuildState,
+        loop: _LoopCtx,
+        ctx: _BuildCallCtx,
+    ) -> None:
+        loop.partial_full_length = loop.measure_length
+        loop.measure_length = flattened.node.duration
 
-            elif isinstance(node, _PartialDuration):
-                _partial_full_length = measure_length
-                measure_length = node.duration
+    def _handle_dynamic(
+        self,
+        flattened: _FlattenedNode,
+        voice: Voice,
+        state: _VoiceBuildState,
+        loop: _LoopCtx,
+        ctx: _BuildCallCtx,
+    ) -> None:
+        direction = self._dynamic_to_direction(str(flattened.node.token))
+        if direction is None:
+            return
+        self._add_voice_direction(state, direction)
 
-            elif isinstance(node, items.Dynamic):
-                direction = self._dynamic_to_direction(str(node.token))
-                if direction is None:
-                    continue
-                self._add_voice_direction(state, direction)
+    def _handle_articulation(
+        self,
+        flattened: _FlattenedNode,
+        voice: Voice,
+        state: _VoiceBuildState,
+        loop: _LoopCtx,
+        ctx: _BuildCallCtx,
+    ) -> None:
+        node = flattened.node
+        token = str(node.token)
+        coda_segno = CODA_SEGNO_COMMANDS.get(token)
+        if coda_segno is not None:
+            self._add_voice_direction(state, Direction(kind=coda_segno, value=''))
+            return
+        target_event = self._voice_attachment_target(state)
+        if target_event is None:
+            return
+        articulation = ARTICULATION_MAP.get(token)
+        ornament = ORNAMENT_MAP.get(token)
+        fermata = FERMATA_MAP.get(token)
+        technical = TECHNICAL_MAP.get(token)
+        if articulation:
+            target_event.articulations.append(articulation)
+        elif ornament:
+            target_event.ornaments.append(ornament)
+        elif fermata is not None:
+            target_event.fermatas.append(fermata)
+        elif technical:
+            target_event.technical.append(technical)
 
-            elif isinstance(node, items.Articulation):
-                token = str(node.token)
-                coda_segno = CODA_SEGNO_COMMANDS.get(token)
-                if coda_segno is not None:
-                    self._add_voice_direction(
-                        state, Direction(kind=coda_segno, value="")
-                    )
-                    continue
-                target_event = self._voice_attachment_target(state)
-                if target_event is None:
-                    continue
-                articulation = ARTICULATION_MAP.get(token)
-                ornament = ORNAMENT_MAP.get(token)
-                fermata = FERMATA_MAP.get(token)
-                technical = TECHNICAL_MAP.get(token)
+    def _handle_slur(
+        self,
+        flattened: _FlattenedNode,
+        voice: Voice,
+        state: _VoiceBuildState,
+        loop: _LoopCtx,
+        ctx: _BuildCallCtx,
+    ) -> None:
+        node = flattened.node
+        target_event = self._voice_attachment_target(state)
+        if target_event is None:
+            return
+        if node.event == 'start':
+            target_event.slur_start_count += 1
+        else:
+            target_event.slur_stop_count += 1
+
+    def _handle_phrasing_slur(
+        self,
+        flattened: _FlattenedNode,
+        voice: Voice,
+        state: _VoiceBuildState,
+        loop: _LoopCtx,
+        ctx: _BuildCallCtx,
+    ) -> None:
+        node = flattened.node
+        target_event = self._voice_attachment_target(state)
+        if target_event is None:
+            return
+        if node.event == 'start':
+            target_event.phrase_slur_start_count += 1
+        else:
+            target_event.phrase_slur_stop_count += 1
+
+    def _handle_tie(
+        self,
+        flattened: _FlattenedNode,
+        voice: Voice,
+        state: _VoiceBuildState,
+        loop: _LoopCtx,
+        ctx: _BuildCallCtx,
+    ) -> None:
+        target_event = self._voice_attachment_target(state)
+        if target_event is None:
+            return
+        target_event.tie_start = True
+        state.pending_tie_signature = self._voice_event_signature(target_event)
+
+    def _handle_command(
+        self,
+        flattened: _FlattenedNode,
+        voice: Voice,
+        state: _VoiceBuildState,
+        loop: _LoopCtx,
+        ctx: _BuildCallCtx,
+    ) -> None:
+        node = flattened.node
+        token = str(node.token)
+        direction = self._dynamic_to_direction(token)
+        if direction is not None:
+            self._add_voice_direction(state, direction)
+            return
+        if token in VOICE_COMMAND_STEMS:
+            state.current_stem = VOICE_COMMAND_STEMS[token]
+            return
+        if token in CODA_SEGNO_COMMANDS:
+            self._add_voice_direction(
+                state, Direction(kind=CODA_SEGNO_COMMANDS[token], value='')
+            )
+            return
+        perf_text = PERFORMANCE_TEXT_MARKS.get(token)
+        if perf_text is not None:
+            self._add_voice_direction(state, Direction(kind='words', value=perf_text))
+            return
+        if token == '\\breathe':
+            target_event = self._voice_attachment_target(state)
+            if target_event is not None:
+                target_event.breath_mark = True
+            return
+        if token == '\\arpeggio':
+            target_event = self._voice_attachment_target(state)
+            if target_event is not None:
+                target_event.arpeggiate = True
+            return
+        if token == '\\glissando':
+            target_event = self._voice_attachment_target(state)
+            if target_event is not None:
+                target_event.glissando_start = True
+                state.pending_glissando_stop = True
+            return
+        if token == '\\(':
+            target_event = self._voice_attachment_target(state)
+            if target_event is not None:
+                target_event.phrase_slur_start_count += 1
+            return
+        if token == '\\)':
+            target_event = self._voice_attachment_target(state)
+            if target_event is not None:
+                target_event.phrase_slur_stop_count += 1
+            return
+        if token == '\\compressEmptyMeasures':
+            voice.compress_empty_measures = True
+
+    def _handle_user_command(
+        self,
+        flattened: _FlattenedNode,
+        voice: Voice,
+        state: _VoiceBuildState,
+        loop: _LoopCtx,
+        ctx: _BuildCallCtx,
+    ) -> None:
+        node = flattened.node
+        token = str(node.token)
+        direction = self._dynamic_to_direction(token)
+        if direction is not None:
+            self._add_voice_direction(state, direction)
+            return
+        perf_text = PERFORMANCE_TEXT_MARKS.get(token)
+        if perf_text is not None:
+            self._add_voice_direction(state, Direction(kind='words', value=perf_text))
+            return
+        articulation = ARTICULATION_MAP.get(token)
+        ornament = ORNAMENT_MAP.get(token)
+        fermata = FERMATA_MAP.get(token)
+        technical = TECHNICAL_MAP.get(token)
+        if articulation or ornament or fermata is not None or technical:
+            target_event = self._voice_attachment_target(state)
+            if target_event is not None:
                 if articulation:
                     target_event.articulations.append(articulation)
                 elif ornament:
@@ -420,170 +748,84 @@ class VoiceBuilder:
                 elif technical:
                     target_event.technical.append(technical)
 
-            elif isinstance(node, items.Slur):
-                target_event = self._voice_attachment_target(state)
-                if target_event is None:
-                    continue
-                if node.event == "start":
-                    target_event.slur_start_count += 1
-                else:
-                    target_event.slur_stop_count += 1
+    def _handle_secondary_voice_blocks(
+        self,
+        flattened: _FlattenedNode,
+        voice: Voice,
+        state: _VoiceBuildState,
+        loop: _LoopCtx,
+        ctx: _BuildCallCtx,
+    ) -> None:
+        node = flattened.node
+        if ctx.out_extra_voices is None:
+            return
+        leading_measures = list(voice.measures)
+        partial_elapsed = state.elapsed
+        for secondary_block in node.blocks:
+            sub_voice_id = f'{ctx.voice_id}_s{len(ctx.out_extra_voices) + 1}'
+            secondary_voice = self.build_voice(
+                voice_id=sub_voice_id,
+                source_name=ctx.source_name,
+                music_node=secondary_block,
+                measure_length=loop.measure_length,
+                assignments=ctx.assignments,
+                quote_sources=ctx.quote_sources,
+                diagnostics=ctx.diagnostics,
+                allow_cues=ctx.allow_cues,
+                initial_state=node.walk_state,
+                initial_clef=ctx.initial_clef,
+                initial_key_fifths=ctx.initial_key_fifths,
+                initial_key_mode=ctx.initial_key_mode,
+                initial_time_signature=ctx.initial_time_signature,
+            )
+            self._prepend_spacer_measures_to_voice(
+                secondary_voice, leading_measures, partial_elapsed
+            )
+            ctx.out_extra_voices.append(secondary_voice)
 
-            elif isinstance(node, items.PhrasingSlur):
-                target_event = self._voice_attachment_target(state)
-                if target_event is None:
-                    continue
-                if node.event == "start":
-                    target_event.phrase_slur_start_count += 1
-                else:
-                    target_event.phrase_slur_stop_count += 1
+    def _handle_simultaneous_music(
+        self,
+        flattened: _FlattenedNode,
+        voice: Voice,
+        state: _VoiceBuildState,
+        loop: _LoopCtx,
+        ctx: _BuildCallCtx,
+    ) -> None:
+        node = flattened.node
+        if not getattr(node, 'simultaneous', False):
+            return
+        ctx.diagnostics.append(
+            Diagnostic(
+                code='unsupported-simultaneous-music',
+                message=(
+                    f'Voice {ctx.source_name} contains simultaneous music '
+                    'that is not yet supported.'
+                ),
+                severity='error',
+                location=location_from_item(node),
+            )
+        )
 
-            elif isinstance(node, items.Tie):
-                target_event = self._voice_attachment_target(state)
-                if target_event is None:
-                    continue
-                target_event.tie_start = True
-                state.pending_tie_signature = self._voice_event_signature(target_event)
-
-            elif isinstance(node, items.Command):
-                token = str(node.token)
-                direction = self._dynamic_to_direction(token)
-                if direction is not None:
-                    self._add_voice_direction(state, direction)
-                    continue
-                if token in VOICE_COMMAND_STEMS:
-                    state.current_stem = VOICE_COMMAND_STEMS[token]
-                    continue
-                if token in CODA_SEGNO_COMMANDS:
-                    self._add_voice_direction(
-                        state, Direction(kind=CODA_SEGNO_COMMANDS[token], value="")
-                    )
-                    continue
-                perf_text = PERFORMANCE_TEXT_MARKS.get(token)
-                if perf_text is not None:
-                    self._add_voice_direction(
-                        state, Direction(kind="words", value=perf_text)
-                    )
-                    continue
-                if token == "\\breathe":
-                    target_event = self._voice_attachment_target(state)
-                    if target_event is not None:
-                        target_event.breath_mark = True
-                    continue
-                if token == "\\arpeggio":
-                    target_event = self._voice_attachment_target(state)
-                    if target_event is not None:
-                        target_event.arpeggiate = True
-                    continue
-                if token == "\\glissando":
-                    target_event = self._voice_attachment_target(state)
-                    if target_event is not None:
-                        target_event.glissando_start = True
-                        state.pending_glissando_stop = True
-                    continue
-                if token == "\\(":
-                    target_event = self._voice_attachment_target(state)
-                    if target_event is not None:
-                        target_event.phrase_slur_start_count += 1
-                    continue
-                if token == "\\)":
-                    target_event = self._voice_attachment_target(state)
-                    if target_event is not None:
-                        target_event.phrase_slur_stop_count += 1
-                    continue
-                if token == "\\compressEmptyMeasures":
-                    voice.compress_empty_measures = True
-                    continue
-                if token in IGNORED_COMMANDS:
-                    continue
-
-            elif isinstance(node, items.UserCommand):
-                token = str(node.token)
-                direction = self._dynamic_to_direction(token)
-                if direction is not None:
-                    self._add_voice_direction(state, direction)
-                else:
-                    perf_text = PERFORMANCE_TEXT_MARKS.get(token)
-                    if perf_text is not None:
-                        self._add_voice_direction(
-                            state, Direction(kind="words", value=perf_text)
-                        )
-                    else:
-                        articulation = ARTICULATION_MAP.get(token)
-                        ornament = ORNAMENT_MAP.get(token)
-                        fermata = FERMATA_MAP.get(token)
-                        technical = TECHNICAL_MAP.get(token)
-                        if articulation or ornament or fermata is not None or technical:
-                            target_event = self._voice_attachment_target(state)
-                            if target_event is not None:
-                                if articulation:
-                                    target_event.articulations.append(articulation)
-                                elif ornament:
-                                    target_event.ornaments.append(ornament)
-                                elif fermata is not None:
-                                    target_event.fermatas.append(fermata)
-                                elif technical:
-                                    target_event.technical.append(technical)
-
-            elif isinstance(node, _SecondaryVoiceBlocks):
-                if out_extra_voices is not None:
-                    leading_measures = list(voice.measures)
-                    partial_elapsed = state.elapsed
-                    for secondary_block in node.blocks:
-                        sub_voice_id = f"{voice_id}_s{len(out_extra_voices) + 1}"
-                        secondary_voice = self.build_voice(
-                            voice_id=sub_voice_id,
-                            source_name=source_name,
-                            music_node=secondary_block,
-                            measure_length=measure_length,
-                            assignments=assignments,
-                            quote_sources=quote_sources,
-                            diagnostics=diagnostics,
-                            allow_cues=allow_cues,
-                            initial_state=node.walk_state,
-                            initial_clef=initial_clef,
-                            initial_key_fifths=initial_key_fifths,
-                            initial_key_mode=initial_key_mode,
-                            initial_time_signature=initial_time_signature,
-                        )
-                        self._prepend_spacer_measures_to_voice(
-                            secondary_voice,
-                            leading_measures,
-                            partial_elapsed,
-                        )
-                        out_extra_voices.append(secondary_voice)
-
-            elif isinstance(node, items.MusicList) and node.simultaneous:
-                diagnostics.append(
-                    Diagnostic(
-                        code="unsupported-simultaneous-music",
-                        message=(
-                            f"Voice {source_name} contains simultaneous music "
-                            "that is not yet supported."
-                        ),
-                        severity="error",
-                        location=location_from_item(node),
-                    )
-                )
-
-            elif isinstance(node, items.Repeat):
-                diagnostics.append(
-                    Diagnostic(
-                        code="unsupported-repeat",
-                        message=(
-                            f"Voice {source_name} contains a repeat that is not "
-                            "yet supported."
-                        ),
-                        severity="error",
-                        location=location_from_item(node),
-                    )
-                )
-
-        if state.current_measure.events or state.elapsed:
-            state.current_measure.duration = state.elapsed
-            voice.measures.append(state.current_measure)
-
-        return voice
+    def _handle_repeat(
+        self,
+        flattened: _FlattenedNode,
+        voice: Voice,
+        state: _VoiceBuildState,
+        loop: _LoopCtx,
+        ctx: _BuildCallCtx,
+    ) -> None:
+        node = flattened.node
+        ctx.diagnostics.append(
+            Diagnostic(
+                code='unsupported-repeat',
+                message=(
+                    f'Voice {ctx.source_name} contains a repeat that is not '
+                    'yet supported.'
+                ),
+                severity='error',
+                location=location_from_item(node),
+            )
+        )
 
     # ------------------------------------------------------------------
     # Measure lifecycle

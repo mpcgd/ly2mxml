@@ -28,18 +28,28 @@ The adapter is deliberately thin. It is responsible for loading entry and includ
 
 ### 3. Conversion to the internal score model
 
-`src/ly2mxml/converter.py` is the orchestration core.
+Conversion is split across four focused modules that form a strict dependency chain:
 
-Its responsibilities include:
+```
+_types.py → state_resolver.py → linearizer.py → voice_builder.py → converter.py
+```
+
+**`src/ly2mxml/_types.py`** — shared internal dataclasses (`_WalkState`, `_FlattenedNode`, `_VoiceBuildState`, etc.) used across the pipeline without creating circular imports.
+
+**`src/ly2mxml/state_resolver.py`** — pure stateless functions for pitch resolution, key/clef lookup, transposition, and relative-pitch tracking. Contains constants such as `CLEF_MAP`, `KEY_FIFTHS`, and `BEAT_UNIT_MAP`.
+
+**`src/ly2mxml/linearizer.py`** — the `Linearizer` class flattens a python-ly AST node into a linear stream of `_FlattenedNode` objects. It handles grace notes, scalers, tuplets, tremolo, volta/unfold repeats, voice separators, tag filtering, barline/ottava/rehearsal-mark detection, and cue insertion parsing.
+
+**`src/ly2mxml/voice_builder.py`** — the `VoiceBuilder` class consumes the flattened stream and assembles `Voice`, `Measure`, and `MusicEvent` objects. Node dispatch uses an instance-level `_dispatch` dict (one bound handler per node type) so each handler is isolated and independently testable. Contains all voice-building constants (`DYNAMIC_MARKS`, `ARTICULATION_MAP`, etc.).
+
+**`src/ly2mxml/converter.py`** — `LilypondConverter` is the orchestration core. It holds a `Linearizer` (`self._lz`) and a `VoiceBuilder` (`self._vb`), delegates all voice building through them, and is responsible for:
 
 - collecting assignments and quote sources
 - extracting score metadata
 - planning parts and voices from LilyPond staff/context structures
-- flattening supported LilyPond syntax into linear voice content
-- tracking state such as relative pitch, transposition, cue suppression, removed tags, and duration scaling
-- building `Score`, `Part`, `Voice`, `Measure`, and `MusicEvent` objects
+- building `Score` and `Part` objects
 
-This is where most feature support lives. If a LilyPond syntax form is marked supported in the public documentation, there should usually be corresponding handling and tests rooted here.
+If a LilyPond syntax form is marked supported in the public documentation, there should be corresponding handling and tests in one of the four conversion modules.
 
 ### 4. Intermediate score model
 
@@ -112,9 +122,9 @@ That combination lets the codebase evolve without overclaiming support for synta
 When adding a new LilyPond construct, the usual sequence is:
 
 1. Confirm how `python-ly` represents the syntax in the AST.
-2. Extend `LilypondConverter` so the syntax becomes score-model semantics.
-3. Extend `MusicXmlWriter` only if the intermediate model needs new MusicXML output.
-4. Add or update focused fixtures and tests.
-5. Update `docs/syntax-support.md` and any relevant README wording.
-
-If an area starts requiring many cross-cutting edits, that is usually a sign the converter class should be split by responsibility rather than refactored only with smaller helpers.
+2. If it is a new node type in the voice-building loop, add a `_handle_xxx` method to `VoiceBuilder` and register it in `self._dispatch`.
+3. If it requires new AST traversal or flattening logic, extend `Linearizer`.
+4. If it requires a new pure pitch/key/clef computation, add it to `state_resolver.py`.
+5. Extend `MusicXmlWriter` only if the intermediate model needs new MusicXML output.
+6. Add or update focused fixtures and tests.
+7. Update `docs/syntax-support.md` and any relevant README wording.

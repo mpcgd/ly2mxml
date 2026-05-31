@@ -66,6 +66,9 @@ python -m ly2mxml convert --help
 - `tests/test_adapter.py` covers the parser-facing adapter and include traversal.
 - `tests/test_cli.py` covers CLI argument flow and user-facing behavior.
 - `tests/test_writer.py` covers MusicXML writer-specific behavior.
+- `tests/test_state_resolver.py` covers the pure pitch/key/clef functions in `state_resolver.py`.
+- `tests/test_linearizer.py` covers AST flattening behaviour in `Linearizer`.
+- `tests/test_voice_builder.py` covers constants and helpers in `VoiceBuilder`.
 
 ### Acceptance sample
 
@@ -76,7 +79,7 @@ python -m ly2mxml convert --help
 Run the focused suite with the known-good interpreter:
 
 ```bash
-C:\Users\mdespres\AppData\Local\Programs\Python\Python312\python.exe -m pytest tests/test_loader.py tests/test_adapter.py tests/test_cli.py tests/test_convert.py tests/test_writer.py
+C:\Users\mdespres\AppData\Local\Programs\Python\Python312\python.exe -m pytest tests/
 ```
 
 For a repo-local runner that mirrors this workflow and writes untruncated logs
@@ -119,8 +122,9 @@ When adding support for a new LilyPond construct:
 
 1. Create a small `.ly` sample in `tests/fixtures/`.
 2. Add a fixture path in `tests/conftest.py`.
-3. Add a focused regression in `tests/test_convert.py` and, if necessary, CLI or writer coverage.
-4. Update `docs/syntax-support.md`.
+3. Add a `_handle_xxx` method to `VoiceBuilder` and register it in `self._dispatch` (or extend `Linearizer` if it is a traversal concern).
+4. Add a focused regression in `tests/test_convert.py` and, if necessary, CLI or writer coverage.
+5. Update `docs/syntax-support.md`.
 
 ## Documentation Maintenance
 

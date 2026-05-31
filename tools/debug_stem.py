@@ -1,7 +1,9 @@
 """Debug stem direction dispatch in _build_voice."""
 from pathlib import Path
 from ly.music import items
-from ly2mxml.converter import LilypondConverter, _WalkState, _VoiceBuildState, VOICE_COMMAND_STEMS
+from ly2mxml.converter import LilypondConverter
+from ly2mxml._types import _WalkState, _VoiceBuildState
+from ly2mxml.voice_builder import VOICE_COMMAND_STEMS
 from fractions import Fraction
 
 orig_bv = LilypondConverter._build_voice
@@ -16,7 +18,7 @@ def traced_bv(
 ):
     print(f"build_voice({source_name!r}), music_node={type(music_node).__name__}")
     walk = _WalkState(measure_length=measure_length)
-    for i, fn in enumerate(self._iter_linear_nodes(music_node, walk)):
+    for i, fn in enumerate(self._lz._iter_linear_nodes(music_node, walk)):
         tok = str(getattr(fn.node, "token", ""))
         print(f"  [{i}] {type(fn.node).__name__} {tok!r}")
         if i > 14:
