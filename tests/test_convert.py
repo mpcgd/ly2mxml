@@ -678,6 +678,38 @@ def test_build_score_distinguishes_grace_subtypes(grace_subtypes_entrypoint: Pat
     assert note_events[2].grace_slash is False
 
 
+def test_build_score_grace_slur_and_tie(grace_slur_entrypoint: Path) -> None:
+    """Grace notes should correctly propagate slur starts and ties to following notes."""
+    score = LilypondConverter().build_score(grace_slur_entrypoint)
+
+    assert not any(d.severity == "error" for d in score.diagnostics)
+
+    events = [
+        e
+        for measure in score.parts[0].voices[0].measures
+        for e in measure.events
+        if e.is_note
+    ]
+
+    # Fixture: \acciaccatura { e'8( } d'4)
+    # events[0] = grace e'8 — slur starts here
+    # events[1] = normal d'4 — slur ends here
+    grace_e = events[0]
+    normal_d = events[1]
+    assert grace_e.is_grace is True
+    assert grace_e.slur_start_count >= 1, "Grace note should carry slur start"
+    assert normal_d.slur_stop_count >= 1, "Following note should carry slur stop"
+
+    # Fixture: \appoggiatura { f'8~ } f'4
+    # events[2] = grace f'8 — tie starts here
+    # events[3] = normal f'4 — tie stops here
+    grace_f = events[2]
+    normal_f = events[3]
+    assert grace_f.is_grace is True
+    assert grace_f.tie_start is True, "Grace note should carry tie start"
+    assert normal_f.tie_stop is True, "Following note should carry tie stop"
+
+
 def test_build_score_captures_explicit_barlines(barlines_entrypoint: Path) -> None:
     score = LilypondConverter().build_score(barlines_entrypoint)
 
@@ -1757,9 +1789,37 @@ def test_build_score_mid_stream_polyphony(polyphony_entrypoint: Path) -> None:
     assert "A" in v2
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Phrasing slurs  \( … \)
-# ──────────────────────────────────────────────────────────────────────────────
+def test_build_score_polyphony_no_separator(polyphony_no_separator_entrypoint: Path) -> None:
+    """<< {e' f'} {g' a'} >> (no \\\\) inside a sequential melody produces two voices."""
+    score = LilypondConverter().build_score(polyphony_no_separator_entrypoint)
+
+    assert not any(d.severity == "error" for d in score.diagnostics), (
+        [d for d in score.diagnostics if d.severity == "error"]
+    )
+
+    assert len(score.parts) == 1
+    part = score.parts[0]
+
+    assert len(part.voices) >= 2, "Expected at least 2 voices from mid-stream << {v1} {v2} >>"
+
+    def note_steps(voice_index: int) -> list[str]:
+        return [
+            e.pitches[0].step
+            for measure in part.voices[voice_index].measures
+            for e in measure.events
+            if e.is_note
+        ]
+
+    v1 = note_steps(0)
+    assert "E" in v1
+    assert "F" in v1
+
+    v2 = note_steps(1)
+    assert "G" in v2
+    assert "A" in v2
+
+
+
 
 def test_build_score_phrasing_slur(phrasing_slur_entrypoint: Path) -> None:
     """\\( and \\) attach phrase_slur_start/stop counts to surrounding notes."""

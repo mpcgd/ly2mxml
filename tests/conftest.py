@@ -314,3 +314,13 @@ def glissando_entrypoint(repo_root: Path) -> Path:
 @pytest.fixture
 def staff_groups_entrypoint(repo_root: Path) -> Path:
     return repo_root / "tests" / "fixtures" / "staff_groups.ly"
+
+
+@pytest.fixture
+def polyphony_no_separator_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "polyphony_no_separator.ly"
+
+
+@pytest.fixture
+def grace_slur_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "grace_slur.ly"

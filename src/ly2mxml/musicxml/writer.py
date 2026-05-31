@@ -46,7 +46,7 @@ class MusicXmlWriter:
         return self._serialize_root(root)
 
     def _serialize_root(self, root: ET.Element) -> str:
-        self._indent(root)
+        ET.indent(root, space="  ")
         return '<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(root, encoding="unicode")
 
     def build_tree(
@@ -780,14 +780,4 @@ class MusicXmlWriter:
                     return type_name, dots
         return None, 0
 
-    def _indent(self, element: ET.Element, level: int = 0) -> None:
-        indent = "\n" + level * "  "
-        if len(element):
-            if not element.text or not element.text.strip():
-                element.text = indent + "  "
-            for child in element:
-                self._indent(child, level + 1)
-            if not element[-1].tail or not element[-1].tail.strip():
-                element[-1].tail = indent
-        if level and (not element.tail or not element.tail.strip()):
-            element.tail = indent
+
