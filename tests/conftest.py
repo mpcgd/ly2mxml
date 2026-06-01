@@ -97,6 +97,21 @@ def six_eight_multi_measure_rest_entrypoint(repo_root: Path) -> Path:
 
 
 @pytest.fixture
+def multirest_barline_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "multirest_barline.ly"
+
+
+@pytest.fixture
+def multirest_key_change_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "multirest_key_change.ly"
+
+
+@pytest.fixture
+def multirest_time_change_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "multirest_time_change.ly"
+
+
+@pytest.fixture
 def lyrics_entrypoint(repo_root: Path) -> Path:
     return repo_root / "tests" / "fixtures" / "lyrics.ly"
 

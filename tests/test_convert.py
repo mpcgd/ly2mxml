@@ -1039,6 +1039,88 @@ def test_cli_convert_writes_six_eight_multiple_rest_measure_style(
     assert "<multiple-rest>10</multiple-rest>" in xml
 
 
+def test_cli_convert_preserves_barline_at_end_of_multiple_rest_run(
+    repo_root: Path,
+    multirest_barline_entrypoint: Path,
+    tmp_path: Path,
+) -> None:
+    output_path = tmp_path / "multirest-barline.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(multirest_barline_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    assert result.stderr.strip() == ""
+
+    root = ET.parse(output_path).getroot()
+    part = root.find("part")
+    assert part is not None
+    first_measure = part.find("measure")
+    assert first_measure is not None
+
+    assert first_measure.findtext("./attributes/measure-style/multiple-rest") == "2"
+    assert first_measure.findtext("./barline/bar-style") == "light-light"
+
+
+def test_cli_convert_does_not_compress_multiple_rest_across_key_change(
+    repo_root: Path,
+    multirest_key_change_entrypoint: Path,
+    tmp_path: Path,
+) -> None:
+    output_path = tmp_path / "multirest-key-change.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(multirest_key_change_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    assert result.stderr.strip() == ""
+
+    root = ET.parse(output_path).getroot()
+    part = root.find("part")
+    assert part is not None
+    measures = part.findall("measure")
+
+    assert len(measures) == 3
+    assert all(measure.find("./attributes/measure-style/multiple-rest") is None for measure in measures)
+    assert measures[1].findtext("./attributes/key/fifths") == "1"
+
+
+def test_cli_convert_does_not_compress_multiple_rest_across_time_change(
+    repo_root: Path,
+    multirest_time_change_entrypoint: Path,
+    tmp_path: Path,
+) -> None:
+    output_path = tmp_path / "multirest-time-change.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(multirest_time_change_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    assert result.stderr.strip() == ""
+
+    root = ET.parse(output_path).getroot()
+    part = root.find("part")
+    assert part is not None
+    measures = part.findall("measure")
+
+    assert len(measures) == 3
+    assert all(measure.find("./attributes/measure-style/multiple-rest") is None for measure in measures)
+    assert measures[1].findtext("./attributes/time/beats") == "2"
+    assert measures[1].findtext("./attributes/time/beat-type") == "2"
+
+
 def test_cli_convert_writes_cue_notes_when_enabled(repo_root: Path, cue_entrypoint: Path, tmp_path: Path) -> None:
     output_path = tmp_path / "cues.musicxml"
 

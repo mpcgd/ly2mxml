@@ -128,6 +128,7 @@ class MusicXmlWriter:
                     continue
 
                 if measure_index in multiple_rest_starts:
+                    multiple_rest_end = measure_index + multiple_rest_starts[measure_index] - 1
                     measure = self._measure_for_voice(part, part.voices[0], measure_index, score_measure_durations[measure_index])
                     active_wedges[part.voices[0].id] = self._append_measure_voice(
                         measure_element,
@@ -140,7 +141,7 @@ class MusicXmlWriter:
                         key_changes=self._key_changes_for_measure(part, measure_index, score_measure_durations[measure_index]),
                         time_changes=self._time_changes_for_measure(part, measure_index, score_measure_durations[measure_index]),
                     )
-                    barline_style = self._barline_for_measure(part, measure_index) or score_measure_barlines[measure_index]
+                    barline_style = self._barline_for_measure(part, multiple_rest_end) or score_measure_barlines[multiple_rest_end]
                     if barline_style is not None:
                         self._append_barline(measure_element, barline_style)
                     continue
@@ -200,7 +201,11 @@ class MusicXmlWriter:
                 continue
 
             run_end = measure_index + 1
-            while run_end < measure_count and self._is_multiple_rest_measure(part, run_end, measure_durations[run_end]):
+            while (
+                run_end < measure_count
+                and self._barline_for_measure(part, run_end - 1) is None
+                and self._is_multiple_rest_measure(part, run_end, measure_durations[run_end])
+            ):
                 run_end += 1
 
             run_length = run_end - measure_index
@@ -217,7 +222,7 @@ class MusicXmlWriter:
             return False
         for voice in part.voices:
             measure = self._measure_for_voice(part, voice, measure_index, expected_duration)
-            if measure.clef_changes:
+            if measure.clef_changes or measure.key_changes or measure.time_changes:
                 return False
             if len(measure.events) != 1:
                 return False
