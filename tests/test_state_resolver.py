@@ -107,25 +107,27 @@ class TestToPitch:
         return p
 
     def test_c4(self):
-        # python-ly octave 0 → scientific octave 4 (octave + 4)
-        raw = self._make_pitch(0, 0, 0)
+        # python-ly octave 1 → scientific octave 4 (octave + 3)
+        raw = self._make_pitch(0, 0, 1)
         result = _sr.to_pitch(raw, ())
         assert result.step == "C"
         assert result.alter == 0
         assert result.octave == 4
 
     def test_g_sharp(self):
-        # python-ly stores sharp as Fraction(1), not Fraction(1,2)
-        raw = self._make_pitch(4, 1, 0)  # G# octave4
+        # python-ly stores a sharp as Fraction(1, 2) and G' as octave 1.
+        raw = self._make_pitch(4, Fraction(1, 2), 1)
         result = _sr.to_pitch(raw, ())
         assert result.step == "G"
         assert result.alter == 1
+        assert result.octave == 4
 
     def test_b_flat(self):
-        raw = self._make_pitch(6, -1, 0)  # Bb octave4
+        raw = self._make_pitch(6, Fraction(-1, 2), 1)
         result = _sr.to_pitch(raw, ())
         assert result.step == "B"
         assert result.alter == -1
+        assert result.octave == 4
 
 
 # ---------------------------------------------------------------------------

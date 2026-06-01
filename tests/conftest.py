@@ -82,6 +82,11 @@ def relative_tie_entrypoint(repo_root: Path) -> Path:
 
 
 @pytest.fixture
+def relative_high_flat_entrypoint(repo_root: Path) -> Path:
+    return repo_root / "tests" / "fixtures" / "relative_high_flat.ly"
+
+
+@pytest.fixture
 def tied_trill_entrypoint(repo_root: Path) -> Path:
     return repo_root / "tests" / "fixtures" / "tied_trill.ly"
 

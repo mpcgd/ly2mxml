@@ -154,11 +154,11 @@ def pitch_components(
 ) -> tuple[int, int, int]:
     """Return *(note_index, alter, absolute_octave)* for a pitch after transposition."""
     note = int(getattr(raw_pitch, "note", 0))
-    alter = Fraction(getattr(raw_pitch, "alter", 0))
+    alter = Fraction(getattr(raw_pitch, "alter", 0)) * 2
     octave = int(getattr(raw_pitch, "octave", 0))
     for spec in transpose_specs:
         note, alter, octave = apply_transpose_spec(note, alter, octave, spec)
-    return note, int(alter), octave + 4
+    return note, int(alter), octave + 3
 
 
 def to_pitch(raw_pitch: object, transpose_specs: tuple["_TransposeSpec", ...] = ()) -> "Pitch":  # noqa: F821
@@ -175,8 +175,8 @@ def make_transpose_spec(from_pitch: object, to_pitch: object) -> "_TransposeSpec
 
     from_note = int(getattr(from_pitch, "note", 0))
     to_note = int(getattr(to_pitch, "note", 0))
-    from_alter = Fraction(getattr(from_pitch, "alter", 0))
-    to_alter = Fraction(getattr(to_pitch, "alter", 0))
+    from_alter = Fraction(getattr(from_pitch, "alter", 0)) * 2
+    to_alter = Fraction(getattr(to_pitch, "alter", 0)) * 2
     from_octave = int(getattr(from_pitch, "octave", 0))
     to_octave = int(getattr(to_pitch, "octave", 0))
     return _TransposeSpec(
@@ -197,12 +197,12 @@ def apply_transpose_spec(
     transposed_alter = alter + spec.alter - doct * 12 - PITCH_SCALE[transposed_note] + PITCH_SCALE[note]
     transposed_octave = octave + spec.octave + doct
 
-    while transposed_alter > 1:
+    while transposed_alter > 2:
         doct, next_note = divmod(transposed_note + 1, 7)
         transposed_alter -= doct * 12 + PITCH_SCALE[next_note] - PITCH_SCALE[transposed_note]
         transposed_octave += doct
         transposed_note = next_note
-    while transposed_alter < -1:
+    while transposed_alter < -2:
         doct, next_note = divmod(transposed_note - 1, 7)
         transposed_alter += doct * -12 + PITCH_SCALE[transposed_note] - PITCH_SCALE[next_note]
         transposed_octave += doct

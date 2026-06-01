@@ -431,6 +431,10 @@ class MusicXmlWriter:
             if not event.is_grace and index == 0:
                 duration = ET.SubElement(note, "duration")
                 duration.text = str(self._duration_to_units(event.duration, part.divisions))
+            if event.tie_start:
+                ET.SubElement(note, "tie", type="start")
+            if event.tie_stop:
+                ET.SubElement(note, "tie", type="stop")
             voice = ET.SubElement(note, "voice")
             voice.text = voice_id
             note_type, dots = self._duration_type_and_dots(event.duration)
@@ -447,11 +451,9 @@ class MusicXmlWriter:
 
             notations = None
             if event.tie_start:
-                ET.SubElement(note, "tie", type="start")
                 notations = self._ensure_notations(note, notations)
                 ET.SubElement(notations, "tied", type="start")
             if event.tie_stop:
-                ET.SubElement(note, "tie", type="stop")
                 notations = self._ensure_notations(note, notations)
                 ET.SubElement(notations, "tied", type="stop")
             if event.slur_start_count:
