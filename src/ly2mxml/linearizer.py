@@ -88,16 +88,27 @@ class Linearizer:
         if isinstance(node, items.AfterGrace):
             current_state = state
             for index, child in enumerate(node):
-                child_state = current_state if index == 0 else replace(current_state, is_grace=True, grace_slash=False)
+                child_state = current_state if index == 0 else replace(
+                    current_state,
+                    is_grace=True,
+                    grace_slash=False,
+                    auto_grace_slur=False,
+                )
                 for flattened, current_state in self._iter_linear_nodes_with_state(child, child_state):
                     yield flattened
             return
 
         if isinstance(node, items.Grace):
             grace_slash = _sr.grace_has_slash(node)
+            auto_grace_slur = self._should_auto_slur_grace(node)
             current_state = state
             for child in node:
-                child_state = replace(current_state, is_grace=True, grace_slash=grace_slash)
+                child_state = replace(
+                    current_state,
+                    is_grace=True,
+                    grace_slash=grace_slash,
+                    auto_grace_slur=auto_grace_slur,
+                )
                 for flattened, current_state in self._iter_linear_nodes_with_state(child, child_state):
                     yield flattened
             return
@@ -336,6 +347,7 @@ class Linearizer:
             node=node,
             is_grace=state.is_grace,
             grace_slash=state.grace_slash,
+            auto_grace_slur=state.auto_grace_slur,
             scale=state.scale,
             transpose_specs=state.transpose_specs,
         )
@@ -365,6 +377,19 @@ class Linearizer:
             child for child in node if isinstance(child, items.Item) and not isinstance(child, (items.Number, items.Duration))
         ]
         return scaled_children, scaled_state
+
+    def _should_auto_slur_grace(self, node: items.Grace) -> bool:
+        if str(getattr(node, "token", "")) not in {"\\acciaccatura", "\\appoggiatura"}:
+            return False
+        return not self._contains_descendant_slur(node)
+
+    def _contains_descendant_slur(self, node: items.Item) -> bool:
+        for child in self._item_children(node):
+            if isinstance(child, items.Slur):
+                return True
+            if self._contains_descendant_slur(child):
+                return True
+        return False
 
     def _wrapper_child_items_state(self, node: items.Item, state: _WalkState) -> tuple[list[items.Item], _WalkState] | None:
         if isinstance(node, items.Relative):

@@ -467,6 +467,7 @@ class VoiceBuilder:
         if state.pending_glissando_stop and not flattened.is_grace:
             event.glissando_stop = True
             state.pending_glissando_stop = False
+        self._apply_grace_slur_state(flattened, state, event)
         self._add_voice_event(
             voice, state, event, loop.measure_length, ctx.source_name, ctx.diagnostics, node
         )
@@ -501,6 +502,7 @@ class VoiceBuilder:
         if state.pending_glissando_stop and not flattened.is_grace:
             event.glissando_stop = True
             state.pending_glissando_stop = False
+        self._apply_grace_slur_state(flattened, state, event)
         self._add_voice_event(
             voice, state, event, loop.measure_length, ctx.source_name, ctx.diagnostics, node
         )
@@ -527,6 +529,7 @@ class VoiceBuilder:
             is_rest=True,
         )
         state.pending_directions.clear()
+        self._apply_grace_slur_state(flattened, state, event)
         self._add_voice_event(
             voice, state, event, loop.measure_length, ctx.source_name, ctx.diagnostics, node
         )
@@ -553,6 +556,7 @@ class VoiceBuilder:
             is_rest=True,
         )
         state.pending_directions.clear()
+        self._apply_grace_slur_state(flattened, state, event)
         self._add_voice_event(
             voice, state, event, loop.measure_length, ctx.source_name, ctx.diagnostics, node
         )
@@ -959,6 +963,23 @@ class VoiceBuilder:
         self, state: _VoiceBuildState
     ) -> MusicEvent | None:
         return state.last_event or state.attachment_event
+
+    def _apply_grace_slur_state(
+        self,
+        flattened: _FlattenedNode,
+        state: _VoiceBuildState,
+        event: MusicEvent,
+    ) -> None:
+        if flattened.is_grace:
+            if flattened.auto_grace_slur and not state.pending_grace_slur_stop:
+                event.slur_start_count += 1
+                state.pending_grace_slur_stop = True
+            return
+
+        if state.pending_grace_slur_stop:
+            if not event.is_rest:
+                event.slur_stop_count += 1
+            state.pending_grace_slur_stop = False
 
     def _voice_event_signature(
         self, event: MusicEvent

@@ -41,6 +41,7 @@ class _WalkState:
 
     is_grace: bool = False
     grace_slash: bool = False
+    auto_grace_slur: bool = False
     scale: Fraction = Fraction(1, 1)
     cues_killed: bool = False
     allow_cues: bool = True
@@ -127,6 +128,7 @@ class _FlattenedNode:
     node: items.Item | _CueInsertion | _OttavaChange | _BarlineChange | _RehearsalMark | _PartialDuration | _SecondaryVoiceBlocks
     is_grace: bool
     grace_slash: bool
+    auto_grace_slur: bool
     scale: Fraction
     transpose_specs: tuple[_TransposeSpec, ...] = ()
     time_modification: tuple[int, int] | None = None
@@ -209,6 +211,7 @@ class _VoiceBuildState:
     last_event: MusicEvent | None = None
     attachment_event: MusicEvent | None = None
     pending_tie_signature: tuple[tuple[str, int, int], ...] | None = None
+    pending_grace_slur_stop: bool = False
     active_ottava: int | None = None
     current_key_fifths: int = 0
     current_key_mode: str = "major"

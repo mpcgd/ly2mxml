@@ -115,20 +115,21 @@ class MusicXmlWriter:
             multiple_rest_starts, multiple_rest_continuations = self._multiple_rest_map(part, score_measure_durations)
             active_trill_lines: dict[str, set[tuple[tuple[str, int, int], ...]]] = {voice.id: set() for voice in part.voices}
             active_wedges: dict[str, str | None] = {voice.id: None for voice in part.voices}
-            for measure_index in range(measure_count):
+            measure_index = 0
+            while measure_index < measure_count:
+                if measure_index in multiple_rest_continuations:
+                    measure_index += 1
+                    continue
+
                 measure_element = ET.SubElement(part_element, "measure", number=str(measure_index + 1))
                 if measure_index == 0:
                     self._append_attributes(measure_element, part)
                     if part_index == 0 and part.tempo_text:
                         self._append_direction(measure_element, Direction(kind="tempo", value=part.tempo_text), None, None)
-                if measure_index in multiple_rest_starts:
-                    self._append_multiple_rest(measure_element, multiple_rest_starts[measure_index])
-
-                if measure_index in multiple_rest_continuations:
-                    continue
-
-                if measure_index in multiple_rest_starts:
-                    multiple_rest_end = measure_index + multiple_rest_starts[measure_index] - 1
+                multiple_rest_length = multiple_rest_starts.get(measure_index)
+                if multiple_rest_length is not None:
+                    self._append_multiple_rest(measure_element, multiple_rest_length)
+                    multiple_rest_end = measure_index + multiple_rest_length - 1
                     measure = self._measure_for_voice(part, part.voices[0], measure_index, score_measure_durations[measure_index])
                     active_wedges[part.voices[0].id] = self._append_measure_voice(
                         measure_element,
@@ -144,6 +145,7 @@ class MusicXmlWriter:
                     barline_style = self._barline_for_measure(part, multiple_rest_end) or score_measure_barlines[multiple_rest_end]
                     if barline_style is not None:
                         self._append_barline(measure_element, barline_style)
+                    measure_index = multiple_rest_end + 1
                     continue
 
                 for voice_index, voice in enumerate(part.voices):
@@ -169,6 +171,7 @@ class MusicXmlWriter:
                 barline_style = self._barline_for_measure(part, measure_index) or score_measure_barlines[measure_index]
                 if barline_style is not None:
                     self._append_barline(measure_element, barline_style)
+                measure_index += 1
 
         return root
 

@@ -130,7 +130,8 @@ def test_cli_convert_pads_empty_sample_parts(repo_root: Path, sample_entrypoint:
         measures = part.findall("measure")
         divisions = int(measures[0].findtext("./attributes/divisions"))
 
-        assert len(measures) == 76
+        assert len(measures) == 2
+        assert [measure.attrib["number"] for measure in measures] == ["1", "76"]
         assert measures[0].findtext("./attributes/measure-style/multiple-rest") == "75"
         assert measures[-1].findtext("./note/duration") == str(3 * divisions // 2)
         assert measures[-1].find("./note/rest") is not None
@@ -563,7 +564,8 @@ def test_cli_convert_combined_mode_preserves_empty_part_multirests(
     last_notes = last.findall("./note")
     first_notes = measures[0].findall("./note")
 
-    assert len(measures) == 76
+    assert len(measures) == 2
+    assert [measure.attrib["number"] for measure in measures] == ["1", "76"]
     assert measures[0].findtext("./attributes/measure-style/multiple-rest") == "75"
     assert measures[0].find("./backup") is None
     assert [note.findtext("voice") for note in first_notes] == ["1"]
@@ -736,12 +738,14 @@ def test_build_score_grace_slur_and_tie(grace_slur_entrypoint: Path) -> None:
     assert normal_d.slur_stop_count >= 1, "Following note should carry slur stop"
 
     # Fixture: \appoggiatura { f'8~ } f'4
-    # events[2] = grace f'8 — tie starts here
-    # events[3] = normal f'4 — tie stops here
+    # events[2] = grace f'8 — implicit slur and tie start here
+    # events[3] = normal f'4 — implicit slur and tie stop here
     grace_f = events[2]
     normal_f = events[3]
     assert grace_f.is_grace is True
+    assert grace_f.slur_start_count >= 1, "Appoggiatura should auto-start a slur"
     assert grace_f.tie_start is True, "Grace note should carry tie start"
+    assert normal_f.slur_stop_count >= 1, "Following note should carry auto slur stop"
     assert normal_f.tie_stop is True, "Following note should carry tie stop"
 
 
@@ -1012,10 +1016,15 @@ def test_cli_convert_writes_multiple_rest_measure_style(
         text=True,
     )
 
-    xml = output_path.read_text(encoding="utf-8")
-
     assert result.stderr.strip() == ""
-    assert "<multiple-rest>4</multiple-rest>" in xml
+
+    root = ET.parse(output_path).getroot()
+    part = root.find("part")
+    assert part is not None
+    measures = part.findall("measure")
+
+    assert [measure.attrib["number"] for measure in measures] == ["1", "5"]
+    assert measures[0].findtext("./attributes/measure-style/multiple-rest") == "4"
 
 
 def test_cli_convert_writes_six_eight_multiple_rest_measure_style(
@@ -1033,10 +1042,15 @@ def test_cli_convert_writes_six_eight_multiple_rest_measure_style(
         text=True,
     )
 
-    xml = output_path.read_text(encoding="utf-8")
-
     assert result.stderr.strip() == ""
-    assert "<multiple-rest>10</multiple-rest>" in xml
+
+    root = ET.parse(output_path).getroot()
+    part = root.find("part")
+    assert part is not None
+    measures = part.findall("measure")
+
+    assert [measure.attrib["number"] for measure in measures] == ["1", "11"]
+    assert measures[0].findtext("./attributes/measure-style/multiple-rest") == "10"
 
 
 def test_cli_convert_preserves_barline_at_end_of_multiple_rest_run(
@@ -1225,6 +1239,37 @@ def test_cli_convert_writes_slashed_acciaccatura(repo_root: Path, grace_subtypes
     assert result.stderr.strip() == ""
     assert '<grace slash="yes"' in xml
     assert xml.count("<grace") == 2
+
+
+def test_cli_convert_writes_explicit_and_implicit_grace_slurs(
+    repo_root: Path,
+    grace_slur_entrypoint: Path,
+    tmp_path: Path,
+) -> None:
+    output_path = tmp_path / "grace-slur.musicxml"
+
+    result = subprocess.run(
+        [sys.executable, "-m", "ly2mxml", "convert", str(grace_slur_entrypoint), "-o", str(output_path)],
+        cwd=repo_root,
+        capture_output=True,
+        check=True,
+        text=True,
+    )
+
+    assert result.stderr.strip() == ""
+
+    root = ET.parse(output_path).getroot()
+    notes = root.findall("./part/measure/note")
+
+    assert len(notes) == 4
+    assert notes[0].find("grace") is not None
+    assert notes[0].find("./notations/slur[@type='start']") is not None
+    assert notes[1].find("./notations/slur[@type='stop']") is not None
+    assert notes[2].find("grace") is not None
+    assert notes[2].find("./notations/slur[@type='start']") is not None
+    assert notes[2].find("./tie[@type='start']") is not None
+    assert notes[3].find("./notations/slur[@type='stop']") is not None
+    assert notes[3].find("./tie[@type='stop']") is not None
 
 
 def test_cli_convert_writes_lyricsto_multiple_verses(repo_root: Path, lyricsto_entrypoint: Path, tmp_path: Path) -> None:
