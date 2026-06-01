@@ -487,11 +487,24 @@
       </note>
     </measure>
     <measure number="8">
-      <attributes>
-        <measure-style>
-          <multiple-rest>3</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>96</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="9">
+      <note>
+        <rest measure="yes" />
+        <duration>96</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="10">
       <note>
         <rest measure="yes" />
         <duration>96</duration>
@@ -1580,11 +1593,24 @@
       </note>
     </measure>
     <measure number="29">
-      <attributes>
-        <measure-style>
-          <multiple-rest>3</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>96</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="30">
+      <note>
+        <rest measure="yes" />
+        <duration>96</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="31">
       <note>
         <rest measure="yes" />
         <duration>96</duration>
@@ -2794,11 +2820,33 @@
       </note>
     </measure>
     <measure number="52">
-      <attributes>
-        <measure-style>
-          <multiple-rest>4</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>96</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="53">
+      <note>
+        <rest measure="yes" />
+        <duration>96</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="54">
+      <note>
+        <rest measure="yes" />
+        <duration>96</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="55">
       <note>
         <rest measure="yes" />
         <duration>96</duration>
@@ -3723,11 +3771,24 @@
       </note>
     </measure>
     <measure number="8">
-      <attributes>
-        <measure-style>
-          <multiple-rest>3</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>96</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="9">
+      <note>
+        <rest measure="yes" />
+        <duration>96</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="10">
       <note>
         <rest measure="yes" />
         <duration>96</duration>
@@ -4760,11 +4821,33 @@
       </note>
     </measure>
     <measure number="29">
-      <attributes>
-        <measure-style>
-          <multiple-rest>4</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>96</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="30">
+      <note>
+        <rest measure="yes" />
+        <duration>96</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="31">
+      <note>
+        <rest measure="yes" />
+        <duration>96</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="32">
       <note>
         <rest measure="yes" />
         <duration>96</duration>
@@ -5556,11 +5639,33 @@
       </note>
     </measure>
     <measure number="52">
-      <attributes>
-        <measure-style>
-          <multiple-rest>4</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>96</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="53">
+      <note>
+        <rest measure="yes" />
+        <duration>96</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="54">
+      <note>
+        <rest measure="yes" />
+        <duration>96</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="55">
       <note>
         <rest measure="yes" />
         <duration>96</duration>
@@ -6126,10 +6231,676 @@
           <sign>G</sign>
           <line>2</line>
         </clef>
-        <measure-style>
-          <multiple-rest>75</multiple-rest>
-        </measure-style>
       </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="2">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="3">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="4">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="5">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="6">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="7">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="8">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="9">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="10">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="11">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="12">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="13">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="14">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="15">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="16">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="17">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="18">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="19">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="20">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="21">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="22">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="23">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="24">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="25">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="26">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="27">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="28">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="29">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="30">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="31">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="32">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="33">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="34">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="35">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="36">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="37">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="38">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="39">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="40">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="41">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="42">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="43">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="44">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="45">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="46">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="47">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="48">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="49">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="50">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+      <barline location="right">
+        <bar-style>light-light</bar-style>
+      </barline>
+    </measure>
+    <measure number="51">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="52">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="53">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="54">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="55">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="56">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="57">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="58">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="59">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="60">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="61">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="62">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="63">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="64">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="65">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="66">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="67">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="68">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="69">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="70">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="71">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="72">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="73">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="74">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="75">
       <note>
         <rest measure="yes" />
         <duration>6</duration>
@@ -6167,10 +6938,676 @@
           <sign>G</sign>
           <line>2</line>
         </clef>
-        <measure-style>
-          <multiple-rest>75</multiple-rest>
-        </measure-style>
       </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="2">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="3">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="4">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="5">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="6">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="7">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="8">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="9">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="10">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="11">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="12">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="13">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="14">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="15">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="16">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="17">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="18">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="19">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="20">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="21">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="22">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="23">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="24">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="25">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="26">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="27">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="28">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="29">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="30">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="31">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="32">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="33">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="34">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="35">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="36">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="37">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="38">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="39">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="40">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="41">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="42">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="43">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="44">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="45">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="46">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="47">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="48">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="49">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="50">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+      <barline location="right">
+        <bar-style>light-light</bar-style>
+      </barline>
+    </measure>
+    <measure number="51">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="52">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="53">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="54">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="55">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="56">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="57">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="58">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="59">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="60">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="61">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="62">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="63">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="64">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="65">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="66">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="67">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="68">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="69">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="70">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="71">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="72">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="73">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="74">
+      <note>
+        <rest measure="yes" />
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="75">
       <note>
         <rest measure="yes" />
         <duration>6</duration>
@@ -23050,11 +24487,15 @@
       </note>
     </measure>
     <measure number="48">
-      <attributes>
-        <measure-style>
-          <multiple-rest>2</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="49">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -25688,11 +27129,15 @@
       </note>
     </measure>
     <measure number="48">
-      <attributes>
-        <measure-style>
-          <multiple-rest>2</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="49">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -26623,11 +28068,60 @@
       </note>
     </measure>
     <measure number="4">
-      <attributes>
-        <measure-style>
-          <multiple-rest>7</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="5">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="6">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="7">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="8">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="9">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="10">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -26716,11 +28210,78 @@
       </note>
     </measure>
     <measure number="14">
-      <attributes>
-        <measure-style>
-          <multiple-rest>9</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="15">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="16">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="17">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="18">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="19">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="20">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="21">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="22">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -26988,11 +28549,87 @@
       </note>
     </measure>
     <measure number="29">
-      <attributes>
-        <measure-style>
-          <multiple-rest>10</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="30">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="31">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="32">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="33">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="34">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="35">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="36">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="37">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="38">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -27127,11 +28764,69 @@
       </note>
     </measure>
     <measure number="42">
-      <attributes>
-        <measure-style>
-          <multiple-rest>8</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="43">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="44">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="45">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="46">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="47">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="48">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="49">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -27517,11 +29212,15 @@
       </note>
     </measure>
     <measure number="64">
-      <attributes>
-        <measure-style>
-          <multiple-rest>2</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="65">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -27698,11 +29397,24 @@
       </note>
     </measure>
     <measure number="72">
-      <attributes>
-        <measure-style>
-          <multiple-rest>3</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="73">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="74">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -27878,11 +29590,60 @@
       </note>
     </measure>
     <measure number="4">
-      <attributes>
-        <measure-style>
-          <multiple-rest>7</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="5">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="6">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="7">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="8">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="9">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="10">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -27971,11 +29732,78 @@
       </note>
     </measure>
     <measure number="14">
-      <attributes>
-        <measure-style>
-          <multiple-rest>9</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="15">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="16">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="17">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="18">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="19">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="20">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="21">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="22">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -28243,11 +30071,87 @@
       </note>
     </measure>
     <measure number="29">
-      <attributes>
-        <measure-style>
-          <multiple-rest>10</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="30">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="31">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="32">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="33">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="34">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="35">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="36">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="37">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="38">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -28382,11 +30286,69 @@
       </note>
     </measure>
     <measure number="42">
-      <attributes>
-        <measure-style>
-          <multiple-rest>8</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="43">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="44">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="45">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="46">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="47">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="48">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="49">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -28772,11 +30734,15 @@
       </note>
     </measure>
     <measure number="64">
-      <attributes>
-        <measure-style>
-          <multiple-rest>2</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="65">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -28953,11 +30919,24 @@
       </note>
     </measure>
     <measure number="72">
-      <attributes>
-        <measure-style>
-          <multiple-rest>3</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="73">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="74">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -29133,11 +31112,60 @@
       </note>
     </measure>
     <measure number="4">
-      <attributes>
-        <measure-style>
-          <multiple-rest>7</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="5">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="6">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="7">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="8">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="9">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="10">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -29226,11 +31254,78 @@
       </note>
     </measure>
     <measure number="14">
-      <attributes>
-        <measure-style>
-          <multiple-rest>9</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="15">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="16">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="17">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="18">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="19">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="20">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="21">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="22">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -29498,11 +31593,87 @@
       </note>
     </measure>
     <measure number="29">
-      <attributes>
-        <measure-style>
-          <multiple-rest>10</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="30">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="31">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="32">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="33">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="34">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="35">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="36">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="37">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="38">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -29637,11 +31808,69 @@
       </note>
     </measure>
     <measure number="42">
-      <attributes>
-        <measure-style>
-          <multiple-rest>8</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="43">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="44">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="45">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="46">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="47">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="48">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="49">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -29723,11 +31952,78 @@
       </note>
     </measure>
     <measure number="52">
-      <attributes>
-        <measure-style>
-          <multiple-rest>9</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="53">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="54">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="55">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="56">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="57">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="58">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="59">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="60">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -30579,11 +32875,60 @@
       </note>
     </measure>
     <measure number="4">
-      <attributes>
-        <measure-style>
-          <multiple-rest>7</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="5">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="6">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="7">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="8">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="9">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="10">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -30672,11 +33017,78 @@
       </note>
     </measure>
     <measure number="14">
-      <attributes>
-        <measure-style>
-          <multiple-rest>9</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="15">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="16">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="17">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="18">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="19">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="20">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="21">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="22">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -30944,11 +33356,87 @@
       </note>
     </measure>
     <measure number="29">
-      <attributes>
-        <measure-style>
-          <multiple-rest>10</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="30">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="31">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="32">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="33">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="34">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="35">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="36">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="37">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="38">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -31083,11 +33571,69 @@
       </note>
     </measure>
     <measure number="42">
-      <attributes>
-        <measure-style>
-          <multiple-rest>8</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="43">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="44">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="45">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="46">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="47">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="48">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="49">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -31169,11 +33715,78 @@
       </note>
     </measure>
     <measure number="52">
-      <attributes>
-        <measure-style>
-          <multiple-rest>9</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="53">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="54">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="55">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="56">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="57">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="58">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="59">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="60">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -32025,11 +34638,60 @@
       </note>
     </measure>
     <measure number="4">
-      <attributes>
-        <measure-style>
-          <multiple-rest>7</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="5">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="6">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="7">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="8">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="9">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="10">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -32118,11 +34780,96 @@
       </note>
     </measure>
     <measure number="14">
-      <attributes>
-        <measure-style>
-          <multiple-rest>11</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="15">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="16">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="17">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="18">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="19">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="20">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="21">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="22">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="23">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="24">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -32305,11 +35052,87 @@
       </note>
     </measure>
     <measure number="29">
-      <attributes>
-        <measure-style>
-          <multiple-rest>10</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="30">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="31">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="32">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="33">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="34">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="35">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="36">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="37">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="38">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -32444,11 +35267,69 @@
       </note>
     </measure>
     <measure number="42">
-      <attributes>
-        <measure-style>
-          <multiple-rest>8</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="43">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="44">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="45">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="46">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="47">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="48">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="49">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -32530,11 +35411,78 @@
       </note>
     </measure>
     <measure number="52">
-      <attributes>
-        <measure-style>
-          <multiple-rest>9</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="53">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="54">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="55">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="56">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="57">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="58">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="59">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="60">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -33316,10 +36264,676 @@
           <sign>F</sign>
           <line>4</line>
         </clef>
-        <measure-style>
-          <multiple-rest>75</multiple-rest>
-        </measure-style>
       </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="2">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="3">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="4">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="5">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="6">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="7">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="8">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="9">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="10">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="11">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="12">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="13">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="14">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="15">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="16">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="17">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="18">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="19">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="20">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="21">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="22">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="23">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="24">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="25">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="26">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="27">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="28">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="29">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="30">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="31">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="32">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="33">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="34">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="35">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="36">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="37">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="38">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="39">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="40">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="41">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="42">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="43">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="44">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="45">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="46">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="47">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="48">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="49">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="50">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+      <barline location="right">
+        <bar-style>light-light</bar-style>
+      </barline>
+    </measure>
+    <measure number="51">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="52">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="53">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="54">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="55">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="56">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="57">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="58">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="59">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="60">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="61">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="62">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="63">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="64">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="65">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="66">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="67">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="68">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="69">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="70">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="71">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="72">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="73">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="74">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="75">
       <note>
         <rest measure="yes" />
         <duration>12</duration>
@@ -33357,10 +36971,241 @@
           <sign>G</sign>
           <line>2</line>
         </clef>
-        <measure-style>
-          <multiple-rest>27</multiple-rest>
-        </measure-style>
       </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="2">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="3">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="4">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="5">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="6">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="7">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="8">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="9">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="10">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="11">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="12">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="13">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="14">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="15">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="16">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="17">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="18">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="19">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="20">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="21">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="22">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="23">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="24">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="25">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="26">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="27">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -34570,11 +38415,222 @@
       </barline>
     </measure>
     <measure number="51">
-      <attributes>
-        <measure-style>
-          <multiple-rest>25</multiple-rest>
-        </measure-style>
-      </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="52">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="53">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="54">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="55">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="56">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="57">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="58">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="59">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="60">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="61">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="62">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="63">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="64">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="65">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="66">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="67">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="68">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="69">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="70">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="71">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="72">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="73">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="74">
+      <note>
+        <rest measure="yes" />
+        <duration>24</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="75">
       <note>
         <rest measure="yes" />
         <duration>24</duration>
@@ -34612,10 +38668,676 @@
           <sign>G</sign>
           <line>2</line>
         </clef>
-        <measure-style>
-          <multiple-rest>75</multiple-rest>
-        </measure-style>
       </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="2">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="3">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="4">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="5">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="6">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="7">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="8">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="9">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="10">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="11">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="12">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="13">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="14">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="15">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="16">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="17">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="18">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="19">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="20">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="21">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="22">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="23">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="24">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="25">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="26">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="27">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="28">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="29">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="30">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="31">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="32">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="33">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="34">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="35">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="36">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="37">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="38">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="39">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="40">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="41">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="42">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="43">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="44">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="45">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="46">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="47">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="48">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="49">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="50">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+      <barline location="right">
+        <bar-style>light-light</bar-style>
+      </barline>
+    </measure>
+    <measure number="51">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="52">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="53">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="54">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="55">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="56">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="57">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="58">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="59">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="60">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="61">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="62">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="63">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="64">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="65">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="66">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="67">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="68">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="69">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="70">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="71">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="72">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="73">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="74">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="75">
       <note>
         <rest measure="yes" />
         <duration>12</duration>
@@ -34653,10 +39375,676 @@
           <sign>C</sign>
           <line>3</line>
         </clef>
-        <measure-style>
-          <multiple-rest>75</multiple-rest>
-        </measure-style>
       </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="2">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="3">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="4">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="5">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="6">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="7">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="8">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="9">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="10">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="11">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="12">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="13">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="14">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="15">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="16">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="17">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="18">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="19">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="20">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="21">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="22">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="23">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="24">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="25">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="26">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="27">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="28">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="29">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="30">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="31">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="32">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="33">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="34">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="35">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="36">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="37">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="38">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="39">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="40">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="41">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="42">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="43">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="44">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="45">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="46">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="47">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="48">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="49">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="50">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+      <barline location="right">
+        <bar-style>light-light</bar-style>
+      </barline>
+    </measure>
+    <measure number="51">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="52">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="53">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="54">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="55">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="56">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="57">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="58">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="59">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="60">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="61">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="62">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="63">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="64">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="65">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="66">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="67">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="68">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="69">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="70">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="71">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="72">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="73">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="74">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="75">
       <note>
         <rest measure="yes" />
         <duration>12</duration>
@@ -34694,10 +40082,676 @@
           <sign>F</sign>
           <line>4</line>
         </clef>
-        <measure-style>
-          <multiple-rest>75</multiple-rest>
-        </measure-style>
       </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="2">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="3">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="4">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="5">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="6">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="7">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="8">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="9">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="10">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="11">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="12">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="13">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="14">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="15">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="16">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="17">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="18">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="19">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="20">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="21">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="22">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="23">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="24">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="25">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="26">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="27">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="28">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="29">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="30">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="31">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="32">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="33">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="34">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="35">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="36">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="37">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="38">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="39">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="40">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="41">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="42">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="43">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="44">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="45">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="46">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="47">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="48">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="49">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="50">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+      <barline location="right">
+        <bar-style>light-light</bar-style>
+      </barline>
+    </measure>
+    <measure number="51">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="52">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="53">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="54">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="55">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="56">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="57">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="58">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="59">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="60">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="61">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="62">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="63">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="64">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="65">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="66">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="67">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="68">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="69">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="70">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="71">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="72">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="73">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="74">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="75">
       <note>
         <rest measure="yes" />
         <duration>12</duration>
@@ -34735,10 +40789,676 @@
           <sign>F</sign>
           <line>4</line>
         </clef>
-        <measure-style>
-          <multiple-rest>75</multiple-rest>
-        </measure-style>
       </attributes>
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="2">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="3">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="4">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="5">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="6">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="7">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="8">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="9">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="10">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="11">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="12">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="13">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="14">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="15">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="16">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="17">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="18">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="19">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="20">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="21">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="22">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="23">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="24">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="25">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="26">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="27">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="28">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="29">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="30">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="31">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="32">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="33">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="34">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="35">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="36">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="37">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="38">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="39">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="40">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="41">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="42">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="43">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="44">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="45">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="46">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="47">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="48">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="49">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="50">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+      <barline location="right">
+        <bar-style>light-light</bar-style>
+      </barline>
+    </measure>
+    <measure number="51">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="52">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="53">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="54">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="55">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="56">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="57">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="58">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="59">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="60">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="61">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="62">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="63">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="64">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="65">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="66">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="67">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="68">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="69">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="70">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="71">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="72">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="73">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="74">
+      <note>
+        <rest measure="yes" />
+        <duration>12</duration>
+        <voice>1</voice>
+        <type>half</type>
+        <dot />
+      </note>
+    </measure>
+    <measure number="75">
       <note>
         <rest measure="yes" />
         <duration>12</duration>

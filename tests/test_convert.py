@@ -104,7 +104,7 @@ def test_cli_convert_writes_musicxml(repo_root: Path, sample_entrypoint: Path, t
     assert "<movement-title>Hymne à l'agriculture</movement-title>" in xml
     assert "<part-name>Flûte I</part-name>" in xml
     assert "<part-name>Flûte II</part-name>" in xml
-    assert "<multiple-rest>" in xml
+    assert "<multiple-rest>" not in xml
     assert "<step>A</step>" in xml
     assert "<wedge type=\"crescendo\"" in xml
 
@@ -130,9 +130,10 @@ def test_cli_convert_pads_empty_sample_parts(repo_root: Path, sample_entrypoint:
         measures = part.findall("measure")
         divisions = int(measures[0].findtext("./attributes/divisions"))
 
-        assert len(measures) == 2
-        assert [measure.attrib["number"] for measure in measures] == ["1", "76"]
-        assert measures[0].findtext("./attributes/measure-style/multiple-rest") == "75"
+        assert len(measures) == 76
+        assert measures[0].attrib["number"] == "1"
+        assert measures[-1].attrib["number"] == "76"
+        assert all(measure.find("./attributes/measure-style/multiple-rest") is None for measure in measures)
         assert measures[-1].findtext("./note/duration") == str(3 * divisions // 2)
         assert measures[-1].find("./note/rest") is not None
         assert measures[-1].findtext("./barline/bar-style") == "light-heavy"
@@ -564,11 +565,12 @@ def test_cli_convert_combined_mode_preserves_empty_part_multirests(
     last_notes = last.findall("./note")
     first_notes = measures[0].findall("./note")
 
-    assert len(measures) == 2
-    assert [measure.attrib["number"] for measure in measures] == ["1", "76"]
-    assert measures[0].findtext("./attributes/measure-style/multiple-rest") == "75"
-    assert measures[0].find("./backup") is None
-    assert [note.findtext("voice") for note in first_notes] == ["1"]
+    assert len(measures) == 76
+    assert measures[0].attrib["number"] == "1"
+    assert measures[-1].attrib["number"] == "76"
+    assert all(measure.find("./attributes/measure-style/multiple-rest") is None for measure in measures)
+    assert measures[0].find("./backup") is not None
+    assert [note.findtext("voice") for note in first_notes] == ["1", "2"]
     assert all(note.find("rest") is not None for note in first_notes)
     assert last.findtext("./backup/duration") == str(3 * divisions // 2)
     assert last.findtext("./barline/bar-style") == "light-heavy"
@@ -605,16 +607,21 @@ def test_cli_convert_combined_mode_uses_single_rest_for_multimeasure_rests(
     assert result.stderr.strip() == ""
 
     root = ET.parse(output_path).getroot()
-    multiple_rest_measures = [
+    measures = [
         measure
         for part in root.findall("part")
         for measure in part.findall("measure")
-        if measure.find("./attributes/measure-style/multiple-rest") is not None
+    ]
+    rest_only_measures = [
+        measure
+        for measure in measures
+        if len(measure.findall("./note")) == 1 and measure.find("./note/rest") is not None
     ]
 
-    assert multiple_rest_measures
-    assert all(len(measure.findall("./note")) == 1 for measure in multiple_rest_measures)
-    assert all(measure.find("./backup") is None for measure in multiple_rest_measures)
+    assert measures
+    assert all(measure.find("./attributes/measure-style/multiple-rest") is None for measure in measures)
+    assert rest_only_measures
+    assert all(measure.find("./backup") is None for measure in rest_only_measures)
 
 
 def test_cli_convert_combined_mode_scopes_slurs_by_voice(
@@ -1023,8 +1030,9 @@ def test_cli_convert_writes_multiple_rest_measure_style(
     assert part is not None
     measures = part.findall("measure")
 
-    assert [measure.attrib["number"] for measure in measures] == ["1", "5"]
-    assert measures[0].findtext("./attributes/measure-style/multiple-rest") == "4"
+    assert [measure.attrib["number"] for measure in measures] == ["1", "2", "3", "4", "5"]
+    assert all(measure.find("./attributes/measure-style/multiple-rest") is None for measure in measures)
+    assert all(measure.find("./note/rest") is not None for measure in measures[:4])
 
 
 def test_cli_convert_writes_six_eight_multiple_rest_measure_style(
@@ -1049,8 +1057,9 @@ def test_cli_convert_writes_six_eight_multiple_rest_measure_style(
     assert part is not None
     measures = part.findall("measure")
 
-    assert [measure.attrib["number"] for measure in measures] == ["1", "11"]
-    assert measures[0].findtext("./attributes/measure-style/multiple-rest") == "10"
+    assert [measure.attrib["number"] for measure in measures] == [str(index) for index in range(1, 12)]
+    assert all(measure.find("./attributes/measure-style/multiple-rest") is None for measure in measures)
+    assert all(measure.find("./note/rest") is not None for measure in measures[:10])
 
 
 def test_cli_convert_preserves_barline_at_end_of_multiple_rest_run(
@@ -1073,11 +1082,11 @@ def test_cli_convert_preserves_barline_at_end_of_multiple_rest_run(
     root = ET.parse(output_path).getroot()
     part = root.find("part")
     assert part is not None
-    first_measure = part.find("measure")
-    assert first_measure is not None
+    measures = part.findall("measure")
 
-    assert first_measure.findtext("./attributes/measure-style/multiple-rest") == "2"
-    assert first_measure.findtext("./barline/bar-style") == "light-light"
+    assert [measure.attrib["number"] for measure in measures] == ["1", "2", "3"]
+    assert all(measure.find("./attributes/measure-style/multiple-rest") is None for measure in measures)
+    assert measures[1].findtext("./barline/bar-style") == "light-light"
 
 
 def test_cli_convert_does_not_compress_multiple_rest_across_key_change(
