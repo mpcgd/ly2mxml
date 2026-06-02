@@ -79,14 +79,14 @@ python -m ly2mxml convert --help
 Run the focused suite with the known-good interpreter:
 
 ```bash
-C:\Users\mdespres\AppData\Local\Programs\Python\Python312\python.exe -m pytest tests/
+python -m pytest tests/
 ```
 
 For a repo-local runner that mirrors this workflow and writes untruncated logs
 for every step, use:
 
 ```bash
-C:\Users\mdespres\AppData\Local\Programs\Python\Python312\python.exe tools/validate.py
+python tools/validate.py
 ```
 
 The runner writes per-step logs, a fresh sample export, and `summary.json`
@@ -97,7 +97,7 @@ If you want a single full-suite pytest artifact instead of the staged workflow,
 run:
 
 ```bash
-C:\Users\mdespres\AppData\Local\Programs\Python\Python312\python.exe tools/validate.py --step full-tests
+python tools/validate.py --step full-tests
 ```
 
 For a smaller feature-specific slice, use `-k` to target just the relevant tests.
@@ -105,7 +105,7 @@ For a smaller feature-specific slice, use `-k` to target just the relevant tests
 Examples:
 
 ```bash
-C:\Users\mdespres\AppData\Local\Programs\Python\Python312\python.exe -m pytest tests/test_convert.py -k "transpose or cue or lyricsto" -q
+python -m pytest tests/test_convert.py -k "transpose or cue or lyricsto" -q
 ```
 
 After behavior changes, regenerate the sample output explicitly if you are using it as a local inspection target:

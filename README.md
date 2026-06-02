@@ -145,14 +145,14 @@ When in doubt, treat the test suite and `docs/syntax-support.md` as the source o
 Run the focused project suite with the project interpreter:
 
 ```bash
-C:\Users\mdespres\AppData\Local\Programs\Python\Python312\python.exe -m pytest tests/test_loader.py tests/test_adapter.py tests/test_cli.py tests/test_convert.py tests/test_writer.py
+python -m pytest tests/test_loader.py tests/test_adapter.py tests/test_cli.py tests/test_convert.py tests/test_writer.py
 ```
 
 For a repo-local validation run that captures each step to deterministic log
 files, use:
 
 ```bash
-C:\Users\mdespres\AppData\Local\Programs\Python\Python312\python.exe tools/validate.py
+python tools/validate.py
 ```
 
 The runner writes per-step logs and `summary.json` to `.validation/latest/`.
@@ -160,7 +160,7 @@ If you want one unambiguous full-suite pytest log instead of the staged
 workflow, run:
 
 ```bash
-C:\Users\mdespres\AppData\Local\Programs\Python\Python312\python.exe tools/validate.py --step full-tests
+python tools/validate.py --step full-tests
 ```
 
 ## License And Ownership
