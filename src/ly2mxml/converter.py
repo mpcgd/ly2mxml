@@ -445,6 +445,15 @@ class LilypondConverter:
             for child, child_state in self._iter_filtered_children(node, state):
                 yield from self._iter_staff_contexts(child, child_state, new_group_id, new_group_symbol)
             return
+        # Unwrap UserCommand nodes so that indirect references like
+        #   violinPart = \new Staff { ... }
+        #   \score { \violinPart }
+        # resolve to the underlying Staff context.
+        if isinstance(node, items.UserCommand):
+            value = node.value()
+            if isinstance(value, items.Item):
+                yield from self._iter_staff_contexts(value, state, group_id, group_symbol)
+                return
         for child, child_state in self._iter_filtered_children(node, state):
             yield from self._iter_staff_contexts(child, child_state, group_id, group_symbol)
 
@@ -1134,13 +1143,14 @@ class LilypondConverter:
         initial_state: _WalkState | None = None,
     ) -> _GlobalSettings:
         if not isinstance(music_node, items.Item):
-            diagnostics.append(
-                Diagnostic(
-                    code="missing-global",
-                    message=f"Unable to resolve global assignment: {global_name}",
-                    severity="error",
+            if global_name != "global":
+                diagnostics.append(
+                    Diagnostic(
+                        code="missing-global",
+                        message=f"Unable to resolve global assignment: {global_name}",
+                        severity="error",
+                    )
                 )
-            )
             return _GlobalSettings()
 
         settings = _GlobalSettings()

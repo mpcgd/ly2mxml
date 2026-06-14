@@ -1039,9 +1039,10 @@ class VoiceBuilder:
                         code="measure-overflow",
                         message=(
                             f"Voice {source_name} exceeds the length of measure "
-                            f"{state.current_measure.number}."
+                            f"{state.current_measure.number} (at {state.elapsed}/{measure_length} "
+                            f"with duration {remaining})."
                         ),
-                        severity="error",
+                        severity="warning",
                         location=location_from_item(origin) if origin is not None else None,
                     )
                 )
